@@ -84,7 +84,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 /* Library of Ruina speed die: gold hex rim, inner hex line, faint cube edges,
    numbers reeling in the background behind the front-facing range */
 .die{--hex:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
-  width:72px;height:80px;flex:none;position:relative;display:flex;align-items:center;justify-content:center;
+  width:81px;height:90px;flex:none;position:relative;display:flex;align-items:center;justify-content:center;
   font-family:var(--mono);clip-path:var(--hex);
   background:linear-gradient(155deg,#f8e39a 0%,#e3b54f 30%,#b8842a 62%,#7d5615 100%)}
 .die::before{content:"";position:absolute;inset:3px;clip-path:var(--hex);
@@ -92,9 +92,12 @@ input[type=checkbox]{accent-color:var(--orange)}
 #dieart{position:absolute;inset:0;width:100%;height:100%;z-index:1}
 #dienum{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;
   font-size:46px;color:rgba(248,233,190,.4);text-shadow:0 0 12px rgba(242,193,78,.5)}
-.die.landed #dienum{color:rgba(248,233,190,.8)}
-#dierange{position:relative;z-index:3;font-size:15px;letter-spacing:.06em;color:#fff;
-  text-shadow:0 0 5px rgba(255,255,255,.9),0 0 14px rgba(255,255,255,.5),0 1px 4px #000}
+.die.landed #dienum{color:rgba(248,233,190,.95);
+  text-shadow:0 0 8px rgba(248,233,190,.7),0 0 22px rgba(242,193,78,.6)}
+#dierange{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;
+  font-size:34px;color:rgba(248,233,190,.92);
+  text-shadow:0 0 8px rgba(242,193,78,.8),0 0 20px rgba(242,193,78,.45)}
+.die.landed #dierange{display:none}
 @keyframes reel{
   0%{transform:translateY(120%) scaleY(2);filter:blur(3px);opacity:.25}
   50%{opacity:.7}
@@ -102,6 +105,12 @@ input[type=checkbox]{accent-color:var(--orange)}
 @keyframes land{
   0%{transform:translateY(45%) scaleY(1.5);filter:blur(2px);opacity:.4}
   100%{transform:none;filter:none;opacity:1}}
+@keyframes shake{
+  0%,100%{transform:translate(1px,-1px)}25%{transform:translate(-1px,1px)}
+  50%{transform:translate(-2px,-1px)}75%{transform:translate(2px,2px)}}
+@keyframes pop{35%{transform:translateY(-8px)}100%{transform:none}}
+.die.rolling{animation:shake .12s linear infinite}
+.die.landed{animation:pop .3s cubic-bezier(.3,1.4,.5,1)}
 .die.rolling #dienum{animation:reel .09s linear infinite}
 .die.landed #dienum{animation:land .16s ease-out}
 .dielabel{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);font-weight:600}
@@ -173,7 +182,7 @@ body.alert main{animation:alertfx 1s 3}
 .sheet .row{display:flex;gap:10px;margin-top:12px}
 .sheet .row .smallbtn{flex:1}
 @media (prefers-reduced-motion:reduce){
-  .cin{transition:none}.die.rolling #dienum,.die.landed #dienum{animation:none}body.alert main{animation:none}
+  .cin{transition:none}.die.rolling,.die.landed,.die.rolling #dienum,.die.landed #dienum{animation:none}body.alert main{animation:none}
 }
 </style>
 </head>
@@ -548,8 +557,8 @@ async function rollDie(sides, label){
     // one new number per reel pass (90ms), so each value streaks through once
     for(let i=0;i<10;i++){ num.textContent = rnd(sides); await sleep(90); }
     face.classList.remove("rolling");
-    face.classList.add("landed");
   }
+  face.classList.add("landed");
   num.textContent = result;
   return result;
 }
