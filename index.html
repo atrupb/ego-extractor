@@ -81,9 +81,18 @@ input[type=checkbox]{accent-color:var(--orange)}
 #log{font-family:var(--mono);font-size:12.5px;line-height:1.9;min-height:70px;color:var(--white)}
 #log .d{color:var(--dim)} #log .a{color:var(--orange)} #log .t{color:var(--teal)}
 .diebox{display:flex;align-items:center;gap:14px;margin:12px 0 4px}
-.die{width:62px;height:62px;border:1px solid var(--line);background:#000;display:flex;align-items:center;
-  justify-content:center;font-family:var(--mono);font-size:27px;color:var(--teal);flex:none;position:relative;
-  --notch:8px;clip-path:var(--nclip)}
+/* Library of Ruina speed die: gold hex frame, dark glyph core, glowing white face */
+.die{--hex:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+  width:64px;height:72px;flex:none;position:relative;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:26px;clip-path:var(--hex);
+  background:linear-gradient(155deg,#f8e39a 0%,#e3b54f 30%,#b8842a 62%,#7d5615 100%)}
+.die::before{content:"";position:absolute;inset:4px;clip-path:var(--hex);
+  background:
+    radial-gradient(closest-side,rgba(242,193,78,0) 60%,rgba(242,193,78,.3) 97%),
+    repeating-linear-gradient(90deg,rgba(242,140,38,.13) 0 1px,transparent 1px 5px),
+    #0b0804}
+#dienum{position:relative;z-index:1;color:#fff;
+  text-shadow:0 0 5px rgba(255,255,255,.9),0 0 15px rgba(255,255,255,.55),0 0 28px rgba(242,193,78,.45)}
 .die.rolling{animation:jit .12s infinite}
 @keyframes jit{50%{transform:translate(1px,-1px)}}
 .dielabel{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);font-weight:600}
@@ -125,7 +134,7 @@ body.alert main{animation:alertfx 1s 3}
   margin-bottom:10px;border-top:3px solid var(--g,#555);cursor:pointer;position:relative;
   clip-path:var(--nclip)}
 /* clip-path shears the border off at the notches — repaint the diagonal ourselves */
-.panel::after,.die::after,.cface::after,.arow::after{
+.panel::after,.cface::after,.arow::after{
   content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
   --n:var(--notch);--bc:var(--line);
   background:
@@ -217,7 +226,7 @@ body.alert main{animation:alertfx 1s 3}
     <div class="pbody">
       <div id="log"></div>
       <div class="diebox" id="diebox" style="display:none">
-        <div class="die" id="dieface">?</div>
+        <div class="die" id="dieface"><span id="dienum">?</span></div>
         <div><div class="dielabel" id="dielabel">D4 // Category</div>
         <div class="dieresult" id="dieresult">&nbsp;</div></div>
       </div>
@@ -509,17 +518,17 @@ function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 async function rollDie(sides, label){
-  const face = el("dieface");
+  const face = el("dieface"), num = el("dienum");
   el("diebox").style.display = "flex";
   el("dielabel").textContent = label;
   el("dieresult").textContent = " ";
   const result = rnd(sides);
   if(!reduced){
     face.classList.add("rolling");
-    for(let i=0;i<10;i++){ face.textContent = rnd(sides); await sleep(70); }
+    for(let i=0;i<10;i++){ num.textContent = rnd(sides); await sleep(70); }
     face.classList.remove("rolling");
   }
-  face.textContent = result;
+  num.textContent = result;
   return result;
 }
 
