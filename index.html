@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>「Your Eyes」 Extraction Terminal</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Saira+SemiCondensed:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050505; --panel:#0c0c0c; --panel2:#161616;
+  --white:#e8e6e0; --dim:#8a877f; --line:#c9c6bc;
+  --orange:#f28c26; --orange-dk:#a55a12; --red:#e02929; --teal:#2ee8c8;
+  --zayin:#5df04e; --teth:#3aaef8; --he:#f8ef42; --waw:#b44ff2; --aleph:#f24444;
+  --gift:#f2c14e;
+  --disp:'Saira SemiCondensed',system-ui,sans-serif; --mono:'Share Tech Mono',ui-monospace,monospace;
+  --notch:10px;
+  /* notch clip: diagonals exact, straight edges pushed 1px outside the box so
+     fractional heights + device-pixel rounding can never shave a 1px border off */
+  --nclip:polygon(calc(var(--notch) + 1px) -1px, calc(100% + 1px) -1px,
+    calc(100% + 1px) calc(100% - var(--notch) - 1px),
+    calc(100% - var(--notch) - 1px) calc(100% + 1px),
+    -1px calc(100% + 1px), -1px calc(var(--notch) + 1px));
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:var(--bg);color:var(--white);font-family:var(--disp);font-weight:500;
+  max-width:520px;margin:0 auto;display:flex;flex-direction:column;
+  padding-bottom:env(safe-area-inset-bottom)}
+.stripe{height:8px;background:repeating-linear-gradient(-45deg,var(--orange) 0 9px,#000 9px 18px);
+  border-top:1px solid #000;border-bottom:1px solid var(--orange-dk)}
+/* ---------- header ---------- */
+header{background:#000;border-bottom:1px solid var(--line)}
+.hpad{padding:12px 16px 10px}
+h1{font-size:17px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;line-height:1.2}
+h1 .br{color:var(--orange)}
+.sub{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:2px;letter-spacing:.04em}
+/* ---------- tabs ---------- */
+nav{display:flex;background:#000;border-bottom:1px solid var(--line)}
+nav button{flex:1;background:none;border:none;color:var(--dim);font-family:var(--disp);
+  font-weight:700;font-size:13px;letter-spacing:.18em;text-transform:uppercase;padding:11px 0;cursor:pointer;
+  border-bottom:3px solid transparent}
+nav button.on{color:var(--orange);border-bottom-color:var(--orange)}
+main{flex:1;overflow-y:auto;padding:14px}
+.screen{display:none}.screen.on{display:block}
+/* ---------- panels : black boxes, pale angular borders, notched corner ---------- */
+.panel{background:var(--panel);border:1px solid var(--line);margin-bottom:14px;position:relative;
+  clip-path:var(--nclip)}
+.panel .ptitle{display:block;background:#000;border-bottom:1px solid var(--line);
+  padding:7px 12px 6px calc(var(--notch) + 6px);font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase}
+.panel .pbody{padding:12px}
+.panel.orange{border-color:var(--orange)}
+.panel.orange .ptitle{color:var(--orange);border-bottom-color:var(--orange)}
+.panel.red{border-color:var(--red)}
+.panel.red .ptitle{color:var(--red);border-bottom-color:var(--red)}
+.panel .pstripe{height:7px;background:repeating-linear-gradient(-45deg,var(--orange) 0 8px,#000 8px 16px)}
+/* ---------- buttons : orange block, black text, angular ---------- */
+.bigbtn{display:block;width:100%;padding:14px 12px;background:var(--orange);border:none;
+  color:#000;font-family:var(--disp);font-weight:700;font-size:16px;letter-spacing:.2em;
+  text-transform:uppercase;cursor:pointer;
+  clip-path:var(--nclip)}
+.bigbtn:active{background:#ffb254}
+.bigbtn:disabled{background:#5c4a33;color:#241d14}
+.smallbtn{background:#000;border:1px solid var(--line);color:var(--white);font-family:var(--disp);font-weight:600;
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:9px 14px;cursor:pointer}
+.smallbtn:active{background:var(--panel2)}
+.smallbtn:disabled{opacity:.4}
+.smallbtn.accent{border-color:var(--orange);color:var(--orange)}
+.smallbtn.danger{border-color:var(--red);color:var(--red)}
+/* ---------- stats ---------- */
+.statrow{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--dim);padding:4px 0}
+.statrow b{color:var(--white);font-weight:400}
+.statrow b.t{color:var(--teal)}
+.syncnote{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:8px;line-height:1.55;word-break:break-word}
+label.chk{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--dim);margin-top:10px;cursor:pointer}
+input[type=checkbox]{accent-color:var(--orange)}
+/* ---------- extraction ---------- */
+#log{font-family:var(--mono);font-size:12.5px;line-height:1.9;min-height:70px;color:var(--white)}
+#log .d{color:var(--dim)} #log .a{color:var(--orange)} #log .t{color:var(--teal)}
+.diebox{display:flex;align-items:center;gap:14px;margin:12px 0 4px}
+.die{width:62px;height:62px;border:1px solid var(--line);background:#000;display:flex;align-items:center;
+  justify-content:center;font-family:var(--mono);font-size:27px;color:var(--teal);flex:none;position:relative;
+  --notch:8px;clip-path:var(--nclip)}
+.die.rolling{animation:jit .12s infinite}
+@keyframes jit{50%{transform:translate(1px,-1px)}}
+.dielabel{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);font-weight:600}
+.dieresult{font-size:17px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-top:3px}
+.gradebar{display:flex;gap:4px;margin:10px 0 2px}
+.gradebar span{flex:1;text-align:center;font-family:var(--mono);font-size:10px;padding:5px 0;
+  border:1px solid #3a3a36;color:var(--dim);opacity:.5}
+.gradebar span.hit{opacity:1;color:#000;font-weight:700;border-color:transparent}
+/* ---------- cards ---------- */
+#cards{display:flex;flex-direction:column;gap:12px;margin-top:2px}
+.card{perspective:900px;min-height:126px}
+.cin{position:relative;width:100%;height:100%;min-height:126px;transform-style:preserve-3d;transition:transform .55s;transform:rotateY(180deg)}
+.card.flip .cin{transform:rotateY(0)}
+.cface{position:absolute;inset:0;backface-visibility:hidden;background:var(--panel);border:1px solid var(--line);
+  clip-path:var(--nclip)}
+.cback{transform:rotateY(180deg);display:flex;align-items:center;justify-content:center;
+  background:repeating-linear-gradient(-45deg,#0c0c0c 0 12px,#141414 12px 24px)}
+.cback span{font-family:var(--mono);color:var(--dim);letter-spacing:.34em;font-size:11px}
+.cfront{display:flex;gap:11px;padding:9px;border-top:3px solid var(--g,#555);cursor:pointer}
+.card.sel .cfront{outline:2px solid var(--orange);outline-offset:-2px;background:var(--panel2)}
+.cimg{width:82px;min-height:100px;flex:none;background:#000;border:1px solid #2c2c28;
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cimg img{max-width:100%;max-height:112px;object-fit:contain}
+.cimg .noimg{font-family:var(--mono);font-size:10px;color:var(--dim)}
+.cmeta{display:flex;flex-direction:column;justify-content:center;min-width:0;padding:2px 0}
+.cname{font-weight:700;font-size:15px;letter-spacing:.03em;text-transform:uppercase;line-height:1.2;overflow-wrap:anywhere}
+.ctag{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:3px}
+.ctag b{font-weight:400;color:var(--g,#aaa)}
+.csrc{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:2px;overflow-wrap:anywhere}
+.cflav{font-size:11.5px;color:#b9b6ad;font-style:italic;margin-top:5px;line-height:1.45;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.actions{display:flex;gap:10px;margin-top:14px;align-items:stretch}
+.actions .bigbtn{font-size:14px;padding:12px 10px}
+/* aleph alert */
+@keyframes alertfx{0%,100%{box-shadow:inset 0 0 0 0 rgba(224,41,41,0)}50%{box-shadow:inset 0 0 0 3px rgba(224,41,41,.85)}}
+body.alert main{animation:alertfx 1s 3}
+/* ---------- archive ---------- */
+.arow{display:flex;gap:11px;padding:9px;border:1px solid var(--line);background:var(--panel);
+  margin-bottom:10px;border-top:3px solid var(--g,#555);cursor:pointer;position:relative;
+  clip-path:var(--nclip)}
+/* clip-path shears the border off at the notches — repaint the diagonal ourselves */
+.panel::after,.die::after,.cface::after,.arow::after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+  --n:var(--notch);--bc:var(--line);
+  background:
+    linear-gradient(135deg,transparent calc(var(--n)*.707 - 1px),var(--bc) calc(var(--n)*.707 - 1px),
+      var(--bc) calc(var(--n)*.707 + 1px),transparent calc(var(--n)*.707 + 1px)) 0 0/var(--n) var(--n) no-repeat,
+    linear-gradient(135deg,transparent calc(var(--n)*.707 - 1px),var(--bc) calc(var(--n)*.707 - 1px),
+      var(--bc) calc(var(--n)*.707 + 1px),transparent calc(var(--n)*.707 + 1px)) 100% 100%/var(--n) var(--n) no-repeat}
+.panel.orange::after{--bc:var(--orange)}
+.panel.red::after{--bc:var(--red)}
+.arow .cimg{width:60px;min-height:70px}
+.empty{font-family:var(--mono);font-size:12px;color:var(--dim);line-height:1.8;padding:24px 10px;text-align:center}
+/* ---------- modal ---------- */
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:flex-end;justify-content:center;z-index:9}
+#modal.on{display:flex}
+.sheet{background:var(--panel);border:1px solid var(--line);border-bottom:none;width:100%;max-width:520px;
+  max-height:90vh;overflow-y:auto;padding-bottom:26px}
+.sheet .pstripe{height:8px;background:repeating-linear-gradient(-45deg,var(--orange) 0 9px,#000 9px 18px)}
+.sheet .inner{padding:16px}
+.sheet .cimg{width:132px;min-height:140px;margin:0 auto 12px}
+.sheet h3{text-align:center;font-size:19px;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+.sheet .ctag{text-align:center;margin-bottom:10px}
+.flavbox{font-size:13px;font-style:italic;color:#c9c6bc;line-height:1.55;text-align:center;
+  border-top:1px solid #2c2c28;border-bottom:1px solid #2c2c28;padding:10px 4px;margin-bottom:12px;min-height:20px}
+.flavbox .d{color:var(--dim);font-family:var(--mono);font-size:11px;font-style:normal}
+.sheet textarea{width:100%;min-height:88px;background:#000;border:1px solid #3a3a36;color:var(--white);
+  font-family:var(--mono);font-size:12px;line-height:1.6;padding:10px;resize:vertical}
+.sheet .row{display:flex;gap:10px;margin-top:12px}
+.sheet .row .smallbtn{flex:1}
+@media (prefers-reduced-motion:reduce){
+  .cin{transition:none}.die.rolling{animation:none}body.alert main{animation:none}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="stripe"></div>
+  <div class="hpad">
+    <h1><span class="br">「</span>Your Eyes<span class="br">」</span> Extraction Terminal</h1>
+    <div class="sub">COGITO INTERFACE // OPERATOR: W. RYDER</div>
+  </div>
+</header>
+<nav>
+  <button id="tabT" class="on">Terminal</button>
+  <button id="tabA">Printed E.G.O.</button>
+</nav>
+<main>
+
+<!-- TERMINAL -->
+<section class="screen on" id="scrT">
+  <div class="panel red" id="syncwarn" style="display:none">
+    <span class="ptitle">Archive incomplete</span>
+    <div class="pbody syncnote" style="margin-top:0">Suit and Gift records are still shattered. Run record recovery (needs internet) before extraction can offer every category.</div>
+  </div>
+
+  <div class="panel orange">
+    <div class="pstripe"></div>
+    <span class="ptitle">Session end protocol</span>
+    <div class="pbody">
+      <button class="bigbtn" id="beginBtn">Begin Extraction</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="ptitle">Facility status</span>
+    <div class="pbody">
+      <div class="statrow"><span>E.G.O. printed</span><b class="t" id="stOwned">0</b></div>
+      <div class="statrow"><span>Weapon records</span><b id="stW">0</b></div>
+      <div class="statrow"><span>Suit records</span><b id="stS">0</b></div>
+      <div class="statrow"><span>Gift records</span><b id="stG">0</b></div>
+      <div class="statrow"><span>Last recovery</span><b id="stSync">never</b></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <span class="ptitle">Archive</span>
+    <div class="pbody">
+      <button class="smallbtn accent" id="syncBtn">Recover archive records</button>
+      <div class="syncnote" id="syncMsg">Rebuilds the full E.G.O. roster — weapons, suits, gifts, images — from the recovered Lobotomy Corp. records (the wiki). One tap, then everything works offline.</div>
+      <label class="chk"><input type="checkbox" id="optDup"> Allow drawing E.G.O. already printed</label>
+    </div>
+  </div>
+</section>
+
+<!-- EXTRACTION -->
+<section class="screen" id="scrE">
+  <div class="panel orange">
+    <div class="pstripe"></div>
+    <span class="ptitle">Extraction log</span>
+    <div class="pbody">
+      <div id="log"></div>
+      <div class="diebox" id="diebox" style="display:none">
+        <div class="die" id="dieface">?</div>
+        <div><div class="dielabel" id="dielabel">D4 // Category</div>
+        <div class="dieresult" id="dieresult">&nbsp;</div></div>
+      </div>
+      <div class="gradebar" id="gradebar" style="display:none">
+        <span data-g="ZAYIN">1–6</span><span data-g="TETH">7–11</span><span data-g="HE">12–16</span>
+        <span data-g="WAW">17–18</span><span data-g="ALEPH">19–20</span>
+      </div>
+    </div>
+  </div>
+  <div id="cards"></div>
+  <div class="actions">
+    <button class="bigbtn" id="printBtn" style="display:none">Print E.G.O.</button>
+    <button class="smallbtn" id="abortBtn">Abort</button>
+  </div>
+</section>
+
+<!-- ARCHIVE / PRINTED -->
+<section class="screen" id="scrA">
+  <div id="alist"></div>
+</section>
+</main>
+
+<!-- DETAIL MODAL -->
+<div id="modal">
+  <div class="sheet">
+    <div class="pstripe"></div>
+    <div class="inner">
+      <div class="cimg" id="mImg"></div>
+      <h3 id="mName"></h3>
+      <div class="ctag" id="mTag"></div>
+      <div class="flavbox" id="mFlav"><span class="d">// retrieving record…</span></div>
+      <textarea id="mNote" placeholder="Operator notes — the 5e build for this print goes here."></textarea>
+      <div class="row">
+        <button class="smallbtn" id="mWiki">Full record (wiki)</button>
+        <button class="smallbtn accent" id="mSave">Save notes</button>
+      </div>
+      <div class="row">
+        <button class="smallbtn danger" id="mDel">Disassemble</button>
+        <button class="smallbtn" id="mClose">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ================= config ================= */
+const WIKI = "https://lobotomycorporation.wiki.gg";
+const API  = WIKI + "/api.php";
+const GCOLOR = {ZAYIN:"var(--zayin)",TETH:"var(--teth)",HE:"var(--he)",WAW:"var(--waw)",ALEPH:"var(--aleph)",GIFT:"var(--gift)"};
+const GHEX   = {ZAYIN:"#5df04e",TETH:"#3aaef8",HE:"#f8ef42",WAW:"#b44ff2",ALEPH:"#f24444",GIFT:"#f2c14e"};
+const D20MAP = n => n<=6?"ZAYIN" : n<=11?"TETH" : n<=16?"HE" : n<=18?"WAW" : "ALEPH";
+
+/* ============ safe storage (memory fallback for sandboxed previews) ============ */
+const mem = {};
+const store = {
+  get(k){ try{ const v = localStorage.getItem(k); return v!==null?JSON.parse(v):(k in mem?mem[k]:null); }catch(e){ return k in mem?mem[k]:null; } },
+  set(k,v){ mem[k]=v; try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+};
+
+/* ============ seed roster (weapons only — recovery fills the rest) ============ */
+function w(name,grade,file,page,src){return {name,type:"weapon",grade,img:WIKI+"/images/thumb/"+file+"/200px-"+file,link:WIKI+"/wiki/"+page+"#E.G.O_Weapon",src};}
+const SEED = [
+w("Penitence","ZAYIN","EGOWeaponPenitence.png","One_Sin_and_Hundreds_of_Good_Deeds","One Sin and Hundreds of Good Deeds"),
+w("Soda","ZAYIN","EGOWeaponSoda.png","Opened_Can_of_WellCheers","Opened Can of WellCheers"),
+w("Wingbeat","ZAYIN","EGOWeaponWingbeat.png","Fairy_Festival","Fairy Festival"),
+w("Tough","TETH","EGOWeaponTough.png","You%27re_Bald...","You're Bald..."),
+w("Fourth Match Flame","TETH","EGOWeaponFourthMatchFlame.png","Scorched_Girl","Scorched Girl"),
+w("Solitude","TETH","EGOWeaponLoneliness.png","Old_Lady","Old Lady"),
+w("Red Eyes","TETH","EGOWeaponRedEyes.png","Spider_Bud","Spider Bud"),
+w("Horn","TETH","EGOWeaponHorn.png","Beauty_and_the_Beast","Beauty and the Beast"),
+w("Wrist Cutter","TETH","EGOWeaponWristCuter.png","Bloodbath","Bloodbath"),
+w("Regret","TETH","EGOWeaponRegret.png","Forsaken_Murderer","Forsaken Murderer"),
+w("Beak","TETH","EGOWeaponBeak.png","Punishing_Bird","Punishing Bird"),
+w("Fragments from Somewhere","TETH","EGOWeaponSomewhereSpear.png","Fragment_of_the_Universe","Fragment of the Universe"),
+w("Lantern","TETH","EGOWeaponLantern.png","Meat_Lantern","Meat Lantern"),
+w("Today's Expression","TETH","EGOWeaponToday%27sExpression.png","Today%27s_Shy_Look","Today's Shy Look"),
+w("Engulfing Dream","TETH","EGOWeaponRapturousDream.png","Void_Dream","Void Dream"),
+w("Cherry Blossoms","TETH","EGOWeaponCherryBlossom.png","Grave_of_Cherry_Blossoms","Grave of Cherry Blossoms"),
+w("SO CUTE!!!","TETH","EGOWeaponCUTE%21%21%21%21.png","Ppodae","Ppodae"),
+w("Screaming Wedge","HE","EGOWeaponScreamingWedge.png","The_Lady_Facing_the_Wall","The Lady Facing the Wall"),
+w("Life for a Daredevil","HE","EGOWeaponLifefortheDareDevil.png","Crumbling_Armor","Crumbling Armor"),
+w("Bear Paws","HE","EGOWeaponBearPaw.png","Happy_Teddy_Bear","Happy Teddy Bear"),
+w("Sanguine Desire","HE","EGOWeaponBloodyDesire.png","The_Red_Shoes","The Red Shoes"),
+w("Syrinx","HE","EGOWeaponCrier.png","Nameless_Fetus","Nameless Fetus"),
+w("Harmony","HE","EGOWeaponHarmony.png","Singing_Machine","Singing Machine"),
+w("Logging","HE","EGOWeaponLogging.png","Warm-hearted_Woodsman","Warm-hearted Woodsman"),
+w("Frost Splinter","HE","EGOWeaponFrostShard.png","The_Snow_Queen","The Snow Queen"),
+w("Grinder Mk4","HE","EGOWeaponGrinderMk4.png","All-Around_Helper","All-Around Helper"),
+w("Christmas","HE","EGOWeaponChristmas.png","Rudolta_of_the_Sleigh","Rudolta of the Sleigh"),
+w("Our Galaxy","HE","EGOWeaponGalaxy.png","Child_of_the_Galaxy","Child of the Galaxy"),
+w("Laetitia","HE","EGOWeaponLaetitia.png","Laetitia","Laetitia"),
+w("Gaze","HE","EGOWeaponGaze.png","Schadenfreude","Schadenfreude"),
+w("Harvest","HE","EGOWeaponHarvest.png","Scarecrow_Searching_for_Wisdom","Scarecrow Searching for Wisdom"),
+w("Pleasure","HE","EGOWeaponPleasure.png","Porccubus","Porccubus"),
+w("Solemn Lament","WAW","EGOWeaponSolemnVow.png","The_Funeral_of_the_Dead_Butterflies","The Funeral of the Dead Butterflies"),
+w("Magic Bullet","WAW","EGOWeaponMagicBullet.png","Der_Freisch%C3%BCtz","Der Freischütz"),
+w("In the Name of Love and Hate","WAW","EGOWeaponIntheNameofLoveandHate.png","The_Queen_of_Hatred","The Queen of Hatred"),
+w("Lamp","WAW","EGOWeaponLamp.png","Big_Bird","Big Bird"),
+w("Green Stem","WAW","EGOWeaponGreenStem.png","Snow_White%27s_Apple","Snow White's Apple"),
+w("Hornet","WAW","EGOWeaponHornet.png","Queen_Bee","Queen Bee"),
+w("Faint Aroma","WAW","EGOWeaponReverberation.png","Alriune","Alriune"),
+w("Crimson Scar","WAW","EGOWeaponCrimsonScar.png","Little_Red_Riding_Hooded_Mercenary","Little Red Riding Hooded Mercenary"),
+w("Cobalt Scar","WAW","EGOWeaponBlueScar.png","Big_and_Will_be_Bad_Wolf","Big and Will be Bad Wolf"),
+w("Spore","WAW","EGOWeaponSpore.png","The_Little_Prince","The Little Prince"),
+w("Black Swan","WAW","EGOWeaponBlackSwan.png","Dream_of_a_Black_Swan","Dream of a Black Swan"),
+w("Ecstasy","WAW","EGOWeaponEcstasy.png","The_Dreaming_Current","The Dreaming Current"),
+w("Heaven","WAW","EGOWeaponHeaven.png","The_Burrowing_Heaven","The Burrowing Heaven"),
+w("The Sword Sharpened with Tears","WAW","EGOWeaponSwordSharpenedbyTears.png","The_Knight_of_Despair","The Knight of Despair"),
+w("Exuviae","WAW","EGOWeaponShedSkin.png","The_Naked_Nest","The Naked Nest"),
+w("Diffraction","WAW","EGOWeaponDiffraction.png","Dimensional_Refraction_Variant","Dimensional Refraction Variant"),
+w("Feather of Honor","WAW","EGOWeaponFeatherofHonor.png","The_Firebird","The Firebird"),
+w("Discord","WAW","EGOWeaponDiscord.png","Yin","Yin"),
+w("Moonlight","WAW","EGOWeaponMoonlight.png","Il_Pianto_della_Luna","Il Pianto della Luna"),
+w("Hypocrisy","WAW","EGOWeaponHypocrisy.png","Parasite_Tree","Parasite Tree"),
+w("Amita","WAW","EGOWeaponAmita.png","Clouded_Monk","Clouded Monk"),
+w("Justitia","ALEPH","EGOWeaponJustitia.png","Judgement_Bird","Judgement Bird"),
+w("Gold Rush","ALEPH","EGOWeaponGoldRush.png","The_King_of_Greed","The King of Greed"),
+w("Mimicry","ALEPH","EGOWeaponMimicry.png","Nothing_There","Nothing There"),
+w("Da Capo","ALEPH","EGOWeaponDaCapo.png","The_Silent_Orchestra","The Silent Orchestra"),
+w("Smile","ALEPH","EGOWeaponTheSmile.png","Mountain_of_Smiling_Bodies","Mountain of Smiling Bodies"),
+w("CENSORED","ALEPH","EGOWeaponCensored.png","CENSORED","CENSORED"),
+w("Sound of a Star","ALEPH","EGOWeaponSoundofaStar.png","Blue_Star","Blue Star"),
+w("Pink","ALEPH","EGOWeaponPinks.png","Army_in_Black","Army in Black")
+];
+
+/* ============ roster / collection / flavor cache ============ */
+function roster(){ return store.get("roster") || SEED; }
+function collection(){ return store.get("col") || []; }
+function saveCol(c){ store.set("col",c); }
+function flavKey(it){ return it.type+"::"+it.name; }
+function flavCache(){ return store.get("flav") || {}; }
+
+/* ============ record recovery (sync) ============ */
+/* Each item row's name link targets an anchor: #E.G.O_Weapon / #E.G.O_Suit / #E.G.O_Gift.
+   That classifies rows regardless of table header layout. */
+function rowType(a){
+  const h = a.getAttribute("href")||"";
+  if(/#E\.G\.O[._ ]?Weapon/i.test(h)) return "weapon";
+  if(/#E\.G\.O[._ ]?Suit/i.test(h))   return "suit";
+  if(/#E\.G\.O[._ ]?Gift/i.test(h))   return "gift";
+  return null;
+}
+async function sync(){
+  const btn = el("syncBtn"), msg = el("syncMsg");
+  btn.disabled = true; msg.textContent = "Reading the archive…";
+  try{
+    const r = await fetch(API+"?action=parse&page=Equipment&prop=text&format=json&origin=*");
+    const j = await r.json();
+    const doc = new DOMParser().parseFromString(j.parse.text["*"],"text/html");
+    const items = [];
+    doc.querySelectorAll("table tr").forEach(tr=>{
+      if(!tr.querySelector("td")) return;
+      // find the classifying anchor + name
+      let a = null, type = null;
+      for(const cand of tr.querySelectorAll("a[href]")){
+        const t = rowType(cand);
+        if(t && cand.textContent.trim() && !cand.querySelector("img")){ a = cand; type = t; break; }
+      }
+      // fallback: table header says Slot -> gift rows (links may not be anchored)
+      if(!a){
+        const tb = tr.closest("table");
+        const heads = tb ? [...tb.querySelectorAll("th")].map(x=>x.textContent.trim().toLowerCase()) : [];
+        if(heads.some(h=>h.startsWith("slot"))){
+          for(const cand of tr.querySelectorAll("a[href]")){
+            if(cand.textContent.trim() && !cand.querySelector("img")){ a = cand; type = "gift"; break; }
+          }
+        }
+      }
+      if(!a) return;
+      const name = a.textContent.trim();
+      // grade via risk icon anywhere in the row
+      let grade = null;
+      const risk = tr.querySelector('img[src*="Risk_"]');
+      if(risk){
+        const m = (risk.getAttribute("src")||"").match(/Risk_(Zayin|Teth|He|Waw|Aleph)/i);
+        if(m) grade = m[1].toUpperCase();
+      }
+      if(type!=="gift" && !grade) return;
+      // item image: first img that isn't an icon
+      let img = null;
+      for(const im of tr.querySelectorAll("img")){
+        const s = im.getAttribute("src")||"";
+        if(/Risk_|Icon|EBox|Healing/i.test(s)) continue;
+        img = s; break;
+      }
+      if(img){
+        if(img.startsWith("/")) img = WIKI+img;
+        img = img.replace(/\/(\d+)px-/,"/200px-").split("?")[0];
+      }
+      let link = a.getAttribute("href")||"";
+      if(link.startsWith("/")) link = WIKI+link;
+      items.push({name,type,grade,img,link,src:a.getAttribute("title")||""});
+    });
+    const seen = new Set(), clean = [];
+    for(const it of items){ const k = it.type+"::"+it.name; if(!seen.has(k)){ seen.add(k); clean.push(it); } }
+    if(clean.filter(i=>i.type==="weapon").length < 10) throw new Error("archive read came back thin");
+    store.set("roster", clean);
+    store.set("syncAt", new Date().toISOString().slice(0,10));
+    const nW=clean.filter(i=>i.type==="weapon").length, nS=clean.filter(i=>i.type==="suit").length, nG=clean.filter(i=>i.type==="gift").length;
+    msg.textContent = "Recovery complete — "+nW+" weapons, "+nS+" suits, "+nG+" gifts archived. Works offline from here.";
+  }catch(e){
+    msg.textContent = "Recovery failed ("+e.message+"). Check connection; the seeded weapon records still work.";
+  }
+  btn.disabled = false;
+  refreshStats();
+}
+
+/* ============ flavor text: fetched on demand from each item's wiki page, cached ============ */
+const flavPending = {};
+async function getFlavor(it){
+  const key = flavKey(it);
+  const cache = flavCache();
+  if(cache[key]) return cache[key]; // empty = never found; retry, don't trust old failures
+  if(flavPending[key]) return flavPending[key];
+  flavPending[key] = (async ()=>{
+    let text = "";
+    try{
+      const page = decodeURIComponent((it.link||"").split("/wiki/")[1].split("#")[0]);
+      const r = await fetch(API+"?action=parse&page="+encodeURIComponent(page)+"&prop=text&format=json&origin=*");
+      const j = await r.json();
+      const doc = new DOMParser().parseFromString(j.parse.text["*"],"text/html");
+      const sec = it.type==="weapon"?"Weapon":it.type==="suit"?"Suit":"Gift";
+      const anchor = doc.getElementById("E.G.O_"+sec) || doc.getElementById("E.G.O "+sec);
+      /* the heading sits alone inside a header div; the lore lives elsewhere in the
+         same abno-box-ego-* container (suit's is misnamed "sett", gifts have no lore
+         div at all — their Effect line is the closest thing to a description) */
+      const box = anchor && anchor.closest('[id^="abno-box-ego"]');
+      if(it.type==="gift"){
+        const sp = (box||doc).querySelector('[id$="gift-special"]');
+        if(sp){
+          sp.querySelectorAll("br").forEach(b=>b.replaceWith(" "));
+          text = sp.textContent.replace(/\s+/g," ").replace(/^\s*Effect\s*/i,"").trim();
+        }
+      }else if(box){
+        let lore = box.querySelector('div[id$="-lore"]');
+        if(!lore){
+          for(const t of box.querySelectorAll("table")){
+            if(/^Details\b/i.test(t.textContent.replace(/\s+/g," ").trim())){ lore = t; break; }
+          }
+        }
+        if(lore){
+          lore.querySelectorAll("br").forEach(b=>b.replaceWith(" "));
+          text = lore.textContent.replace(/\s+/g," ").replace(/^\s*Details\s*/i,"").trim();
+        }
+      }
+    }catch(e){ /* offline or layout change: leave empty */ }
+    if(text){ const c = flavCache(); c[key] = text; store.set("flav", c); }
+    delete flavPending[key];
+    return text;
+  })();
+  return flavPending[key];
+}
+
+/* ============ dice + draw ============ */
+const rnd = n => 1 + Math.floor(Math.random()*n);
+function sample(pool, n){
+  const p = [...pool];
+  for(let i=p.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [p[i],p[j]]=[p[j],p[i]]; }
+  return p.slice(0,n);
+}
+function pool(R, type, grade, excludeKeys){
+  const owned = new Set(collection().map(c=>c.type+"::"+c.name));
+  const dup = el("optDup").checked;
+  let p = R.filter(i=>i.type===type && (type==="gift" || i.grade===grade));
+  if(excludeKeys) p = p.filter(i=>!excludeKeys.has(i.type+"::"+i.name));
+  if(!dup){
+    const fresh = p.filter(i=>!owned.has(i.type+"::"+i.name));
+    if(fresh.length>=1) p = fresh;
+  }
+  return p;
+}
+
+/* ============ extraction flow ============ */
+let offer = [], picked = -1;
+const CATS = {1:"GIFT",2:"WEAPON",3:"SUIT",4:"WEAPON + SUIT"};
+function el(id){ return document.getElementById(id); }
+function logLine(html){ const d = document.createElement("div"); d.innerHTML = html; el("log").appendChild(d); }
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+async function rollDie(sides, label){
+  const face = el("dieface");
+  el("diebox").style.display = "flex";
+  el("dielabel").textContent = label;
+  el("dieresult").textContent = " ";
+  const result = rnd(sides);
+  if(!reduced){
+    face.classList.add("rolling");
+    for(let i=0;i<10;i++){ face.textContent = rnd(sides); await sleep(70); }
+    face.classList.remove("rolling");
+  }
+  face.textContent = result;
+  return result;
+}
+
+async function beginExtraction(){
+  offer = []; picked = -1;
+  el("log").innerHTML = ""; el("cards").innerHTML = "";
+  el("printBtn").style.display = "none";
+  el("gradebar").style.display = "none";
+  el("gradebar").querySelectorAll("span").forEach(s=>{ s.className=""; s.style.background=""; });
+  show("E");
+  logLine('<span class="d">// session terminated. drawing accumulated PE…</span>');
+  await sleep(reduced?0:500);
+
+  const d4 = await rollDie(4,"D4 // Category");
+  const cat = CATS[d4];
+  el("dieresult").textContent = cat;
+  logLine('D4 → <span class="t">'+d4+'</span> :: category <span class="a">'+cat+'</span>');
+  await sleep(reduced?0:700);
+
+  let grade = null;
+  if(d4 !== 1){
+    const d20 = await rollDie(20,"D20 // Risk classification");
+    grade = D20MAP(d20);
+    el("dieresult").textContent = grade;
+    el("gradebar").style.display = "flex";
+    const hit = el("gradebar").querySelector('[data-g="'+grade+'"]');
+    hit.classList.add("hit"); hit.style.background = GHEX[grade];
+    logLine('D20 → <span class="t">'+d20+'</span> :: risk class <span style="color:'+GHEX[grade]+'">'+grade+'</span>');
+    if(grade==="ALEPH" && !reduced){ document.body.classList.add("alert"); setTimeout(()=>document.body.classList.remove("alert"),3200); }
+    await sleep(reduced?0:700);
+  }else{
+    logLine('<span class="d">// gifts carry no risk classification.</span>');
+  }
+
+  const R = roster();
+  if(d4===1){ offer = sample(pool(R,"gift"),3); }
+  else if(d4===2){ offer = sample(pool(R,"weapon",grade),3); }
+  else if(d4===3){ offer = sample(pool(R,"suit",grade),3); }
+  else{
+    const taken = new Set();
+    for(let i=0;i<3;i++){
+      const t = Math.random()<0.5 ? "weapon" : "suit";
+      let p = pool(R,t,grade,taken);
+      if(!p.length) p = pool(R, t==="weapon"?"suit":"weapon", grade, taken);
+      if(p.length){ const pick = sample(p,1)[0]; taken.add(pick.type+"::"+pick.name); offer.push(pick); }
+    }
+  }
+  if(!offer.length){
+    logLine('<span class="d">// no records of this class in the archive. run record recovery.</span>');
+    return;
+  }
+  logLine('<span class="d">// '+offer.length+' record'+(offer.length>1?'s':'')+' rendered. choose one to print.</span>');
+  renderCards();
+}
+
+function renderCards(){
+  const wrap = el("cards");
+  offer.forEach((it,i)=>{
+    const g = it.type==="gift" ? "GIFT" : it.grade;
+    const c = document.createElement("div");
+    c.className = "card";
+    c.innerHTML =
+      '<div class="cin">'+
+        '<div class="cface cfront" style="--g:'+GCOLOR[g]+'">'+
+          '<div class="cimg">'+(it.img?'<img loading="lazy" src="'+it.img+'" alt="" onerror="this.replaceWith(Object.assign(document.createElement(\'span\'),{className:\'noimg\',textContent:\'NO FEED\'}))">':'<span class="noimg">NO FEED</span>')+'</div>'+
+          '<div class="cmeta"><div class="cname">'+esc(it.name)+'</div>'+
+          '<div class="ctag"><b>'+g+'</b> // '+it.type.toUpperCase()+'</div>'+
+          (it.src?'<div class="csrc">ex. '+esc(it.src)+'</div>':'')+
+          '<div class="cflav" data-f="'+i+'"></div></div>'+
+        '</div>'+
+        '<div class="cface cback"><span>.EGO</span></div>'+
+      '</div>';
+    c.addEventListener("click",()=>{
+      if(!c.classList.contains("flip")){ c.classList.add("flip"); return; }
+      document.querySelectorAll(".card").forEach(x=>x.classList.remove("sel"));
+      c.classList.add("sel"); picked = i;
+      el("printBtn").style.display = "block";
+    });
+    wrap.appendChild(c);
+    setTimeout(()=>c.classList.add("flip"), reduced?0:400+i*350);
+    getFlavor(it).then(f=>{
+      const slot = wrap.querySelector('.cflav[data-f="'+i+'"]');
+      if(slot && f) slot.textContent = "“"+f+"”";
+    });
+  });
+}
+
+function esc(s){ return String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m])); }
+
+function printEgo(){
+  if(picked<0) return;
+  const it = offer[picked];
+  const c = collection();
+  c.unshift({...it, id:Date.now(), date:new Date().toISOString().slice(0,10), note:""});
+  saveCol(c);
+  switchTab("A");
+  refreshStats();
+}
+
+/* ============ printed archive ============ */
+function renderArchive(){
+  const list = el("alist"); list.innerHTML = "";
+  const c = collection();
+  if(!c.length){
+    list.innerHTML = '<div class="empty">// nothing printed yet.<br>run the session-end protocol to synthesize your first E.G.O.</div>';
+    return;
+  }
+  c.forEach(it=>{
+    const g = it.type==="gift"?"GIFT":it.grade;
+    const r = document.createElement("div");
+    r.className = "arow"; r.style.setProperty("--g",GCOLOR[g]);
+    r.innerHTML = '<div class="cimg">'+(it.img?'<img loading="lazy" src="'+it.img+'" alt="">':'<span class="noimg">—</span>')+'</div>'+
+      '<div class="cmeta"><div class="cname">'+esc(it.name)+'</div>'+
+      '<div class="ctag"><b style="color:'+GHEX[g]+'">'+g+'</b> // '+it.type.toUpperCase()+' // printed '+it.date+'</div>'+
+      (it.note?'<div class="csrc">'+esc(it.note.slice(0,70))+(it.note.length>70?'…':'')+'</div>':'')+'</div>';
+    r.addEventListener("click",()=>openDetail(it.id));
+    list.appendChild(r);
+  });
+}
+let detailId = null;
+function openDetail(id){
+  const it = collection().find(x=>x.id===id); if(!it) return;
+  detailId = id;
+  const g = it.type==="gift"?"GIFT":it.grade;
+  el("mImg").innerHTML = it.img?'<img src="'+it.img+'" alt="">':'<span class="noimg">NO FEED</span>';
+  el("mName").textContent = it.name;
+  el("mTag").innerHTML = '<b style="color:'+GHEX[g]+'">'+g+'</b> // '+it.type.toUpperCase()+(it.src?' // ex. '+esc(it.src):'');
+  el("mFlav").innerHTML = '<span class="d">// retrieving record…</span>';
+  getFlavor(it).then(f=>{
+    el("mFlav").innerHTML = f ? '“'+esc(f)+'”' : '<span class="d">// no description recovered — open the full record.</span>';
+  });
+  el("mNote").value = it.note||"";
+  el("mWiki").onclick = ()=>{ if(it.link) window.open(it.link,"_blank"); };
+  el("modal").classList.add("on");
+}
+el("mSave").onclick = ()=>{
+  const c = collection(); const it = c.find(x=>x.id===detailId);
+  if(it){ it.note = el("mNote").value; saveCol(c); renderArchive(); }
+  el("modal").classList.remove("on");
+};
+el("mDel").onclick = ()=>{
+  if(!confirm("Disassemble this print? The frames drink the material back; it's removed from the archive.")) return;
+  saveCol(collection().filter(x=>x.id!==detailId));
+  el("modal").classList.remove("on"); renderArchive(); refreshStats();
+};
+el("mClose").onclick = ()=>el("modal").classList.remove("on");
+el("modal").addEventListener("click",e=>{ if(e.target===el("modal")) el("modal").classList.remove("on"); });
+
+/* ============ nav / stats ============ */
+function show(s){ ["T","E","A"].forEach(x=>el("scr"+x).classList.toggle("on",x===s)); }
+function switchTab(t){
+  el("tabT").classList.toggle("on",t==="T");
+  el("tabA").classList.toggle("on",t==="A");
+  show(t);
+  if(t==="A") renderArchive();
+}
+el("tabT").onclick = ()=>switchTab("T");
+el("tabA").onclick = ()=>switchTab("A");
+el("beginBtn").onclick = beginExtraction;
+el("abortBtn").onclick = ()=>{ if(picked>=0 || confirm("Abort extraction? The roll is lost.")) switchTab("T"); };
+el("printBtn").onclick = printEgo;
+el("syncBtn").onclick = sync;
+
+function refreshStats(){
+  const r = roster();
+  el("stOwned").textContent = collection().length;
+  el("stW").textContent = r.filter(i=>i.type==="weapon").length;
+  el("stS").textContent = r.filter(i=>i.type==="suit").length;
+  el("stG").textContent = r.filter(i=>i.type==="gift").length;
+  el("stSync").textContent = store.get("syncAt")||"never";
+  el("syncwarn").style.display = r.some(i=>i.type==="suit") ? "none" : "block";
+}
+refreshStats();
+/* offline app shell */
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
+</script>
+</body>
+</html>
