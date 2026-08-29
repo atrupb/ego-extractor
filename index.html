@@ -410,7 +410,16 @@ async function sync(){
       }
       let link = a.getAttribute("href")||"";
       if(link.startsWith("/")) link = WIKI+link;
-      items.push({name,type,grade,img,link,src:a.getAttribute("title")||""});
+      // gifts: equip slot lives in the cell under the table's "Slot" header
+      let slot = null;
+      if(type==="gift"){
+        const tb2 = tr.closest("table");
+        const heads2 = tb2 ? [...tb2.querySelectorAll("th")].map(x=>x.textContent.trim().toLowerCase()) : [];
+        const si = heads2.findIndex(h=>h.startsWith("slot"));
+        const td = si>=0 ? tr.querySelectorAll("td")[si] : null;
+        if(td) slot = td.textContent.trim() || null;
+      }
+      items.push({name,type,grade,img,link,src:a.getAttribute("title")||"",slot});
     });
     const seen = new Set(), clean = [];
     for(const it of items){ const k = it.type+"::"+it.name; if(!seen.has(k)){ seen.add(k); clean.push(it); } }
@@ -577,7 +586,7 @@ function renderCards(){
         '<div class="cface cfront" style="--g:'+GCOLOR[g]+'">'+
           '<div class="cimg">'+(it.img?'<img loading="lazy" src="'+it.img+'" alt="" onerror="this.replaceWith(Object.assign(document.createElement(\'span\'),{className:\'noimg\',textContent:\'NO FEED\'}))">':'<span class="noimg">NO FEED</span>')+'</div>'+
           '<div class="cmeta"><div class="cname">'+esc(it.name)+'</div>'+
-          '<div class="ctag"><b>'+g+'</b> // '+it.type.toUpperCase()+'</div>'+
+          '<div class="ctag"><b>'+g+'</b> // '+esc(typeTag(it))+'</div>'+
           (it.src?'<div class="csrc">ex. '+esc(it.src)+'</div>':'')+
           '<div class="cflav" data-f="'+i+'"></div></div>'+
         '</div>'+
@@ -599,6 +608,14 @@ function renderCards(){
 }
 
 function esc(s){ return String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m])); }
+
+/* gifts show their equip slot (Hat, Eye, Brooch…) instead of repeating "GIFT";
+   older prints without a stored slot borrow it from the current roster */
+function typeTag(it){
+  if(it.type!=="gift") return it.type.toUpperCase();
+  const slot = it.slot || (roster().find(r=>r.type==="gift" && r.name===it.name)||{}).slot;
+  return (slot || "gift").toUpperCase();
+}
 
 function printEgo(){
   if(picked<0) return;
@@ -624,7 +641,7 @@ function renderArchive(){
     r.className = "arow"; r.style.setProperty("--g",GCOLOR[g]);
     r.innerHTML = '<div class="cimg">'+(it.img?'<img loading="lazy" src="'+it.img+'" alt="">':'<span class="noimg">—</span>')+'</div>'+
       '<div class="cmeta"><div class="cname">'+esc(it.name)+'</div>'+
-      '<div class="ctag"><b style="color:'+GHEX[g]+'">'+g+'</b> // '+it.type.toUpperCase()+' // printed '+it.date+'</div>'+
+      '<div class="ctag"><b style="color:'+GHEX[g]+'">'+g+'</b> // '+esc(typeTag(it))+' // printed '+it.date+'</div>'+
       (it.note?'<div class="csrc">'+esc(it.note.slice(0,70))+(it.note.length>70?'…':'')+'</div>':'')+'</div>';
     r.addEventListener("click",()=>openDetail(it.id));
     list.appendChild(r);
@@ -637,7 +654,7 @@ function openDetail(id){
   const g = it.type==="gift"?"GIFT":it.grade;
   el("mImg").innerHTML = it.img?'<img src="'+it.img+'" alt="">':'<span class="noimg">NO FEED</span>';
   el("mName").textContent = it.name;
-  el("mTag").innerHTML = '<b style="color:'+GHEX[g]+'">'+g+'</b> // '+it.type.toUpperCase()+(it.src?' // ex. '+esc(it.src):'');
+  el("mTag").innerHTML = '<b style="color:'+GHEX[g]+'">'+g+'</b> // '+esc(typeTag(it))+(it.src?' // ex. '+esc(it.src):'');
   el("mFlav").innerHTML = '<span class="d">// retrieving record…</span>';
   getFlavor(it).then(f=>{
     el("mFlav").innerHTML = f ? '“'+esc(f)+'”' : '<span class="d">// no description recovered — open the full record.</span>';
