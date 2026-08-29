@@ -80,14 +80,14 @@ input[type=checkbox]{accent-color:var(--orange)}
 /* ---------- extraction ---------- */
 #log{font-family:var(--mono);font-size:12.5px;line-height:1.9;min-height:70px;color:var(--white)}
 #log .d{color:var(--dim)} #log .a{color:var(--orange)} #log .t{color:var(--teal)}
-.diebox{display:flex;flex-direction:column;gap:12px;margin:12px 0 4px}
-.dieunit{display:flex;align-items:center;gap:14px}
+.diebox{display:flex;align-items:flex-start;justify-content:space-evenly;gap:12px;margin:12px 0 4px}
+.dieunit{display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center}
 /* Library of Ruina speed dice: hex rim, inner hex line, faint cube edges,
    numbers reeling in the background behind the front-facing range.
    blue die = D4 category, orange die = D20 risk */
 .die{--hex:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
   --c1:#ffd9a8;--c2:#f5a94f;--c3:#c06f1a;--c4:#7d4310;--glow:242,140,38;--face:255,228,196;
-  width:81px;height:90px;flex:none;position:relative;display:flex;align-items:center;justify-content:center;
+  width:63px;height:70px;flex:none;position:relative;display:flex;align-items:center;justify-content:center;
   font-family:var(--mono);clip-path:var(--hex);
   background:linear-gradient(155deg,var(--c1) 0%,var(--c2) 30%,var(--c3) 62%,var(--c4) 100%)}
 .die.blue{--c1:#c4e4ff;--c2:#5db4f5;--c3:#2377b8;--c4:#123f66;--glow:90,174,248;--face:214,236,255}
@@ -97,11 +97,11 @@ input[type=checkbox]{accent-color:var(--orange)}
 .dieart polygon{stroke:rgba(var(--glow),.5)}
 .dieart path{stroke:rgba(var(--glow),.22)}
 .dienum{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;
-  font-size:46px;color:rgba(var(--face),.4);text-shadow:0 0 12px rgba(var(--glow),.5)}
+  font-size:36px;color:rgba(var(--face),.4);text-shadow:0 0 12px rgba(var(--glow),.5)}
 .die.landed .dienum{color:rgba(var(--face),.95);
   text-shadow:0 0 8px rgba(var(--face),.7),0 0 22px rgba(var(--glow),.6)}
 .dierange{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;
-  font-size:34px;color:rgba(var(--face),.92);
+  font-size:26px;color:rgba(var(--face),.92);
   text-shadow:0 0 8px rgba(var(--glow),.8),0 0 20px rgba(var(--glow),.45)}
 .die.landed .dierange{display:none}
 @keyframes reel{
