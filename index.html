@@ -81,28 +81,29 @@ input[type=checkbox]{accent-color:var(--orange)}
 #log{font-family:var(--mono);font-size:12.5px;line-height:1.9;min-height:70px;color:var(--white)}
 #log .d{color:var(--dim)} #log .a{color:var(--orange)} #log .t{color:var(--teal)}
 .diebox{display:flex;align-items:center;gap:14px;margin:12px 0 4px}
-/* Library of Ruina speed die: gold hex frame, dark glyph core, glowing white face */
+/* Library of Ruina speed die: gold hex rim, inner hex line, faint cube edges,
+   numbers reeling in the background behind the front-facing range */
 .die{--hex:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
-  width:64px;height:72px;flex:none;position:relative;display:flex;align-items:center;justify-content:center;
-  font-family:var(--mono);font-size:26px;clip-path:var(--hex);
+  width:72px;height:80px;flex:none;position:relative;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);clip-path:var(--hex);
   background:linear-gradient(155deg,#f8e39a 0%,#e3b54f 30%,#b8842a 62%,#7d5615 100%)}
-.die::before{content:"";position:absolute;inset:4px;clip-path:var(--hex);
-  background:
-    radial-gradient(closest-side,rgba(242,193,78,0) 60%,rgba(242,193,78,.3) 97%),
-    repeating-linear-gradient(90deg,rgba(242,140,38,.13) 0 1px,transparent 1px 5px),
-    #0b0804}
-#dienum{position:relative;z-index:1;color:#fff;
-  text-shadow:0 0 5px rgba(255,255,255,.9),0 0 15px rgba(255,255,255,.55),0 0 28px rgba(242,193,78,.45)}
-/* the face scrolls up through the hex like a reel, streaked with motion blur */
+.die::before{content:"";position:absolute;inset:3px;clip-path:var(--hex);
+  background:radial-gradient(closest-side,rgba(242,193,78,0) 55%,rgba(242,193,78,.2) 96%),#0b0804}
+#dieart{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+#dienum{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;
+  font-size:46px;color:rgba(248,233,190,.4);text-shadow:0 0 12px rgba(242,193,78,.5)}
+.die.landed #dienum{color:rgba(248,233,190,.8)}
+#dierange{position:relative;z-index:3;font-size:15px;letter-spacing:.06em;color:#fff;
+  text-shadow:0 0 5px rgba(255,255,255,.9),0 0 14px rgba(255,255,255,.5),0 1px 4px #000}
 @keyframes reel{
-  0%{transform:translateY(150%) scaleY(2);filter:blur(3px);opacity:.35}
-  50%{opacity:.85}
-  100%{transform:translateY(-150%) scaleY(2);filter:blur(3px);opacity:.35}}
+  0%{transform:translateY(120%) scaleY(2);filter:blur(3px);opacity:.25}
+  50%{opacity:.7}
+  100%{transform:translateY(-120%) scaleY(2);filter:blur(3px);opacity:.25}}
 @keyframes land{
-  0%{transform:translateY(55%) scaleY(1.6);filter:blur(2px);opacity:.6}
+  0%{transform:translateY(45%) scaleY(1.5);filter:blur(2px);opacity:.4}
   100%{transform:none;filter:none;opacity:1}}
-.die.rolling #dienum{animation:reel .14s linear infinite}
-.die.landed #dienum{animation:land .2s ease-out}
+.die.rolling #dienum{animation:reel .09s linear infinite}
+.die.landed #dienum{animation:land .16s ease-out}
 .dielabel{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);font-weight:600}
 .dieresult{font-size:17px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-top:3px}
 .gradebar{display:flex;gap:4px;margin:10px 0 2px}
@@ -234,7 +235,16 @@ body.alert main{animation:alertfx 1s 3}
     <div class="pbody">
       <div id="log"></div>
       <div class="diebox" id="diebox" style="display:none">
-        <div class="die" id="dieface"><span id="dienum">?</span></div>
+        <div class="die" id="dieface">
+          <svg id="dieart" viewBox="0 0 72 80" aria-hidden="true">
+            <polygon points="36,6.4 66.2,23.2 66.2,56.8 36,73.6 5.8,56.8 5.8,23.2"
+              fill="none" stroke="rgba(242,193,78,.5)" stroke-width="1.2"/>
+            <path d="M36 40V73.6M36 40 5.8 23.2M36 40 66.2 23.2"
+              fill="none" stroke="rgba(242,193,78,.22)" stroke-width="1"/>
+          </svg>
+          <span id="dienum"></span>
+          <span id="dierange">?</span>
+        </div>
         <div><div class="dielabel" id="dielabel">D4 // Category</div>
         <div class="dieresult" id="dieresult">&nbsp;</div></div>
       </div>
@@ -530,12 +540,13 @@ async function rollDie(sides, label){
   el("diebox").style.display = "flex";
   el("dielabel").textContent = label;
   el("dieresult").textContent = " ";
+  el("dierange").textContent = "1~"+sides;
   const result = rnd(sides);
   face.classList.remove("landed");
   if(!reduced){
     face.classList.add("rolling");
-    // one new number per reel pass (140ms), so each value streaks through once
-    for(let i=0;i<9;i++){ num.textContent = rnd(sides); await sleep(140); }
+    // one new number per reel pass (90ms), so each value streaks through once
+    for(let i=0;i<10;i++){ num.textContent = rnd(sides); await sleep(90); }
     face.classList.remove("rolling");
     face.classList.add("landed");
   }
