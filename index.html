@@ -93,8 +93,16 @@ input[type=checkbox]{accent-color:var(--orange)}
     #0b0804}
 #dienum{position:relative;z-index:1;color:#fff;
   text-shadow:0 0 5px rgba(255,255,255,.9),0 0 15px rgba(255,255,255,.55),0 0 28px rgba(242,193,78,.45)}
-.die.rolling{animation:jit .12s infinite}
-@keyframes jit{50%{transform:translate(1px,-1px)}}
+/* the face scrolls up through the hex like a reel, streaked with motion blur */
+@keyframes reel{
+  0%{transform:translateY(150%) scaleY(2);filter:blur(3px);opacity:.35}
+  50%{opacity:.85}
+  100%{transform:translateY(-150%) scaleY(2);filter:blur(3px);opacity:.35}}
+@keyframes land{
+  0%{transform:translateY(55%) scaleY(1.6);filter:blur(2px);opacity:.6}
+  100%{transform:none;filter:none;opacity:1}}
+.die.rolling #dienum{animation:reel .14s linear infinite}
+.die.landed #dienum{animation:land .2s ease-out}
 .dielabel{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);font-weight:600}
 .dieresult{font-size:17px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-top:3px}
 .gradebar{display:flex;gap:4px;margin:10px 0 2px}
@@ -164,7 +172,7 @@ body.alert main{animation:alertfx 1s 3}
 .sheet .row{display:flex;gap:10px;margin-top:12px}
 .sheet .row .smallbtn{flex:1}
 @media (prefers-reduced-motion:reduce){
-  .cin{transition:none}.die.rolling{animation:none}body.alert main{animation:none}
+  .cin{transition:none}.die.rolling #dienum,.die.landed #dienum{animation:none}body.alert main{animation:none}
 }
 </style>
 </head>
@@ -523,10 +531,13 @@ async function rollDie(sides, label){
   el("dielabel").textContent = label;
   el("dieresult").textContent = " ";
   const result = rnd(sides);
+  face.classList.remove("landed");
   if(!reduced){
     face.classList.add("rolling");
-    for(let i=0;i<10;i++){ num.textContent = rnd(sides); await sleep(70); }
+    // one new number per reel pass (140ms), so each value streaks through once
+    for(let i=0;i<9;i++){ num.textContent = rnd(sides); await sleep(140); }
     face.classList.remove("rolling");
+    face.classList.add("landed");
   }
   num.textContent = result;
   return result;
