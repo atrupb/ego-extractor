@@ -80,24 +80,30 @@ input[type=checkbox]{accent-color:var(--orange)}
 /* ---------- extraction ---------- */
 #log{font-family:var(--mono);font-size:12.5px;line-height:1.9;min-height:70px;color:var(--white)}
 #log .d{color:var(--dim)} #log .a{color:var(--orange)} #log .t{color:var(--teal)}
-.diebox{display:flex;align-items:center;gap:14px;margin:12px 0 4px}
-/* Library of Ruina speed die: gold hex rim, inner hex line, faint cube edges,
-   numbers reeling in the background behind the front-facing range */
+.diebox{display:flex;flex-direction:column;gap:12px;margin:12px 0 4px}
+.dieunit{display:flex;align-items:center;gap:14px}
+/* Library of Ruina speed dice: hex rim, inner hex line, faint cube edges,
+   numbers reeling in the background behind the front-facing range.
+   blue die = D4 category, orange die = D20 risk */
 .die{--hex:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+  --c1:#ffd9a8;--c2:#f5a94f;--c3:#c06f1a;--c4:#7d4310;--glow:242,140,38;--face:255,228,196;
   width:81px;height:90px;flex:none;position:relative;display:flex;align-items:center;justify-content:center;
   font-family:var(--mono);clip-path:var(--hex);
-  background:linear-gradient(155deg,#f8e39a 0%,#e3b54f 30%,#b8842a 62%,#7d5615 100%)}
+  background:linear-gradient(155deg,var(--c1) 0%,var(--c2) 30%,var(--c3) 62%,var(--c4) 100%)}
+.die.blue{--c1:#c4e4ff;--c2:#5db4f5;--c3:#2377b8;--c4:#123f66;--glow:90,174,248;--face:214,236,255}
 .die::before{content:"";position:absolute;inset:3px;clip-path:var(--hex);
-  background:radial-gradient(closest-side,rgba(242,193,78,0) 55%,rgba(242,193,78,.2) 96%),#0b0804}
-#dieart{position:absolute;inset:0;width:100%;height:100%;z-index:1}
-#dienum{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;
-  font-size:46px;color:rgba(248,233,190,.4);text-shadow:0 0 12px rgba(242,193,78,.5)}
-.die.landed #dienum{color:rgba(248,233,190,.95);
-  text-shadow:0 0 8px rgba(248,233,190,.7),0 0 22px rgba(242,193,78,.6)}
-#dierange{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;
-  font-size:34px;color:rgba(248,233,190,.92);
-  text-shadow:0 0 8px rgba(242,193,78,.8),0 0 20px rgba(242,193,78,.45)}
-.die.landed #dierange{display:none}
+  background:radial-gradient(closest-side,rgba(var(--glow),0) 55%,rgba(var(--glow),.2) 96%),#0b0804}
+.dieart{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+.dieart polygon{stroke:rgba(var(--glow),.5)}
+.dieart path{stroke:rgba(var(--glow),.22)}
+.dienum{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;
+  font-size:46px;color:rgba(var(--face),.4);text-shadow:0 0 12px rgba(var(--glow),.5)}
+.die.landed .dienum{color:rgba(var(--face),.95);
+  text-shadow:0 0 8px rgba(var(--face),.7),0 0 22px rgba(var(--glow),.6)}
+.dierange{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;
+  font-size:34px;color:rgba(var(--face),.92);
+  text-shadow:0 0 8px rgba(var(--glow),.8),0 0 20px rgba(var(--glow),.45)}
+.die.landed .dierange{display:none}
 @keyframes reel{
   0%{transform:translateY(120%) scaleY(2);filter:blur(3px);opacity:.25}
   50%{opacity:.7}
@@ -110,9 +116,9 @@ input[type=checkbox]{accent-color:var(--orange)}
   50%{transform:translate(-2px,-1px)}75%{transform:translate(2px,2px)}}
 @keyframes pop{35%{transform:translateY(-8px)}100%{transform:none}}
 .die.rolling{animation:shake .12s linear infinite}
-.die.landed{animation:pop .3s cubic-bezier(.3,1.4,.5,1)}
-.die.rolling #dienum{animation:reel .09s linear infinite}
-.die.landed #dienum{animation:land .16s ease-out}
+.die.landed{animation:pop .18s cubic-bezier(.3,1.4,.5,1)}
+.die.rolling .dienum{animation:reel .09s linear infinite}
+.die.landed .dienum{animation:land .16s ease-out}
 .dielabel{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);font-weight:600}
 .dieresult{font-size:17px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-top:3px}
 .gradebar{display:flex;gap:4px;margin:10px 0 2px}
@@ -182,7 +188,7 @@ body.alert main{animation:alertfx 1s 3}
 .sheet .row{display:flex;gap:10px;margin-top:12px}
 .sheet .row .smallbtn{flex:1}
 @media (prefers-reduced-motion:reduce){
-  .cin{transition:none}.die.rolling,.die.landed,.die.rolling #dienum,.die.landed #dienum{animation:none}body.alert main{animation:none}
+  .cin{transition:none}.die.rolling,.die.landed,.die.rolling .dienum,.die.landed .dienum{animation:none}body.alert main{animation:none}
 }
 </style>
 </head>
@@ -244,18 +250,30 @@ body.alert main{animation:alertfx 1s 3}
     <div class="pbody">
       <div id="log"></div>
       <div class="diebox" id="diebox" style="display:none">
-        <div class="die" id="dieface">
-          <svg id="dieart" viewBox="0 0 72 80" aria-hidden="true">
-            <polygon points="36,6.4 66.2,23.2 66.2,56.8 36,73.6 5.8,56.8 5.8,23.2"
-              fill="none" stroke="rgba(242,193,78,.5)" stroke-width="1.2"/>
-            <path d="M36 40V73.6M36 40 5.8 23.2M36 40 66.2 23.2"
-              fill="none" stroke="rgba(242,193,78,.22)" stroke-width="1"/>
-          </svg>
-          <span id="dienum"></span>
-          <span id="dierange">?</span>
+        <div class="dieunit" id="unit4" style="display:none">
+          <div class="die blue" id="dieface4">
+            <svg class="dieart" viewBox="0 0 72 80" aria-hidden="true">
+              <polygon points="36,6.4 66.2,23.2 66.2,56.8 36,73.6 5.8,56.8 5.8,23.2" fill="none" stroke-width="1.2"/>
+              <path d="M36 40V73.6M36 40 5.8 23.2M36 40 66.2 23.2" fill="none" stroke-width="1"/>
+            </svg>
+            <span class="dienum" id="dienum4"></span>
+            <span class="dierange" id="dierange4">?</span>
+          </div>
+          <div><div class="dielabel">D4 // Category</div>
+          <div class="dieresult" id="dieresult4">&nbsp;</div></div>
         </div>
-        <div><div class="dielabel" id="dielabel">D4 // Category</div>
-        <div class="dieresult" id="dieresult">&nbsp;</div></div>
+        <div class="dieunit" id="unit20" style="display:none">
+          <div class="die" id="dieface20">
+            <svg class="dieart" viewBox="0 0 72 80" aria-hidden="true">
+              <polygon points="36,6.4 66.2,23.2 66.2,56.8 36,73.6 5.8,56.8 5.8,23.2" fill="none" stroke-width="1.2"/>
+              <path d="M36 40V73.6M36 40 5.8 23.2M36 40 66.2 23.2" fill="none" stroke-width="1"/>
+            </svg>
+            <span class="dienum" id="dienum20"></span>
+            <span class="dierange" id="dierange20">?</span>
+          </div>
+          <div><div class="dielabel">D20 // Risk classification</div>
+          <div class="dieresult" id="dieresult20">&nbsp;</div></div>
+        </div>
       </div>
       <div class="gradebar" id="gradebar" style="display:none">
         <span data-g="ZAYIN">1–6</span><span data-g="TETH">7–11</span><span data-g="HE">12–16</span>
@@ -544,12 +562,13 @@ function logLine(html){ const d = document.createElement("div"); d.innerHTML = h
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-async function rollDie(sides, label){
-  const face = el("dieface"), num = el("dienum");
+const snapSnd = new Audio("snap.mp3");
+async function rollDie(sides){
+  const face = el("dieface"+sides), num = el("dienum"+sides);
   el("diebox").style.display = "flex";
-  el("dielabel").textContent = label;
-  el("dieresult").textContent = " ";
-  el("dierange").textContent = "1~"+sides;
+  el("unit"+sides).style.display = "flex";
+  el("dieresult"+sides).textContent = " ";
+  el("dierange"+sides).textContent = "1~"+sides;
   const result = rnd(sides);
   face.classList.remove("landed");
   if(!reduced){
@@ -560,6 +579,7 @@ async function rollDie(sides, label){
   }
   face.classList.add("landed");
   num.textContent = result;
+  try{ snapSnd.currentTime = 0; snapSnd.play().catch(()=>{}); }catch(e){}
   return result;
 }
 
@@ -569,21 +589,24 @@ async function beginExtraction(){
   el("printBtn").style.display = "none";
   el("gradebar").style.display = "none";
   el("gradebar").querySelectorAll("span").forEach(s=>{ s.className=""; s.style.background=""; });
+  el("diebox").style.display = "none";
+  el("unit4").style.display = "none";
+  el("unit20").style.display = "none";
   show("E");
   logLine('<span class="d">// session terminated. drawing accumulated PE…</span>');
   await sleep(reduced?0:500);
 
-  const d4 = await rollDie(4,"D4 // Category");
+  const d4 = await rollDie(4);
   const cat = CATS[d4];
-  el("dieresult").textContent = cat;
+  el("dieresult4").textContent = cat;
   logLine('D4 → <span class="t">'+d4+'</span> :: category <span class="a">'+cat+'</span>');
   await sleep(reduced?0:700);
 
   let grade = null;
   if(d4 !== 1){
-    const d20 = await rollDie(20,"D20 // Risk classification");
+    const d20 = await rollDie(20);
     grade = D20MAP(d20);
-    el("dieresult").textContent = grade;
+    el("dieresult20").textContent = grade;
     el("gradebar").style.display = "flex";
     const hit = el("gradebar").querySelector('[data-g="'+grade+'"]');
     hit.classList.add("hit"); hit.style.background = GHEX[grade];
