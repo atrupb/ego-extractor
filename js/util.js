@@ -20,6 +20,7 @@ function mdLite(src){
     const m = line.match(/^\s*[-*]\s+(.*)/);
     if(m){ (list = list || []).push("<li>"+inline(m[1])+"</li>"); continue; }
     if(list){ out.push("<ul>"+list.join("")+"</ul>"); list = null; }
+    if(/^\s*-{3,}\s*$/.test(line)){ out.push('<div class="mdhr"></div>'); continue; }
     const h = line.match(/^#+\s+(.*)/);
     if(h){ out.push('<div class="mdh">'+inline(h[1])+"</div>"); continue; }
     if(line.trim() === ""){ out.push('<div class="mdgap"></div>'); continue; }
