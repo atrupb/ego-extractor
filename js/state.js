@@ -15,7 +15,7 @@ function defaultChar(){
     saveProf:{CON:true, INT:true}, // artificer chassis defaults; tap to change
     skills:{},                   // {perception:0|1|2} — none / proficient / expertise
     capAdj:0,                    // player-managed permanent PE cap adjustment
-    acMisc:0, hpCur:null, hpTemp:0,
+    acMisc:0, initMisc:0, hpCur:null, hpTemp:0,
     hdLeft:null,                 // hit dice remaining; null = full (= level)
     originalUsed:false           // fully original E.G.O. — once per campaign
   };

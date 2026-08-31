@@ -11,7 +11,8 @@ function renderSheet(){
   el("profVal").textContent = "+" + prof();
   el("acVal").textContent = acVal();
   el("acMiscVal").textContent = (c.acMisc>=0?"+":"") + c.acMisc;
-  el("initVal").textContent = fmtMod(statMod("JUS"));
+  el("initVal").textContent = fmtMod(statMod("JUS") + (c.initMisc|0));
+  el("initMiscVal").textContent = fmtMod(c.initMisc|0);
   el("hpMax").textContent = maxHP();
   el("hpCurVal").textContent = c.hpCur === null ? maxHP() : Math.min(c.hpCur, maxHP());
   el("hpTempVal").textContent = c.hpTemp | 0;
@@ -128,6 +129,8 @@ function initSheet(){
   el("lvlPlus").onclick  = ()=>{ const c=charS(); c.level=Math.min(20,c.level+1); saveChar(c); refreshAll(); };
   el("acMinus").onclick = ()=>{ const c=charS(); c.acMisc=(c.acMisc|0)-1; saveChar(c); renderSheet(); };
   el("acPlus").onclick  = ()=>{ const c=charS(); c.acMisc=(c.acMisc|0)+1; saveChar(c); renderSheet(); };
+  el("initMinus").onclick = ()=>{ const c=charS(); c.initMisc=(c.initMisc|0)-1; saveChar(c); renderSheet(); };
+  el("initPlus").onclick  = ()=>{ const c=charS(); c.initMisc=(c.initMisc|0)+1; saveChar(c); renderSheet(); };
 
   // HP is derived (never hand-entered); current HP is just table damage tracking.
   // type the amount, then − / +
