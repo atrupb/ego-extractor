@@ -230,6 +230,7 @@ body.alert main{animation:alertfx 1s 3}
   margin-bottom:10px;border-top:3px solid var(--g,#555);cursor:pointer;position:relative;
   clip-path:var(--nclip)}
 .arow .cimg{width:110px}
+.arow.sel{outline:2px solid var(--orange);outline-offset:-2px;background:var(--panel2)}
 .arow.locked{opacity:.55}
 .arow.shattered{opacity:.4}
 .arow .lockicon{position:absolute;top:7px;right:18px;font-family:var(--mono);font-size:10px;
@@ -264,12 +265,9 @@ body.alert main{animation:alertfx 1s 3}
 .pickrow{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);
   background:#000;padding:8px 10px;margin-bottom:7px;cursor:pointer;font-size:13px;font-weight:600;
   text-transform:uppercase;letter-spacing:.04em}
-.pimg{width:74px;aspect-ratio:2/1;flex:none;background:#651717;border:1px solid #2c2c28;
-  display:flex;align-items:center;justify-content:center;overflow:hidden}
-.pimg img{max-width:100%;max-height:100%;object-fit:contain}
-.pimg .noimg{font-family:var(--mono);font-size:9px;color:var(--dim)}
 .printrow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:#000;
   padding:8px 10px;margin-bottom:7px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.printrow .cimg{width:74px}
 .printrow .pn{flex:1;min-width:0}
 .printrow .prx{flex:none;width:38px;height:38px;background:#000;border:1px solid var(--red);color:var(--red);
   font-family:var(--mono);font-size:17px;cursor:pointer}

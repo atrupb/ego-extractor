@@ -18,7 +18,7 @@ function renderLoadout(){
     const it = col.find(x=>x.id===e.id);
     if(!it) return "";
     return '<div class="printrow">'+
-      '<div class="pimg">'+(it.img?'<img loading="lazy" src="'+it.img+'" alt="">':'<span class="noimg">—</span>')+'</div>'+
+      '<div class="cimg">'+(it.img?'<img loading="lazy" src="'+esc(it.img)+'" alt="">':'<span class="noimg">—</span>')+'</div>'+
       '<span class="pn">'+esc(it.name)+
         '<span class="pclass" style="color:'+GHEX[it.grade]+';display:block;font-weight:400">'+it.grade+' '+it.type.toUpperCase()+'</span></span>'+
       '<span class="pcost">'+e.cost+' PE</span>'+

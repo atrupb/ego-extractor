@@ -332,11 +332,12 @@
     <div class="pstripe"></div>
     <div class="inner">
       <h3>Print E.G.O.</h3>
-      <div class="ctag">printed items join the active list</div>
-      <div class="picklabel">E.G.O. Weapon</div>
-      <div id="pWeapons"></div>
-      <div class="picklabel">E.G.O. Suit</div>
-      <div id="pSuits"></div>
+      <div class="ctag">printed items join the active list — print again for the other half of a set</div>
+      <div class="chiprow" id="pCatRow" style="justify-content:center">
+        <span class="chip on" data-v="weapon">Weapon</span>
+        <span class="chip" data-v="suit">Suit</span>
+      </div>
+      <div id="pList"></div>
       <div class="costline" id="pTotal"></div>
       <div class="row">
         <button class="smallbtn accent" id="pConfirm">Confirm print</button>
