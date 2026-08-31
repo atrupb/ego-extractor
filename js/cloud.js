@@ -17,12 +17,17 @@ const ghToken = () => store.get("ghToken") || "";
 const cloudOn = () => !!(ghToken() && store.get("gistId"));
 
 /* util.js calls this after every store.set */
+let writeSeq = 0;   // counts local edits so a push knows if typing continued mid-flight
 function cloudTouch(k){
   if(cloudSilent || !CLOUD_KEYS.includes(k) || !cloudOn()) return;
+  // writes before the boot pull settles are one-time migrations normalizing local
+  // data, not player edits — marking them dirty made stale devices shout "conflict"
+  if(!cloudReady) return;
+  writeSeq++;
   store.set("cloudDirty", true);          // not a CLOUD_KEY — no recursion
   renderCloud();
   clearTimeout(pushTimer);
-  if(cloudReady) pushTimer = setTimeout(cloudPush, 2500);
+  pushTimer = setTimeout(cloudPush, 2500);
 }
 
 async function gh(path, opts){
@@ -84,11 +89,15 @@ async function cloudPush(){
       resolveConflict(remote);
       return;
     }
+    const seqAtSend = writeSeq;
     const p = payloadNow();
     await gh("/gists/" + store.get("gistId"), {method:"PATCH",
       body: JSON.stringify({files: {[GIST_FILE]: {content: JSON.stringify(p)}}})});
     store.set("cloudAt", p.at);
-    store.set("cloudDirty", false);
+    // typing that happened while this upload was in flight is NOT in it —
+    // stay dirty and follow up, or a later pull could revert those keystrokes
+    if(writeSeq === seqAtSend) store.set("cloudDirty", false);
+    else{ clearTimeout(pushTimer); pushTimer = setTimeout(cloudPush, 1500); }
     cloudStatus("");
   }catch(e){
     cloudStatus("// offline — changes queued on this device");
@@ -198,7 +207,14 @@ function initCloud(){
   if(cloudOn()) cloudPull();
   else cloudReady = true;
   window.addEventListener("focus", ()=>{
-    if(cloudOn() && Date.now() - lastPullTs > 60000) cloudPull();
+    if(!cloudOn() || Date.now() - lastPullTs <= 60000) return;
+    // never yank the state out from under an open editor or unsynced edits:
+    // dirty devices push instead of pulling; mid-typing devices sit tight
+    const ae = document.activeElement;
+    const editing = ae && (ae.tagName === "TEXTAREA" || ae.tagName === "INPUT");
+    if(store.get("cloudDirty")){ cloudPush(); return; }
+    if(editing) return;
+    cloudPull();
   });
   document.addEventListener("visibilitychange", ()=>{
     if(document.hidden && cloudOn() && store.get("cloudDirty")) cloudPush();
