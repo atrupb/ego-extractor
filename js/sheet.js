@@ -129,25 +129,25 @@ function initSheet(){
   el("acMinus").onclick = ()=>{ const c=charS(); c.acMisc=(c.acMisc|0)-1; saveChar(c); renderSheet(); };
   el("acPlus").onclick  = ()=>{ const c=charS(); c.acMisc=(c.acMisc|0)+1; saveChar(c); renderSheet(); };
 
-  // HP is derived (never hand-entered); current HP is just table damage tracking
-  const hpAdj = d => ()=>{
+  // HP is derived (never hand-entered); current HP is just table damage tracking.
+  // type the amount, then − / +
+  const amt = id => { const n = Math.floor(+el(id).value); return isFinite(n) && n >= 1 ? n : 1; };
+  const hpAdj = sign => ()=>{
     const c = charS();
     const cur = c.hpCur === null ? maxHP() : c.hpCur;
-    c.hpCur = Math.max(0, Math.min(maxHP(), cur + d));
+    c.hpCur = Math.max(0, Math.min(maxHP(), cur + sign*amt("hpAmt")));
     saveChar(c); renderSheet();
   };
-  el("hpM5").onclick = hpAdj(-5); el("hpM1").onclick = hpAdj(-1);
-  el("hpP1").onclick = hpAdj(+1); el("hpP5").onclick = hpAdj(+5);
+  el("hpM").onclick = hpAdj(-1); el("hpP").onclick = hpAdj(+1);
   el("hpFull").onclick = ()=>{ const c=charS(); c.hpCur=null; saveChar(c); renderSheet(); };
 
   // temp HP — sits on top of current HP, no maximum
-  const htAdj = d => ()=>{
+  const htAdj = sign => ()=>{
     const c = charS();
-    c.hpTemp = Math.max(0, (c.hpTemp|0) + d);
+    c.hpTemp = Math.max(0, (c.hpTemp|0) + sign*amt("htAmt"));
     saveChar(c); renderSheet();
   };
-  el("htM5").onclick = htAdj(-5); el("htM1").onclick = htAdj(-1);
-  el("htP1").onclick = htAdj(+1); el("htP5").onclick = htAdj(+5);
+  el("htM").onclick = htAdj(-1); el("htP").onclick = htAdj(+1);
   el("htZero").onclick = ()=>{ const c=charS(); c.hpTemp=0; saveChar(c); renderSheet(); };
 
   // hit dice remaining — pool size scales with level
