@@ -2,6 +2,13 @@
 /* ============ archive — every recovered record, lock states, shattered records ============ */
 let fCat = "all", fClass = "all", fShatter = false;
 
+/* the record's written headline value, for tag lines: weapon damage / suit AC bonus */
+function statTag(it){
+  if(it.type === "weapon" && it.dmg) return ' // <b style="color:var(--teal)">'+esc(it.dmg)+'</b>';
+  if(it.type === "suit" && it.ac)    return ' // <b style="color:var(--teal)">+'+esc(it.ac)+' AC</b>';
+  return '';
+}
+
 function reqTagHTML(it){
   if(it.type === "gift") return '';
   const reqs = it.reqs || {};
@@ -37,10 +44,10 @@ function renderArchive(){
     const r = document.createElement("div");
     r.className = "arow" + (u.ok ? "" : " locked");
     r.style.setProperty("--g", GCOLOR[g]);
-    r.innerHTML = (u.ok?'':'<span class="lockicon">▚ LOCKED</span>')+
+    r.innerHTML = riskBadge(it.grade)+(u.ok?'':'<span class="lockicon">▚ LOCKED</span>')+
       '<div class="cimg">'+(it.img?'<img loading="lazy" src="'+it.img+'" alt="">':'<span class="noimg">—</span>')+'</div>'+
       '<div class="cmeta"><div class="cname">'+esc(it.name)+'</div>'+
-      '<div class="ctag"><b style="color:'+GHEX[g]+'">'+g+'</b> // '+esc(typeTag(it))+' // recovered '+it.date+'</div>'+
+      '<div class="ctag">'+esc(typeTag(it))+statTag(it)+(it.src?' // from '+esc(it.src):'')+'</div>'+
       reqTagHTML(it)+
       (it.note?'<div class="csrc">'+esc(it.note.slice(0,70))+(it.note.length>70?'…':'')+'</div>':'')+'</div>';
     r.addEventListener("click",()=>openDetail(it.id));
@@ -55,9 +62,10 @@ function renderArchive(){
       const r = document.createElement("div");
       r.className = "arow shattered";
       r.style.setProperty("--g", GCOLOR[g]);
-      r.innerHTML = '<div class="cimg">'+(it.img?'<img loading="lazy" src="'+it.img+'" alt="">':'<span class="noimg">—</span>')+'</div>'+
+      r.innerHTML = riskBadge(it.grade)+
+        '<div class="cimg">'+(it.img?'<img loading="lazy" src="'+it.img+'" alt="">':'<span class="noimg">—</span>')+'</div>'+
         '<div class="cmeta"><div class="cname">'+esc(it.name)+'</div>'+
-        '<div class="ctag"><b style="color:'+GHEX[g]+'">'+g+'</b> // '+esc(typeTag(it))+' // ▚ SHATTERED</div></div>';
+        '<div class="ctag">'+esc(typeTag(it))+' // ▚ SHATTERED</div></div>';
       if(it.link) r.addEventListener("click",()=>window.open(it.link,"_blank"));
       list.appendChild(r);
     });
@@ -74,9 +82,9 @@ function openDetail(id){
   const it = collection().find(x=>x.id===id); if(!it) return;
   detailId = id;
   const g = it.type==="gift"?"GIFT":it.grade;
-  el("mImg").innerHTML = it.img?'<img src="'+it.img+'" alt="">':'<span class="noimg">NO FEED</span>';
+  el("mImg").innerHTML = riskBadge(it.grade) + (it.img?'<img src="'+it.img+'" alt="">':'<span class="noimg">NO FEED</span>');
   el("mName").textContent = it.name;
-  el("mTag").innerHTML = '<b style="color:'+GHEX[g]+'">'+g+'</b> // '+esc(typeTag(it))+(it.src?' // ex. '+esc(it.src):'');
+  el("mTag").innerHTML = esc(typeTag(it))+statTag(it)+(it.src?' // from '+esc(it.src):'');
   el("mFlav").innerHTML = '<span class="d">// retrieving record…</span>';
   getFlavor(it).then(f=>{
     el("mFlav").innerHTML = f ? '“'+esc(f)+'”' : '<span class="d">// no description recovered — open the full record.</span>';
@@ -84,7 +92,6 @@ function openDetail(id){
   const reqs = it.reqs || {};
   for(const s of STATS) el("mReq"+s.k).value = String(reqs[s.k]|0);
   el("mReqWrap").style.display = it.type === "gift" ? "none" : "block";
-  updateLockLine(it);
   // the record's headline value: weapons carry damage, suits carry AC;
   // gifts instead carry small structured bonuses
   el("mBonusWrap").style.display = it.type === "gift" ? "block" : "none";
@@ -93,13 +100,28 @@ function openDetail(id){
     el("mBonusList").innerHTML = (it.bonus||[]).map(bonusRowHTML).join("");
   }else{
     el("mStatField").style.display = "block";
-    el("mStatLabel").textContent = it.type === "weapon" ? "Damage (e.g. 2d6 + Justice)" : "AC bonus (applies to the sheet while printed)";
+    el("mStatLabel").textContent = it.type === "weapon" ? "Damage" : "AC bonus";
     el("mStat").value = (it.type === "weapon" ? it.dmg : it.ac) || "";
-    el("mStat").placeholder = it.type === "weapon" ? "3d4 slashing…" : "5";
   }
   el("mNote").value = it.note||"";
   el("mWiki").onclick = ()=>{ if(it.link) window.open(it.link,"_blank"); };
   el("modal").classList.add("on");
+}
+
+/* every edit lands immediately — there is no save button */
+function persistDetail(){
+  const c = collection(); const it = c.find(x=>x.id===detailId);
+  if(!it) return;
+  it.note = el("mNote").value;
+  if(it.type !== "gift") it.reqs = readModalReqs();
+  if(it.type === "weapon") it.dmg = el("mStat").value.trim();
+  if(it.type === "suit")   it.ac  = el("mStat").value.trim();
+  if(it.type === "gift")   it.bonus = readModalBonuses();
+  saveCol(c);
+}
+function closeDetail(){
+  el("modal").classList.remove("on");
+  refreshAll();   // fold the edits into every view once, on the way out
 }
 function bonusRowHTML(b){
   const opts = BONUS_TARGETS.map(t=>'<option value="'+t.v+'"'+(b && b.t===t.v?' selected':'')+'>'+esc(t.label)+'</option>').join("");
@@ -116,12 +138,6 @@ function readModalBonuses(){
 function readModalReqs(){
   return Object.fromEntries(STATS.map(s=>[s.k, +el("mReq"+s.k).value]));
 }
-function updateLockLine(base){
-  const probe = {...base, reqs: readModalReqs()};
-  const u = unlockState(probe);
-  el("mLock").className = "lockline " + (u.ok?"ok":"no");
-  el("mLock").textContent = u.ok ? "▸ EQUIPPABLE — REQUIREMENTS MET" : "▚ LOCKED — NEEDS "+u.reasons.join(" · ");
-}
 
 function initArchive(){
   el("fCatRow").addEventListener("click", e=>{
@@ -135,33 +151,20 @@ function initArchive(){
     renderArchive();
   });
 
+  // autosave wiring — any edit persists on the spot
+  el("mNote").addEventListener("input", persistDetail);
+  el("mStat").addEventListener("input", persistDetail);
+  for(const s of STATS) el("mReq"+s.k).addEventListener("change", persistDetail);
+  el("mBonusList").addEventListener("change", persistDetail);
   el("mBonusAdd").onclick = ()=>{
     el("mBonusList").insertAdjacentHTML("beforeend", bonusRowHTML(null));
+    persistDetail();
   };
   el("mBonusList").addEventListener("click", e=>{
     const x = e.target.closest(".bx");
-    if(x) x.closest(".bonusrow").remove();
+    if(x){ x.closest(".bonusrow").remove(); persistDetail(); }
   });
 
-  // live lock preview while editing requirement grades
-  for(const s of STATS) el("mReq"+s.k).addEventListener("change", ()=>{
-    const it = collection().find(x=>x.id===detailId);
-    if(it) updateLockLine(it);
-  });
-
-  el("mSave").onclick = ()=>{
-    const c = collection(); const it = c.find(x=>x.id===detailId);
-    if(it){
-      it.note = el("mNote").value;
-      if(it.type !== "gift") it.reqs = readModalReqs();
-      if(it.type === "weapon") it.dmg = el("mStat").value.trim();
-      if(it.type === "suit")   it.ac  = el("mStat").value.trim();
-      if(it.type === "gift")   it.bonus = readModalBonuses();
-      saveCol(c);
-    }
-    el("modal").classList.remove("on");
-    refreshAll();
-  };
   el("mDel").onclick = ()=>{
     if(!confirm("Shatter this record? It leaves the archive — recover it again through extraction or synthesis.")) return;
     saveCol(collection().filter(x=>x.id!==detailId));
@@ -173,6 +176,6 @@ function initArchive(){
     el("modal").classList.remove("on");
     refreshAll();
   };
-  el("mClose").onclick = ()=>el("modal").classList.remove("on");
-  el("modal").addEventListener("click",e=>{ if(e.target===el("modal")) el("modal").classList.remove("on"); });
+  el("mClose").onclick = closeDetail;
+  el("modal").addEventListener("click",e=>{ if(e.target===el("modal")) closeDetail(); });
 }

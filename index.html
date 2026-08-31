@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>「Your Eyes」 Extraction Terminal</title>
+<title>「Your Eyes」 Interface</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,9 +14,12 @@
 <body>
 <header>
   <div class="stripe"></div>
-  <div class="hpad">
-    <h1><span class="br">「</span>Your Eyes<span class="br">」</span> Extraction Terminal</h1>
-    <div class="sub">COGITO INTERFACE // OPERATOR: W. RYDER</div>
+  <div class="hpad hrow">
+    <img class="hlogo" src="assets/logo.png" alt="Lobotomy Corporation">
+    <div>
+      <h1><span class="br">「</span>Your Eyes<span class="br">」</span> Interface</h1>
+      <div class="sub">PORTABLE COGITO TERMINAL // OPERATOR: W. RYDER</div>
+    </div>
   </div>
 </header>
 <nav>
@@ -30,26 +33,37 @@
 
 <!-- ══════════ PE (home) ══════════ -->
 <section class="screen on" id="scrP">
-  <div class="panel teal">
+  <div class="panel olive">
     <span class="ptitle">Positive Enkephalin</span>
     <div class="pbody">
+      <div class="pemeter" id="peMeter"><i id="peBarFill"></i>
+        <span class="penum"><span id="peCur">0</span><small id="peCap">/ 100</small></span>
+        <img class="peicon" src="assets/ebox.png" alt="E-Box">
+      </div>
       <div class="peadj">
         <button class="pebtn" id="peMinus">−</button>
-        <div class="pehero"><span class="cur" id="peCur">0</span><span class="cap" id="peCap">/ 100</span></div>
+        <input type="number" id="peStep" min="1" max="999" value="1" inputmode="numeric">
         <button class="pebtn" id="pePlus">+</button>
       </div>
-      <div class="pebar"><i id="peBarFill"></i></div>
-      <div class="pestep">
-        <span>adjust by</span>
-        <input type="number" id="peStep" min="1" max="999" value="1" inputmode="numeric">
-      </div>
-      <button class="bigbtn" id="printOpenBtn" style="margin-top:12px">Print E.G.O.</button>
+      <button class="bigbtn manubtn" id="printOpenBtn" style="margin-top:12px">Manufacture</button>
     </div>
   </div>
 
   <div class="panel" id="loadoutPanel" style="display:none">
     <span class="ptitle">Active prints</span>
     <div class="pbody" id="loadoutBody"></div>
+  </div>
+
+  <div class="panel">
+    <span class="ptitle">PE Box cap</span>
+    <div class="pbody">
+      <div class="statrow"><span>Cap</span><b class="t" id="capTotal">100</b></div>
+      <div class="statrow"><span>Adjustment</span><b id="capAdjVal">+0</b></div>
+      <div class="microbtns">
+        <button class="microbtn" id="capM10">−10</button><button class="microbtn" id="capMinus">−2</button>
+        <button class="microbtn" id="capPlus">+2</button><button class="microbtn" id="capP10">+10</button>
+      </div>
+    </div>
   </div>
 
   <div class="panel">
@@ -60,10 +74,11 @@
       <div><b>Enemy misses you / you make a save</b> +5</div>
       <div><b>Enemy misses an ally / ally makes a save</b> +3</div>
       <div><b>You or an ally land an attack</b> +1 + damage dice rolled</div>
-      <div><b>Crit</b> +1 + 2× damage dice</div>
       <div><b>Save-based damage spell connects</b> + caster's dice</div>
       <div><b>Long rest</b> +1</div>
-      <div class="rulesplit"><b>Print cost</b> Z 5 · T 10 · H 17 · W 30 · A 40, each − Temperance mod; full set = both items</div>
+      <div><b>Every 4 levels</b> choose: a feat OR +10 max PE</div>
+      <div><b>Work point on a stat at 20</b> +2 max PE instead</div>
+      <div><b>Fully recovered risk class</b> can no longer be rolled or synthesized</div>
     </div>
   </div>
 </section>
@@ -73,28 +88,58 @@
   <div class="panel orange">
     <span class="ptitle">Waylon Ryder</span>
     <div class="pbody">
-      <div class="steplabel">Level</div>
-      <div class="stepper"><button id="lvlMinus">−</button><div class="val" id="lvlVal">1</div><button id="lvlPlus">+</button></div>
-      <div class="statrow" style="margin-top:8px"><span>Proficiency</span><b id="profVal">+2</b></div>
-      <div class="statrow"><span>Armor Class (10 + Justice + printed suit)</span><b class="t" id="acVal">10</b></div>
-      <div class="statrow" style="margin-top:8px"><span>Initiative (Justice + misc)</span><b class="t" id="initVal">+0</b></div>
-      <div class="statrow"><span>Initiative misc</span><b id="initMiscVal">+0</b></div>
-      <div class="microbtns"><button class="microbtn" id="initMinus">−</button><button class="microbtn" id="initPlus">+</button></div>
-      <div class="statrow"><span>Max HP (derived from Fortitude)</span><b class="t" id="hpMax">—</b></div>
-      <div class="statrow"><span>Current HP</span><b id="hpCurVal">—</b></div>
+      <div class="coregrid">
+        <div class="coretile"><div class="clabel">Level</div>
+          <div class="tilemid"><div class="cval" id="lvlVal">1</div></div>
+          <div class="tinybtns"><button class="microbtn" id="lvlMinus">−</button><button class="microbtn" id="lvlPlus">+</button></div></div>
+        <div class="coretile"><div class="clabel">Proficiency</div>
+          <div class="tilemid"><div class="cval" id="profVal">+2</div></div>
+          <div class="tinybtns"><button class="microbtn" id="profMinus">−</button><button class="microbtn" id="profPlus">+</button></div></div>
+        <div class="coretile shieldtile"><div class="clabel">Armor Class</div>
+          <div class="tilemid">
+            <svg viewBox="0 0 40 44" aria-hidden="true">
+              <path d="M20 2 L37 8 V22 C37 33 29 40 20 43 C11 40 3 33 3 22 V8 Z"
+                fill="#0a1416" stroke="var(--teal)" stroke-width="2.5" stroke-linejoin="round"/>
+            </svg>
+            <div class="cval" id="acVal">10</div>
+          </div>
+          <div class="tinybtns"><button class="microbtn" id="acMinus">−</button><button class="microbtn" id="acPlus">+</button></div></div>
+        <div class="coretile dicetile"><div class="clabel">Initiative</div>
+          <div class="tilemid">
+            <svg class="dspeed" viewBox="0 0 52 22" aria-hidden="true">
+              <polygon points="0,0 7,0 18,11 7,22 0,22 11,11" opacity=".45"/>
+              <polygon points="17,0 24,0 35,11 24,22 17,22 28,11" opacity=".7"/>
+              <polygon points="34,0 41,0 52,11 41,22 34,22 45,11"/>
+            </svg>
+            <div class="die mini">
+              <svg class="dieart" viewBox="0 0 72 80" aria-hidden="true">
+                <polygon points="36,6.4 66.2,23.2 66.2,56.8 36,73.6 5.8,56.8 5.8,23.2" fill="none" stroke-width="1.2"/>
+                <path d="M36 40V73.6M36 40 5.8 23.2M36 40 66.2 23.2" fill="none" stroke-width="1"/>
+              </svg>
+              <span class="dienum" id="initVal">+0</span>
+            </div>
+          </div>
+          <div class="tinybtns"><button class="microbtn" id="initMinus">−</button><button class="microbtn" id="initPlus">+</button></div></div>
+      </div>
+      <div class="hpline">
+        <span class="clabel">HP</span>
+        <span class="hpbig"><b id="hpCurVal">—</b> <span class="hpsep">/</span> <span id="hpMax">—</span></span>
+        <span class="hptemp" id="hpTempWrap">+<b id="hpTempVal">0</b> TEMP</span>
+      </div>
       <div class="adjrow">
         <input type="number" id="hpAmt" min="1" value="1" inputmode="numeric">
         <button class="microbtn" id="hpM">−</button><button class="microbtn" id="hpP">+</button>
         <button class="microbtn accent" id="hpFull">FULL</button>
       </div>
-      <div class="statrow" style="margin-top:8px"><span>Temp HP</span><b id="hpTempVal">0</b></div>
+      <div class="steplabel">Temp HP</div>
       <div class="adjrow">
         <input type="number" id="htAmt" min="1" value="1" inputmode="numeric">
         <button class="microbtn" id="htM">−</button><button class="microbtn" id="htP">+</button>
         <button class="microbtn" id="htZero">0</button>
       </div>
-      <div class="statrow" style="margin-top:8px"><span>Hit dice (d8)</span><b id="hdVal">—</b></div>
-      <div class="microbtns"><button class="microbtn" id="hdMinus">−</button><button class="microbtn" id="hdPlus">+</button></div>
+      <div class="statrow" style="margin-top:10px;align-items:center"><span>Hit dice (d8)</span>
+        <span class="hdctl"><button class="microbtn" id="hdMinus">−</button><b id="hdVal">—</b><button class="microbtn" id="hdPlus">+</button></span>
+      </div>
     </div>
   </div>
 
@@ -116,6 +161,11 @@
     </div>
   </div>
 
+  <div class="panel" id="debugPanel" style="display:none">
+    <span class="ptitle">Internals</span>
+    <div class="pbody" id="debugBody"></div>
+  </div>
+
   <div class="panel">
     <span class="ptitle">Notes</span>
     <div class="pbody">
@@ -124,19 +174,6 @@
     </div>
   </div>
 
-  <div class="panel">
-    <span class="ptitle">ASI levels — feat OR +10 PE cap</span>
-    <div class="pbody" id="asiBody"></div>
-  </div>
-
-  <div class="panel">
-    <span class="ptitle">PE Box cap</span>
-    <div class="pbody">
-      <div class="statrow"><span>Cap</span><b class="t" id="capTotal">100</b></div>
-      <div class="statrow"><span>Adjustment</span><b id="capAdjVal">+0</b></div>
-      <div class="microbtns"><button class="microbtn" id="capMinus">−2</button><button class="microbtn" id="capPlus">+2</button></div>
-    </div>
-  </div>
 </section>
 
 <!-- ══════════ ARCHIVE ══════════ -->
@@ -164,8 +201,7 @@
   <div class="panel">
     <span class="ptitle">Gift slots</span>
     <div class="pbody">
-      <div class="slotgrid" id="slotgrid"></div>
-      <div class="syncnote">// gifts persist outside the print economy. equip and swap out of combat only. the eye slot is sealed by 「Your Eyes」 — permanently.</div>
+      <div id="slotgrid"></div>
     </div>
   </div>
 </section>
@@ -179,52 +215,44 @@
 
   <div class="panel orange">
     <div class="pstripe"></div>
-    <span class="ptitle">Session end protocol</span>
+    <span class="ptitle">Session End Protocol</span>
     <div class="pbody">
-      <button class="bigbtn" id="beginBtn">Begin Extraction</button>
-      <div class="syncnote">// free. d4 category, d20 risk class, hand of three — recover one.</div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <span class="ptitle">Synthesis — paid, chosen</span>
-    <div class="pbody">
-      <div class="field"><label>Target</label>
-        <select id="synType">
-          <option value="weapon">E.G.O. Weapon</option>
-          <option value="suit">E.G.O. Suit</option>
-          <option value="gift">Gift (choose the slot)</option>
-        </select>
+      <div class="sessgrid">
+        <div class="sesscol">
+          <div class="sesshead">Extraction</div>
+          <button class="bigbtn" id="beginBtn">Begin</button>
+        </div>
+        <div class="sesscol">
+          <div class="sesshead">Synthesis</div>
+          <div class="field" style="margin-top:0"><label>Target</label>
+            <select id="synType">
+              <option value="weapon">Weapon</option>
+              <option value="suit">Suit</option>
+              <option value="gift">Gift</option>
+            </select>
+          </div>
+          <div class="field" id="synClassField"><label>Risk class</label>
+            <select id="synClass">
+              <option value="ZAYIN">ZAYIN — 60</option>
+              <option value="TETH">TETH — 80</option>
+              <option value="HE">HE — 120</option>
+              <option value="WAW">WAW — 150</option>
+              <option value="ALEPH">ALEPH — 170</option>
+            </select>
+          </div>
+          <div class="field" id="synSlotField" style="display:none"><label>Gift slot — 60 PE</label>
+            <select id="synSlot">
+              <option>Hat</option><option>Helmet</option><option>Face</option>
+              <option>Mouth 1</option><option>Mouth 2</option><option>Cheek</option>
+              <option>Brooch</option><option>Neckwear</option>
+              <option>Left Back</option><option>Right Back</option>
+              <option>Hand 1</option><option>Hand 2</option>
+            </select>
+          </div>
+          <div class="costline" id="synCost"></div>
+          <button class="bigbtn" id="synBtn" style="margin-top:10px">Begin</button>
+        </div>
       </div>
-      <div class="field" id="synClassField"><label>Risk class</label>
-        <select id="synClass">
-          <option value="ZAYIN">ZAYIN — 60 PE</option>
-          <option value="TETH">TETH — 80 PE</option>
-          <option value="HE">HE — 120 PE</option>
-          <option value="WAW">WAW — 150 PE</option>
-          <option value="ALEPH">ALEPH — 170 PE</option>
-        </select>
-      </div>
-      <div class="field" id="synSlotField" style="display:none"><label>Gift slot — 60 PE</label>
-        <select id="synSlot">
-          <option>Hat</option><option>Helmet</option><option>Face</option>
-          <option>Mouth 1</option><option>Mouth 2</option><option>Cheek</option>
-          <option>Brooch</option><option>Neckwear</option>
-          <option>Left Back</option><option>Right Back</option>
-          <option>Hand 1</option><option>Hand 2</option>
-        </select>
-      </div>
-      <div class="costline" id="synCost"></div>
-      <button class="bigbtn" id="synBtn" style="margin-top:10px;font-size:14px">Begin Synthesis</button>
-      <div class="syncnote">// spends from the shared pool. walking into next session broke is the intended cost.</div>
-    </div>
-  </div>
-
-  <div class="panel red">
-    <span class="ptitle">Fully original E.G.O.</span>
-    <div class="pbody">
-      <button class="smallbtn danger" id="origBtn" style="width:100%">Forge original record — 200 PE</button>
-      <div class="syncnote" id="origNote"></div>
     </div>
   </div>
 
@@ -247,54 +275,55 @@
       <label class="chk"><input type="checkbox" id="optDup"> Allow drawing E.G.O. already recovered</label>
     </div>
   </div>
-</section>
 
-<!-- ══════════ EXTRACTION / SYNTHESIS DRAW ══════════ -->
-<section class="screen" id="scrE">
-  <div class="panel orange">
-    <div class="pstripe"></div>
-    <span class="ptitle">Extraction log</span>
+  <div class="panel">
+    <span class="ptitle">Debug options</span>
     <div class="pbody">
-      <div id="log"></div>
-      <div class="diebox" id="diebox" style="display:none">
-        <div class="dieunit" id="unit4" style="display:none">
-          <div class="die blue" id="dieface4">
-            <svg class="dieart" viewBox="0 0 72 80" aria-hidden="true">
-              <polygon points="36,6.4 66.2,23.2 66.2,56.8 36,73.6 5.8,56.8 5.8,23.2" fill="none" stroke-width="1.2"/>
-              <path d="M36 40V73.6M36 40 5.8 23.2M36 40 66.2 23.2" fill="none" stroke-width="1"/>
-            </svg>
-            <span class="dienum" id="dienum4"></span>
-            <span class="dierange" id="dierange4">?</span>
-          </div>
-          <div><div class="dielabel">D4 // Category</div>
-          <div class="dieresult" id="dieresult4">&nbsp;</div></div>
-        </div>
-        <div class="dieunit" id="unit20" style="display:none">
-          <div class="die" id="dieface20">
-            <svg class="dieart" viewBox="0 0 72 80" aria-hidden="true">
-              <polygon points="36,6.4 66.2,23.2 66.2,56.8 36,73.6 5.8,56.8 5.8,23.2" fill="none" stroke-width="1.2"/>
-              <path d="M36 40V73.6M36 40 5.8 23.2M36 40 66.2 23.2" fill="none" stroke-width="1"/>
-            </svg>
-            <span class="dienum" id="dienum20"></span>
-            <span class="dierange" id="dierange20">?</span>
-          </div>
-          <div><div class="dielabel">D20 // Risk classification</div>
-          <div class="dieresult" id="dieresult20">&nbsp;</div></div>
-        </div>
-      </div>
-      <div class="gradebar" id="gradebar" style="display:none">
-        <span data-g="ZAYIN">1–6</span><span data-g="TETH">7–11</span><span data-g="HE">12–16</span>
-        <span data-g="WAW">17–18</span><span data-g="ALEPH">19–20</span>
-      </div>
+      <label class="chk" style="margin-top:0"><input type="checkbox" id="optDebug"> Debug mode — sheet internals &amp; gift-dot tools</label>
     </div>
   </div>
-  <div id="cards"></div>
-  <div class="actions">
-    <button class="bigbtn" id="recoverBtn" style="display:none">Recover Record</button>
-    <button class="smallbtn" id="abortBtn">Abort</button>
+</section>
+
+<!-- ══════════ EXTRACTION / SYNTHESIS — the pick chamber ══════════ -->
+<section class="screen" id="scrE">
+  <div class="chamberwrap">
+    <div class="diebox" id="diebox" style="display:none">
+      <div class="dieunit" id="unit4" style="display:none">
+        <div class="die blue" id="dieface4">
+          <svg class="dieart" viewBox="0 0 72 80" aria-hidden="true">
+            <polygon points="36,6.4 66.2,23.2 66.2,56.8 36,73.6 5.8,56.8 5.8,23.2" fill="none" stroke-width="1.2"/>
+            <path d="M36 40V73.6M36 40 5.8 23.2M36 40 66.2 23.2" fill="none" stroke-width="1"/>
+          </svg>
+          <span class="dienum" id="dienum4"></span>
+          <span class="dierange" id="dierange4">?</span>
+        </div>
+        <div><div class="dielabel">D4 // Category</div>
+        <div class="dieresult" id="dieresult4">&nbsp;</div></div>
+      </div>
+      <div class="dieunit" id="unit20" style="display:none">
+        <div class="die" id="dieface20">
+          <svg class="dieart" viewBox="0 0 72 80" aria-hidden="true">
+            <polygon points="36,6.4 66.2,23.2 66.2,56.8 36,73.6 5.8,56.8 5.8,23.2" fill="none" stroke-width="1.2"/>
+            <path d="M36 40V73.6M36 40 5.8 23.2M36 40 66.2 23.2" fill="none" stroke-width="1"/>
+          </svg>
+          <span class="dienum" id="dienum20"></span>
+          <span class="dierange" id="dierange20">?</span>
+        </div>
+        <div><div class="dielabel">D20 // Risk classification</div>
+        <div class="dieresult" id="dieresult20">&nbsp;</div></div>
+      </div>
+    </div>
+    <div id="chamberMsg"></div>
+    <div id="cards"></div>
+    <div class="actions">
+      <button class="bigbtn" id="recoverBtn" style="display:none">Recover Record</button>
+      <button class="smallbtn" id="abortBtn">Abort</button>
+    </div>
   </div>
 </section>
 </main>
+
+<div id="chamberFade"></div>
 
 <!-- DETAIL MODAL -->
 <div class="modal" id="modal">
@@ -304,10 +333,8 @@
       <div class="cimg" id="mImg"></div>
       <h3 id="mName"></h3>
       <div class="ctag" id="mTag"></div>
-      <div class="lockline" id="mLock"></div>
       <div class="flavbox" id="mFlav"><span class="d">// retrieving record…</span></div>
       <div id="mReqWrap">
-      <div class="picklabel">Equip requirements (numeral grades — current stat counts)</div>
       <div class="reqgrid">
         <div class="field" style="margin-top:0"><label>Fortitude</label>
           <select id="mReqFOR"><option value="0">—</option><option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option><option value="5">V</option><option value="6">EX</option></select></div>
@@ -320,33 +347,33 @@
       </div>
       </div>
       <div class="field" id="mStatField"><label id="mStatLabel">Damage</label>
-        <input type="text" id="mStat" placeholder=""></div>
+        <input type="text" id="mStat"></div>
       <div id="mBonusWrap" style="display:none">
         <div class="picklabel">Bonuses (apply while equipped)</div>
         <div id="mBonusList"></div>
         <button class="smallbtn accent" id="mBonusAdd" style="width:100%;margin-top:6px">Add bonus</button>
       </div>
-      <div class="picklabel">Mechanics — designed weekly, DM rubber-stamps</div>
-      <textarea id="mNote" placeholder="Dice, passives, drawbacks — the 5e build for this record goes here."></textarea>
+      <div class="picklabel">Mechanics</div>
+      <textarea id="mNote"></textarea>
       <div class="row">
-        <button class="smallbtn" id="mWiki">Full record (wiki)</button>
-        <button class="smallbtn accent" id="mSave">Save record</button>
-      </div>
-      <div class="row">
-        <button class="smallbtn danger" id="mDel">Shatter record</button>
+        <button class="smallbtn" id="mWiki">Wiki</button>
+        <button class="smallbtn danger" id="mDel">Shatter</button>
         <button class="smallbtn" id="mClose">Close</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- PRINT MODAL -->
-<div class="modal" id="pmodal">
+<!-- MANUFACTURE MODAL -->
+<div class="modal center" id="pmodal">
   <div class="sheet">
     <div class="pstripe"></div>
     <div class="inner">
-      <h3>Print E.G.O.</h3>
-      <div class="ctag">printed items join the active list — print again for the other half of a set</div>
+      <h3>Manufacture</h3>
+      <div class="pemeter small"><i id="pmFill"></i>
+        <span class="penum"><span id="pmCur">0</span><small id="pmCap">/ 100</small></span>
+        <img class="peicon" src="assets/ebox.png" alt="">
+      </div>
       <div class="chiprow" id="pCatRow" style="justify-content:center">
         <span class="chip on" data-v="weapon">Weapon</span>
         <span class="chip" data-v="suit">Suit</span>
@@ -354,7 +381,7 @@
       <div id="pList"></div>
       <div class="costline" id="pTotal"></div>
       <div class="row">
-        <button class="smallbtn accent" id="pConfirm">Confirm print</button>
+        <button class="smallbtn accent" id="pConfirm">Manufacture</button>
         <button class="smallbtn" id="pCancel">Cancel</button>
       </div>
     </div>
@@ -374,47 +401,6 @@
   </div>
 </div>
 
-<!-- ORIGINAL E.G.O. MODAL -->
-<div class="modal" id="cmodal">
-  <div class="sheet">
-    <div class="pstripe"></div>
-    <div class="inner">
-      <h3>Original E.G.O.</h3>
-      <div class="ctag">200 PE // once per campaign // DM collab</div>
-      <div class="field"><label>Name</label><input type="text" id="cName" placeholder="「...」"></div>
-      <div class="field"><label>Category</label>
-        <select id="cType"><option value="weapon">Weapon</option><option value="suit">Suit</option><option value="gift">Gift</option></select></div>
-      <div class="field" id="cGradeField"><label>Risk class</label>
-        <select id="cGrade"><option>ZAYIN</option><option>TETH</option><option>HE</option><option>WAW</option><option>ALEPH</option></select></div>
-      <div class="field" id="cSlotField" style="display:none"><label>Gift slot</label>
-        <select id="cSlot">
-          <option>Hat</option><option>Helmet</option><option>Face</option>
-          <option>Mouth 1</option><option>Mouth 2</option><option>Cheek</option>
-          <option>Brooch</option><option>Neckwear</option>
-          <option>Left Back</option><option>Right Back</option>
-          <option>Hand 1</option><option>Hand 2</option>
-        </select></div>
-      <div class="field"><label>Image URL (optional)</label><input type="text" id="cImg" placeholder="https://…"></div>
-      <div class="picklabel">Equip requirements</div>
-      <div class="reqgrid">
-        <div class="field" style="margin-top:0"><label>Fortitude</label>
-          <select id="cReqFOR"><option value="0">—</option><option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option><option value="5">V</option><option value="6">EX</option></select></div>
-        <div class="field" style="margin-top:0"><label>Justice</label>
-          <select id="cReqJUS"><option value="0">—</option><option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option><option value="5">V</option><option value="6">EX</option></select></div>
-        <div class="field" style="margin-top:0"><label>Prudence</label>
-          <select id="cReqPRU"><option value="0">—</option><option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option><option value="5">V</option><option value="6">EX</option></select></div>
-        <div class="field" style="margin-top:0"><label>Temperance</label>
-          <select id="cReqTEM"><option value="0">—</option><option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option><option value="5">V</option><option value="6">EX</option></select></div>
-      </div>
-      <div class="picklabel">Mechanics</div>
-      <textarea id="cMech" placeholder="Modeled in Blender, rebuilt at raw binary, resin-printed."></textarea>
-      <div class="row">
-        <button class="smallbtn danger" id="cSave">Commit 200 PE + forge</button>
-        <button class="smallbtn" id="cCancel">Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <script src="js/util.js"></script>
 <script src="js/data.js"></script>

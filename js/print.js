@@ -9,7 +9,11 @@ function openPrintModal(){
 }
 
 function renderPrintModal(){
-  const p = peS();
+  const p = peS(), cap = peCap();
+  // the modal carries its own copy of the Enkephalin meter
+  el("pmFill").style.width = Math.min(100, 100*p.cur/cap) + "%";
+  el("pmCur").textContent = p.cur;
+  el("pmCap").textContent = "/ " + cap;
   document.querySelectorAll("#pCatRow .chip").forEach(ch=>ch.classList.toggle("on", ch.dataset.v===pCat));
 
   const items = collection().filter(i=>i.type===pCat && unlockState(i).ok);
@@ -19,9 +23,9 @@ function renderPrintModal(){
   }else{
     box.innerHTML = items.map(it=>
       '<div class="pickrow'+(pPick===it.id?' sel':'')+'" data-pick="'+it.id+'">'+
+        riskBadge(it.grade)+
         '<div class="cimg">'+(it.img?'<img loading="lazy" src="'+esc(it.img)+'" alt="">':'<span class="noimg">—</span>')+'</div>'+
-        '<span style="flex:1;min-width:0">'+esc(it.name)+
-          '<span class="pclass" style="color:'+GHEX[it.grade]+';display:block;font-weight:400">'+it.grade+'</span></span>'+
+        '<span style="flex:1;min-width:0">'+esc(it.name)+'</span>'+
         '<span class="pcost">'+printCost(it.grade)+' PE</span>'+
       '</div>').join("");
   }

@@ -1,7 +1,7 @@
 {
-  "name": "「Your Eyes」 Extraction Terminal",
+  "name": "「Your Eyes」 Interface",
   "short_name": "E.G.O.",
-  "description": "End-of-session E.G.O. extraction rolls, drafting, and printed archive.",
+  "description": "Waylon Ryder's portable Cogito terminal — PE tracking, printing, archive, and session-end extraction.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

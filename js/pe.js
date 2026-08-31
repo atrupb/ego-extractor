@@ -20,9 +20,10 @@ function renderLoadout(){
     // headline shorthand: weapon damage / suit AC, as filled in on the archive record
     const stat = it.type === "weapon" ? (it.dmg || "") : it.type === "suit" ? (it.ac ? "+"+parseInt(it.ac,10)+" AC" : "") : "";
     return '<div class="printrow">'+
+      riskBadge(it.grade)+
       '<div class="cimg">'+(it.img?'<img loading="lazy" src="'+esc(it.img)+'" alt="">':'<span class="noimg">—</span>')+'</div>'+
       '<span class="pn">'+esc(it.name)+
-        '<span class="pclass" style="color:'+GHEX[it.grade]+';display:block;font-weight:400">'+it.grade+' '+it.type.toUpperCase()+' · '+e.cost+' PE</span></span>'+
+        '<span class="pclass" style="display:block;font-weight:400;color:var(--dim)">'+it.type.toUpperCase()+' · '+e.cost+' PE</span></span>'+
       (stat ? '<span class="pcost">'+esc(stat)+'</span>' : '')+
       '<button class="prx" data-rm="'+i+'">×</button>'+
     '</div>';

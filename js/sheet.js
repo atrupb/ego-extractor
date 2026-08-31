@@ -8,13 +8,16 @@ function renderSheet(){
 
   // core numbers
   el("lvlVal").textContent = c.level;
-  el("profVal").textContent = "+" + prof();
+  el("profVal").textContent = (prof()>=0?"+":"") + prof();
   el("acVal").textContent = acVal();
+  // blue number = a manual override is in play
+  el("profVal").classList.toggle("ovr", (c.profMisc|0) !== 0);
+  el("acVal").classList.toggle("ovr", (c.acMisc|0) !== 0);
   el("initVal").textContent = fmtMod(statMod("JUS") + (c.initMisc|0) + bonusFor("INIT"));
-  el("initMiscVal").textContent = fmtMod(c.initMisc|0);
   el("hpMax").textContent = maxHP();
   el("hpCurVal").textContent = c.hpCur === null ? maxHP() : Math.min(c.hpCur, maxHP());
   el("hpTempVal").textContent = c.hpTemp | 0;
+  el("hpTempWrap").style.display = (c.hpTemp|0) ? "" : "none";
   el("hdVal").textContent = hdLeft() + " / " + c.level;
 
   renderStatCards(c);
@@ -26,21 +29,35 @@ function renderSheet(){
     ? c.feats.map((f,i)=>'<div class="featrow"><span>'+esc(f)+'</span><span class="x" data-feat="'+i+'">×</span></div>').join("")
     : '<div class="syncnote" style="margin-top:0">// nothing recorded.</div>';
 
-  // ASI-level choices: one feat OR +10 permanent PE cap (no ASIs, ever)
-  const lvls = [4,8,12,16,19].filter(l=>l<=c.level);
-  el("asiBody").innerHTML = !lvls.length
-    ? '<div class="syncnote" style="margin-top:0">// first choice unlocks at level 4.</div>'
-    : lvls.map(l=>
-      '<div class="statrow"><span>LEVEL '+l+'</span>'+
-      '<select data-asi="'+l+'" style="width:170px">'+
-        '<option value=""'+(!c.asi[l]?' selected':'')+'>— undecided —</option>'+
-        '<option value="feat"'+(c.asi[l]==="feat"?' selected':'')+'>Feat</option>'+
-        '<option value="cap"'+(c.asi[l]==="cap"?' selected':'')+'>+10 PE cap</option>'+
-      '</select></div>').join("");
-
   // PE cap
   el("capTotal").textContent = peCap();
   el("capAdjVal").textContent = ((c.capAdj>=0?"+":"") + (c.capAdj|0));
+
+  renderInternals(c);
+}
+
+/* debug mode: how every derived number is put together */
+function renderInternals(c){
+  const dbg = !!store.get("debug");
+  el("debugPanel").style.display = dbg ? "" : "none";
+  if(!dbg) return;
+  const gb = giftBonuses(), fm = statMod("FOR"), jm = statMod("JUS");
+  const rows = [
+    ["AC", "10 + "+fmtMod(jm)+" Justice + "+(printedAcBonus())+" print + "+(gb.AC|0)+" gift + "+(c.acMisc|0)+" misc = "+acVal()],
+    ["Max HP", "8 "+fmtMod(fm)+" + (lvl-1) x (5 "+fmtMod(fm)+") + "+(gb.HP|0)+" gift = "+maxHP()],
+    ["Initiative", fmtMod(jm)+" Justice + "+(c.initMisc|0)+" misc + "+(gb.INIT|0)+" gift = "+fmtMod(jm+(c.initMisc|0)+(gb.INIT|0))],
+    ["Proficiency", "2 + (lvl-1)/4 + "+(c.profMisc|0)+" misc = "+fmtMod(prof())],
+    ["PE cap", "100 + "+(c.capAdj|0)+" adj + "+(gb.PECAP|0)+" gift = "+peCap()]
+  ];
+  for(const s of STATS){
+    const b = gb[s.k]|0;
+    if(b) rows.push([s.name, c.stats[s.k].base+" base "+fmtMod(b)+" gift = "+statCur(s.k)]);
+  }
+  const bonusLines = Object.entries(gb).filter(([,n])=>n)
+    .map(([t,n])=>(n>0?"+":"")+n+" "+(BONUS_LABEL[t]||t)).join(", ");
+  el("debugBody").innerHTML =
+    rows.map(r=>'<div class="statrow"><span>'+r[0]+'</span><b>'+esc(r[1])+'</b></div>').join("")+
+    (bonusLines ? '<div class="syncnote">gift bonus totals: '+esc(bonusLines)+'</div>' : '');
 }
 
 function renderStatCards(c){
@@ -53,18 +70,19 @@ function renderStatCards(c){
       const lo = GRADE_FLOOR[rank], hi = GRADE_FLOOR[rank+1];
       prog = Math.max(0, Math.min(100, 100*(cur-lo)/(hi-lo)));
     }
-    return '<div class="statcard">'+
-      '<div class="sname">'+s.name+'</div><div class="ssub">'+s.sub+'</div>'+
-      '<div class="srow">'+
-        '<div class="score">'+cur+'</div>'+
-        '<div class="gradebadge'+(rank===6?' ex':'')+'">'+GRADE_NAMES[rank]+'</div>'+
+    return '<div class="statcard" style="--sc:'+s.color+'">'+
+      '<img class="sicon" src="'+s.icon+'" alt="">'+
+      '<div class="sinfo">'+
+        '<div class="sname">'+s.name+' <span class="gradebadge'+(rank===6?' ex':'')+'">'+GRADE_NAMES[rank]+'</span></div>'+
+        '<div class="ssub">'+s.sub+'</div>'+
+        '<div class="prog"><i style="width:'+prog+'%"></i></div>'+
+        '<div class="capnote">'+(rank===6 ? 'EX' : 'next: '+GRADE_NAMES[rank+1]+' at '+GRADE_FLOOR[rank+1])+'</div>'+
       '</div>'+
-      '<div class="modline">MOD <b>'+fmtMod(statMod(s.k))+'</b></div>'+
-      '<div class="prog"><i style="width:'+prog+'%"></i></div>'+
-      '<div class="capnote">'+(rank===6 ? 'EX' : 'next: '+GRADE_NAMES[rank+1]+' at '+GRADE_FLOOR[rank+1])+'</div>'+
-      '<div class="microbtns">'+
-        '<button class="microbtn" data-k="'+s.k+'" data-act="b-">−</button>'+
+      '<div class="snum"><div class="score">'+cur+'</div>'+
+        '<div class="modline">'+fmtMod(statMod(s.k))+'</div></div>'+
+      '<div class="sbtns">'+
         '<button class="microbtn" data-k="'+s.k+'" data-act="b+">+</button>'+
+        '<button class="microbtn" data-k="'+s.k+'" data-act="b-">−</button>'+
       '</div>'+
     '</div>';
   }).join("");
@@ -78,7 +96,6 @@ function renderSaves(c){
     return '<div class="profrow" data-save="'+a+'">'+
       '<span class="pdot'+(on?' on':'')+'">'+PROF_DOT[on?1:0]+'</span>'+
       '<span class="pname">'+a+'</span>'+
-      '<span class="psrc">'+STAT_NAME[ABIL2MERGED[a]]+'</span>'+
       '<span class="pmod">'+fmtMod(mod)+'</span></div>';
   }).join("");
 }
@@ -128,6 +145,10 @@ function initSheet(){
   el("lvlPlus").onclick  = ()=>{ const c=charS(); c.level=Math.min(20,c.level+1); saveChar(c); refreshAll(); };
   el("initMinus").onclick = ()=>{ const c=charS(); c.initMisc=(c.initMisc|0)-1; saveChar(c); renderSheet(); };
   el("initPlus").onclick  = ()=>{ const c=charS(); c.initMisc=(c.initMisc|0)+1; saveChar(c); renderSheet(); };
+  el("acMinus").onclick   = ()=>{ const c=charS(); c.acMisc=(c.acMisc|0)-1; saveChar(c); refreshAll(); };
+  el("acPlus").onclick    = ()=>{ const c=charS(); c.acMisc=(c.acMisc|0)+1; saveChar(c); refreshAll(); };
+  el("profMinus").onclick = ()=>{ const c=charS(); c.profMisc=(c.profMisc|0)-1; saveChar(c); refreshAll(); };
+  el("profPlus").onclick  = ()=>{ const c=charS(); c.profMisc=(c.profMisc|0)+1; saveChar(c); refreshAll(); };
 
   // HP is derived (never hand-entered); current HP is just table damage tracking.
   // type the amount, then − / +
@@ -154,14 +175,6 @@ function initSheet(){
   el("hdMinus").onclick = ()=>{ const c=charS(); c.hdLeft=Math.max(0, hdLeft()-1); saveChar(c); renderSheet(); };
   el("hdPlus").onclick  = ()=>{ const c=charS(); c.hdLeft=Math.min(c.level, hdLeft()+1); saveChar(c); renderSheet(); };
 
-  el("asiBody").addEventListener("change", e=>{
-    const sel = e.target.closest("select[data-asi]");
-    if(!sel) return;
-    const c = charS();
-    if(sel.value) c.asi[sel.dataset.asi] = sel.value; else delete c.asi[sel.dataset.asi];
-    saveChar(c); refreshAll();
-  });
-
   el("featAdd").onclick = ()=>{
     const v = el("featInput").value.trim();
     if(!v) return;
@@ -174,7 +187,13 @@ function initSheet(){
     const c = charS(); c.feats.splice(+x.dataset.feat,1); saveChar(c); renderSheet();
   });
 
-  // permanent PE cap — player-counted, ±2 per tap
-  el("capMinus").onclick = ()=>{ const c=charS(); c.capAdj=(c.capAdj|0)-2; saveChar(c); refreshAll(); };
-  el("capPlus").onclick  = ()=>{ const c=charS(); c.capAdj=(c.capAdj|0)+2; saveChar(c); refreshAll(); };
+  // permanent PE cap — player-counted (+2 stat overflow, +10 level choices).
+  // raising the cap grants the PE itself too: 55/100 → 65/110 (and mirrors on the way down)
+  const capAdj = d => ()=>{
+    const c = charS(); c.capAdj = (c.capAdj|0) + d; saveChar(c);
+    addPE(d);
+    refreshAll();
+  };
+  el("capM10").onclick = capAdj(-10); el("capMinus").onclick = capAdj(-2);
+  el("capPlus").onclick = capAdj(+2); el("capP10").onclick = capAdj(+10);
 }

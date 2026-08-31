@@ -5,15 +5,22 @@ const API  = WIKI + "/api.php";
 const GCOLOR = {ZAYIN:"var(--zayin)",TETH:"var(--teth)",HE:"var(--he)",WAW:"var(--waw)",ALEPH:"var(--aleph)",GIFT:"var(--gift)"};
 const GHEX   = {ZAYIN:"#5df04e",TETH:"#3aaef8",HE:"#f8ef42",WAW:"#b44ff2",ALEPH:"#f24444",GIFT:"#f2c14e"};
 const D20MAP = n => n<=6?"ZAYIN" : n<=11?"TETH" : n<=16?"HE" : n<=18?"WAW" : "ALEPH";
+/* the in-game risk classification signs */
+const RISK_IMG = {ZAYIN:"assets/risk-zayin.png", TETH:"assets/risk-teth.png", HE:"assets/risk-he.png",
+  WAW:"assets/risk-waw.png", ALEPH:"assets/risk-aleph.png"};
+function riskBadge(grade){
+  return RISK_IMG[grade] ? '<img class="riskbadge" src="'+RISK_IMG[grade]+'" alt="'+grade+'">' : '';
+}
 const CATS = {1:"GIFT",2:"WEAPON",3:"SUIT",4:"WEAPON + SUIT"};
 const CLASSES = ["ZAYIN","TETH","HE","WAW","ALEPH"];
 
-/* the four merged LC stats — the merged score IS the D&D stat */
+/* the four merged LC stats — the merged score IS the D&D stat.
+   Colors and icons follow the game: Fortitude red, Justice cyan, Prudence white, Temperance purple. */
 const STATS = [
-  {k:"FOR", name:"Fortitude",  sub:"STR + CON"},
-  {k:"JUS", name:"Justice",    sub:"DEX"},
-  {k:"PRU", name:"Prudence",   sub:"WIS"},
-  {k:"TEM", name:"Temperance", sub:"INT + CHA"}
+  {k:"FOR", name:"Fortitude",  sub:"STR + CON",  color:"#e8433f", icon:"assets/stat-for.png"},
+  {k:"JUS", name:"Justice",    sub:"DEX",        color:"#3fd8e0", icon:"assets/stat-jus.png"},
+  {k:"PRU", name:"Prudence",   sub:"WIS",        color:"#efe9d8", icon:"assets/stat-pru.png"},
+  {k:"TEM", name:"Temperance", sub:"INT + CHA",  color:"#a85fc2", icon:"assets/stat-tem.png"}
 ];
 const STAT_NAME = Object.fromEntries(STATS.map(s=>[s.k,s.name]));
 
@@ -64,7 +71,7 @@ const BONUS_LABEL = Object.fromEntries(BONUS_TARGETS.map(b=>[b.v, b.label]));
 const PRINT_BASE = {ZAYIN:5, TETH:10, HE:17, WAW:30, ALEPH:40};
 
 /* synthesis price menu (spent from the shared PE pool) */
-const SYNTH_COST = {GIFT:60, ZAYIN:60, TETH:80, HE:120, WAW:150, ALEPH:170, ORIGINAL:200};
+const SYNTH_COST = {GIFT:60, ZAYIN:60, TETH:80, HE:120, WAW:150, ALEPH:170};
 
 /* LC gift-slot taxonomy. Eye is permanently occupied by 「Your Eyes」. */
 const SLOTS = [

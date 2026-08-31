@@ -44,18 +44,18 @@ function init(){
   el("synType").onchange = renderTerminal;
   el("synClass").onchange = renderTerminal;
   el("synSlot").onchange = renderTerminal;
-  el("origBtn").onclick = openOriginal;
   el("syncBtn").onclick = sync;
+  el("optDebug").checked = !!store.get("debug");
+  el("optDebug").onchange = ()=>{ store.set("debug", el("optDebug").checked); refreshAll(); };
 
   // extraction screen
   el("recoverBtn").onclick = recoverRecord;
-  el("abortBtn").onclick = ()=>{ if(picked>=0 || confirm("Abort extraction? The roll is lost.")) switchTab("T"); };
-
-  // original E.G.O. modal
-  el("cType").onchange = onCTypeChange;
-  el("cSave").onclick = saveOriginal;
-  el("cCancel").onclick = ()=>el("cmodal").classList.remove("on");
-  el("cmodal").addEventListener("click",e=>{ if(e.target===el("cmodal")) el("cmodal").classList.remove("on"); });
+  el("abortBtn").onclick = ()=>{
+    if(picked>=0 || confirm("Abort extraction? The roll is lost.")){
+      musicFade(0, 500);
+      switchTab("T");
+    }
+  };
 
   refreshAll();
 

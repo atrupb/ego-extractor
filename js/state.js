@@ -25,13 +25,12 @@ function defaultChar(){
   return {
     level:1,
     stats:{FOR:{base:10,tmp:0}, JUS:{base:10,tmp:0}, PRU:{base:10,tmp:0}, TEM:{base:10,tmp:0}},
-    feats:[], asi:{},            // asi: {4:"feat"|"cap", 8:..., 12, 16, 19}
+    feats:[],
     saveProf:{CON:true, INT:true}, // artificer chassis defaults; tap to change
     skills:{},                   // {perception:0|1|2} — none / proficient / expertise
     capAdj:0,                    // player-managed permanent PE cap adjustment
-    initMisc:0, hpCur:null, hpTemp:0,
-    hdLeft:null,                 // hit dice remaining; null = full (= level)
-    originalUsed:false           // fully original E.G.O. — once per campaign
+    initMisc:0, acMisc:0, profMisc:0, hpCur:null, hpTemp:0,
+    hdLeft:null                  // hit dice remaining; null = full (= level)
   };
 }
 function charS(){
@@ -39,6 +38,8 @@ function charS(){
   if(!c) return defaultChar();
   // old saves logged cap overflow as a list — fold it into the plain adjustment
   if(Array.isArray(c.overflow)){ c.capAdj = (c.capAdj|0) + 2*c.overflow.length; delete c.overflow; }
+  // the ASI panel is gone — fold its +10-cap choices into the adjustment too
+  if(c.asi){ c.capAdj = (c.capAdj|0) + 10*Object.values(c.asi).filter(v=>v==="cap").length; delete c.asi; }
   // migrate quietly if fields were added since the save was written
   const m = Object.assign(defaultChar(), c, {stats:Object.assign(defaultChar().stats, c.stats||{})});
   // the temp-modifier UI is gone — fold any stored temp values into base so − / + work on the real number
@@ -100,7 +101,7 @@ function bonusFor(t){ return giftBonuses()[t] | 0; }
 
 function statCur(k){ const s = charS().stats[k]; return s.base + (s.tmp|0) + bonusFor(k); }
 function statMod(k){ return Math.floor((statCur(k) - 10) / 2); }
-function prof(){ return 2 + Math.floor((charS().level - 1) / 4); }
+function prof(){ const c = charS(); return 2 + Math.floor((c.level - 1) / 4) + (c.profMisc|0); }
 /* HP is derived live — retroactive: hit die + Fortitude mod × level, avg per level after 1st.
    Hit die is d8, per the Artificer rules. */
 const HIT_DIE = 8;
@@ -121,13 +122,11 @@ function printedAcBonus(){
     return a + (isFinite(n) ? n : 0);
   }, 0);
 }
-function acVal(){ return 10 + statMod("JUS") + printedAcBonus() + bonusFor("AC"); }
+function acVal(){ return 10 + statMod("JUS") + printedAcBonus() + bonusFor("AC") + (charS().acMisc|0); }
 
-/* PE cap: 100 base + player-managed adjustment + 10 per ASI-level cap choice + equipped gifts */
+/* PE cap: 100 base + player-managed adjustment + equipped gifts */
 function peCap(){
-  const c = charS();
-  const asiCaps = Object.values(c.asi).filter(v => v === "cap").length;
-  return 100 + (c.capAdj|0) + 10*asiCaps + bonusFor("PECAP");
+  return 100 + (charS().capAdj|0) + bonusFor("PECAP");
 }
 
 /* print cost for one item of a risk class (Temperance INT-mod discount, floored at 0) */
