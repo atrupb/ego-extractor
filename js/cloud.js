@@ -1,17 +1,22 @@
 "use strict";
 /* ============ cross-device sync — one private GitHub gist is the cloud slot ============
-   The first device to connect seeds the gist from its local storage; every other
-   device that connects with the same token adopts the cloud copy. After that,
-   every change pushes automatically (debounced) and every launch/focus pulls. */
+   v2: per-key merge, the way a real database writes fields instead of files.
+   Every synced key carries its own timestamp; a device only updates the keys it
+   actually has newer versions of, so a stale device can no longer erase work it
+   never knew about. Whole-state conflicts (and their popups) no longer exist —
+   the worst case is the same key edited on two devices, where the newer edit wins.
+   The gist keeps every revision, so History can restore any earlier snapshot. */
 
 const CLOUD_KEYS = ["col","char","pe","loadout","gifts","slotPos","roster","syncAt","peStep","lockHash"];
-const GIST_FILE = "ego-state.json";
+const GIST_FILE    = "ego-state-v2.json";
+const GIST_FILE_V1 = "ego-state.json";   // read-only legacy: old app versions wrote here,
+                                         // and new ones ignore their pushes entirely
 const GIST_DESC = "ego-terminal-sync";
 
 let cloudSilent = false;    // applying remote data — don't re-mark it dirty
 let cloudReady  = false;    // the boot pull has settled — pushes may flow
 let cloudBusy   = false;
-let pushTimer   = null, lastPullTs = 0, cloudMsg = "";
+let pushTimer   = null, lastPullTs = 0, cloudMsg = "", histList = null;
 
 const ghToken = () => store.get("ghToken") || "";
 const cloudOn = () => !!(ghToken() && store.get("gistId"));
@@ -21,10 +26,13 @@ let writeSeq = 0;   // counts local edits so a push knows if typing continued mi
 function cloudTouch(k){
   if(cloudSilent || !CLOUD_KEYS.includes(k) || !cloudOn()) return;
   // writes before the boot pull settles are one-time migrations normalizing local
-  // data, not player edits — marking them dirty made stale devices shout "conflict"
+  // data, not player edits — they must not claim to be news
   if(!cloudReady) return;
   writeSeq++;
-  store.set("cloudDirty", true);          // not a CLOUD_KEY — no recursion
+  const ka = store.get("cloudKeyAt") || {};
+  ka[k] = new Date().toISOString();
+  store.set("cloudKeyAt", ka);            // not a CLOUD_KEY — no recursion
+  store.set("cloudDirty", true);
   renderCloud();
   clearTimeout(pushTimer);
   pushTimer = setTimeout(cloudPush, 2500);
@@ -32,7 +40,7 @@ function cloudTouch(k){
 
 async function gh(path, opts){
   // no-store: the API sends max-age=60, and a cached GET makes the freshly
-  // written gist look older than it is — every push then cries "conflict"
+  // written gist look older than it is
   const res = await fetch("https://api.github.com" + path, Object.assign({}, opts, {
     cache: "no-store",
     headers: Object.assign({
@@ -45,7 +53,7 @@ async function gh(path, opts){
 }
 
 async function readGist(g){
-  const f = g.files && g.files[GIST_FILE];
+  const f = g.files && (g.files[GIST_FILE] || g.files[GIST_FILE_V1]);
   if(!f) return null;
   try{
     const text = f.truncated ? await (await fetch(f.raw_url, {cache:"no-store"})).text() : f.content;
@@ -56,27 +64,40 @@ async function readGist(g){
 function payloadNow(){
   const data = {};
   for(const k of CLOUD_KEYS){ const v = store.get(k); if(v !== null) data[k] = v; }
-  return {v:1, at:new Date().toISOString(), data};
+  return {v:2, at:new Date().toISOString(), keyAt: store.get("cloudKeyAt") || {}, data};
 }
 
-function applyRemote(remote){
+/* the age of one key in a payload. v1 payloads stamped nothing individually,
+   so every key inherits the file stamp; in v2 an unstamped key is of unknown
+   age and must never beat a stamped local one. */
+function keyStamp(p, k){
+  if((p.v|0) >= 2) return (p.keyAt && p.keyAt[k]) || "";
+  return p.at || "";
+}
+
+/* fold a remote payload into local state, newest stamp per key.
+   Returns true if local still holds something the remote lacks — i.e. push. */
+function mergeRemote(p){
+  const keyAt = store.get("cloudKeyAt") || {};
+  let tookRemote = false, haveNewer = false;
   cloudSilent = true;
-  try{ for(const k of CLOUD_KEYS) if(k in remote.data) store.set(k, remote.data[k]); }
-  finally{ cloudSilent = false; }
-  store.set("cloudAt", remote.at);
-  store.set("cloudDirty", false);
-  refreshAll();
+  try{
+    for(const k of CLOUD_KEYS){
+      if(k in p.data){
+        const rAt = keyStamp(p, k), lAt = keyAt[k] || "";
+        if(rAt > lAt){ store.set(k, p.data[k]); keyAt[k] = rAt; tookRemote = true; }
+        else if(lAt > rAt) haveNewer = true;
+      }else if(store.get(k) !== null) haveNewer = true;
+    }
+  }finally{ cloudSilent = false; }
+  store.set("cloudKeyAt", keyAt);
+  store.set("cloudAt", p.at);
+  if(tookRemote) refreshAll();
+  return haveNewer;
 }
 
 function fmtAt(iso){ try{ return new Date(iso).toLocaleString(); }catch(e){ return iso; } }
 function cloudStatus(t){ cloudMsg = t; const s = el("cloudStat"); if(s) s.textContent = t; }
-
-/* both sides changed since they last agreed — the operator picks a survivor */
-function resolveConflict(remote){
-  const loadCloud = confirm("Another device updated the cloud (" + fmtAt(remote.at) + "), and this device also has unsynced changes.\n\nOK — load the cloud version (this device's unsynced changes are lost)\nCancel — keep this device's version and overwrite the cloud");
-  if(loadCloud){ applyRemote(remote); cloudStatus(""); renderCloud(); }
-  else{ store.set("cloudAt", remote.at); cloudPush(); }
-}
 
 async function cloudPush(){
   clearTimeout(pushTimer);
@@ -84,22 +105,17 @@ async function cloudPush(){
   if(cloudBusy){ pushTimer = setTimeout(cloudPush, 3000); return; }
   cloudBusy = true; cloudStatus("uploading…");
   try{
-    // refuse to clobber a version this device hasn't seen — but a remote stamp
-    // OLDER than one we've already seen is a stale read, not another device
+    // adopt anything newer from the cloud first, then write the merged whole —
+    // this push can only ever add news, never roll another device's keys back
     const remote = await readGist(await gh("/gists/" + store.get("gistId")));
-    const seen = store.get("cloudAt");
-    if(remote && seen && remote.at > seen){
-      cloudBusy = false; cloudStatus("");
-      resolveConflict(remote);
-      return;
-    }
+    if(remote && (remote.v|0) >= 2) mergeRemote(remote);
     const seqAtSend = writeSeq;
     const p = payloadNow();
     await gh("/gists/" + store.get("gistId"), {method:"PATCH",
       body: JSON.stringify({files: {[GIST_FILE]: {content: JSON.stringify(p)}}})});
     store.set("cloudAt", p.at);
     // typing that happened while this upload was in flight is NOT in it —
-    // stay dirty and follow up, or a later pull could revert those keystrokes
+    // stay dirty and follow up, or that typing would sit unsynced
     if(writeSeq === seqAtSend) store.set("cloudDirty", false);
     else{ clearTimeout(pushTimer); pushTimer = setTimeout(cloudPush, 1500); }
     cloudStatus("");
@@ -119,17 +135,12 @@ async function cloudPull(){
   cloudBusy = false;
   cloudReady = true;
   if(failed){ cloudStatus("// offline — using this device's data"); renderCloud(); return; }
-  const seen = store.get("cloudAt"), dirty = !!store.get("cloudDirty");
-  // only a remote stamp NEWER than the last one seen is real news; an equal one
-  // is already here, and an older one is a stale read that must never roll
-  // this device back. A device that has seen nothing yet takes whatever exists.
-  const news = remote && (!seen || remote.at > seen);
-  if(!news){
-    if(dirty) return cloudPush();
-    cloudStatus(""); renderCloud(); return;
-  }
-  if(dirty) return resolveConflict(remote);
-  applyRemote(remote);
+  let pushNeeded = !!store.get("cloudDirty");
+  // a legacy v1 payload here means no device has written v2 yet — it only
+  // matters at connect; established devices don't let it overwrite anything
+  if(remote && (remote.v|0) >= 2) pushNeeded = mergeRemote(remote) || pushNeeded;
+  else if(!remote) pushNeeded = true;   // v2 slot missing — seed it
+  if(pushNeeded) return cloudPush();
   cloudStatus(""); renderCloud();
 }
 
@@ -142,28 +153,34 @@ async function cloudConnect(){
     let gist = null;
     for(let page = 1; page <= 3 && !gist; page++){
       const list = await gh("/gists?per_page=100&page=" + page);
-      gist = list.find(g => g.description === GIST_DESC || (g.files && g.files[GIST_FILE]));
+      gist = list.find(g => g.description === GIST_DESC || (g.files && (g.files[GIST_FILE] || g.files[GIST_FILE_V1])));
       if(list.length < 100) break;
     }
     if(gist){
-      // the cloud already exists — this device adopts it
+      // the cloud already exists — this device adopts it, then contributes its own news
       const remote = await readGist(await gh("/gists/" + gist.id));
-      if(remote && !confirm("Cloud archive found (updated " + fmtAt(remote.at) + ").\n\nLoad it onto this device? Data currently on this device is replaced.")){
+      if(remote && !confirm("Cloud archive found (updated " + fmtAt(remote.at) + ").\n\nAdopt it onto this device?")){
         store.set("ghToken", null);
         cloudBusy = false; cloudStatus("// connection cancelled"); renderCloud(); return;
       }
       store.set("gistId", gist.id);
+      store.set("cloudKeyAt", {});   // no claims — the cloud's stamps win everywhere
       cloudBusy = false; cloudReady = true;
-      if(remote){ applyRemote(remote); cloudStatus(""); }
-      else{ store.set("cloudDirty", true); await cloudPush(); }
+      if(remote){ mergeRemote(remote); }
+      store.set("cloudDirty", true); // upload the merged whole (covers local-only keys)
+      await cloudPush();
     }else{
-      // no cloud yet — this device's data becomes the seed
+      // no cloud yet — this device's data becomes the seed, every key stamped now
       const p = payloadNow();
+      const ka = {};
+      for(const k of Object.keys(p.data)) ka[k] = p.at;
+      p.keyAt = ka;
       const made = await gh("/gists", {method:"POST", body: JSON.stringify({
         description: GIST_DESC, public: false,
         files: {[GIST_FILE]: {content: JSON.stringify(p)}}
       })});
       store.set("gistId", made.id);
+      store.set("cloudKeyAt", ka);
       store.set("cloudAt", p.at);
       store.set("cloudDirty", false);
       cloudBusy = false; cloudReady = true;
@@ -181,7 +198,43 @@ function cloudDisconnect(){
   if(!confirm("Disconnect this device from cloud sync? Data on this device stays as it is.")) return;
   store.set("ghToken", null); store.set("gistId", null);
   store.set("cloudAt", null); store.set("cloudDirty", false);
+  store.set("cloudKeyAt", null);
+  histList = null;
   cloudStatus(""); renderCloud();
+}
+
+/* ---- history: the gist keeps every revision — any snapshot can be restored ---- */
+async function cloudHist(){
+  cloudStatus("loading history…");
+  try{
+    const g = await gh("/gists/" + store.get("gistId"));
+    histList = (g.history || []).slice(0, 15);
+    cloudStatus("");
+  }catch(e){ histList = null; cloudStatus("// offline"); }
+  renderCloud();
+}
+async function cloudRestore(ver){
+  cloudStatus("fetching snapshot…");
+  try{
+    const g = await gh("/gists/" + store.get("gistId") + "/" + ver);
+    const p = await readGist(g);
+    if(!p){ cloudStatus("// snapshot unreadable"); renderCloud(); return; }
+    if(!confirm("Restore the snapshot from " + fmtAt(p.at) + "?\n\nIt becomes the newest version everywhere — current data is overwritten.")){
+      cloudStatus(""); renderCloud(); return;
+    }
+    const now = new Date().toISOString();
+    const keyAt = store.get("cloudKeyAt") || {};
+    cloudSilent = true;
+    try{
+      for(const k of CLOUD_KEYS) if(k in p.data){ store.set(k, p.data[k]); keyAt[k] = now; }
+    }finally{ cloudSilent = false; }
+    store.set("cloudKeyAt", keyAt);
+    store.set("cloudDirty", true);
+    histList = null;
+    refreshAll();
+    renderCloud();
+    cloudPush();
+  }catch(e){ cloudStatus("// offline"); renderCloud(); }
 }
 
 function renderCloud(){
@@ -194,6 +247,14 @@ function renderCloud(){
       '<button class="smallbtn accent" id="cloudConnBtn" style="margin-top:10px">Connect</button>'+
       '<div class="syncnote" id="cloudStat">'+esc(cloudMsg)+'</div>';
     el("cloudConnBtn").onclick = cloudConnect;
+  }else if(histList){
+    box.innerHTML =
+      '<div class="picklabel" style="margin-top:0">Cloud history — tap a snapshot to restore it</div>'+
+      histList.map(h=>'<div class="pickrow" data-hver="'+esc(h.version)+'"><span>'+fmtAt(h.committed_at)+'</span></div>').join("")+
+      '<div class="row" style="margin-top:10px"><button class="smallbtn" id="cloudHistBack">Back</button></div>'+
+      '<div class="syncnote" id="cloudStat">'+esc(cloudMsg)+'</div>';
+    box.querySelectorAll("[data-hver]").forEach(r => r.onclick = ()=>cloudRestore(r.dataset.hver));
+    el("cloudHistBack").onclick = ()=>{ histList = null; renderCloud(); };
   }else{
     const dirty = !!store.get("cloudDirty");
     box.innerHTML =
@@ -202,22 +263,32 @@ function renderCloud(){
       (dirty ? '<div class="syncnote">// unsynced changes on this device</div>' : '')+
       '<div class="row" style="margin-top:10px">'+
         '<button class="smallbtn accent" id="cloudSyncBtn">Sync now</button>'+
+        '<button class="smallbtn" id="cloudHistBtn">History</button>'+
         '<button class="smallbtn" id="cloudOffBtn">Disconnect</button>'+
       '</div>'+
       '<div class="syncnote" id="cloudStat">'+esc(cloudMsg)+'</div>';
     el("cloudSyncBtn").onclick = cloudPull;
+    el("cloudHistBtn").onclick = cloudHist;
     el("cloudOffBtn").onclick = cloudDisconnect;
   }
 }
 
 function initCloud(){
+  // first run of the per-key engine on an already-connected device: local data
+  // was in sync through cloudAt, so every present key inherits that stamp —
+  // without this, an old whole-file payload would outrank everything local
+  if(cloudOn() && !store.get("cloudKeyAt")){
+    const base = store.get("cloudAt") || new Date().toISOString();
+    const ka = {};
+    for(const k of CLOUD_KEYS) if(store.get(k) !== null) ka[k] = base;
+    store.set("cloudKeyAt", ka);
+  }
   renderCloud();
   if(cloudOn()) cloudPull();
   else cloudReady = true;
   window.addEventListener("focus", ()=>{
     if(!cloudOn() || Date.now() - lastPullTs <= 60000) return;
-    // never yank the state out from under an open editor or unsynced edits:
-    // dirty devices push instead of pulling; mid-typing devices sit tight
+    // don't steal focus from an open editor; dirty devices push instead of pulling
     const ae = document.activeElement;
     const editing = ae && (ae.tagName === "TEXTAREA" || ae.tagName === "INPUT");
     if(store.get("cloudDirty")){ cloudPush(); return; }
