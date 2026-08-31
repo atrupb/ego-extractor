@@ -31,7 +31,10 @@ function cloudTouch(k){
 }
 
 async function gh(path, opts){
+  // no-store: the API sends max-age=60, and a cached GET makes the freshly
+  // written gist look older than it is — every push then cries "conflict"
   const res = await fetch("https://api.github.com" + path, Object.assign({}, opts, {
+    cache: "no-store",
     headers: Object.assign({
       "Authorization": "Bearer " + ghToken(),
       "Accept": "application/vnd.github+json"
@@ -45,7 +48,7 @@ async function readGist(g){
   const f = g.files && g.files[GIST_FILE];
   if(!f) return null;
   try{
-    const text = f.truncated ? await (await fetch(f.raw_url)).text() : f.content;
+    const text = f.truncated ? await (await fetch(f.raw_url, {cache:"no-store"})).text() : f.content;
     return JSON.parse(text);
   }catch(e){ return null; }
 }
@@ -81,10 +84,11 @@ async function cloudPush(){
   if(cloudBusy){ pushTimer = setTimeout(cloudPush, 3000); return; }
   cloudBusy = true; cloudStatus("uploading…");
   try{
-    // refuse to clobber a version this device hasn't seen
+    // refuse to clobber a version this device hasn't seen — but a remote stamp
+    // OLDER than one we've already seen is a stale read, not another device
     const remote = await readGist(await gh("/gists/" + store.get("gistId")));
     const seen = store.get("cloudAt");
-    if(remote && seen && remote.at !== seen){
+    if(remote && seen && remote.at > seen){
       cloudBusy = false; cloudStatus("");
       resolveConflict(remote);
       return;
@@ -116,7 +120,11 @@ async function cloudPull(){
   cloudReady = true;
   if(failed){ cloudStatus("// offline — using this device's data"); renderCloud(); return; }
   const seen = store.get("cloudAt"), dirty = !!store.get("cloudDirty");
-  if(!remote || remote.at === seen){
+  // only a remote stamp NEWER than the last one seen is real news; an equal one
+  // is already here, and an older one is a stale read that must never roll
+  // this device back. A device that has seen nothing yet takes whatever exists.
+  const news = remote && (!seen || remote.at > seen);
+  if(!news){
     if(dirty) return cloudPush();
     cloudStatus(""); renderCloud(); return;
   }
