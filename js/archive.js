@@ -90,9 +90,9 @@ function openDetail(id){
     el("mStatField").style.display = "none";
   }else{
     el("mStatField").style.display = "block";
-    el("mStatLabel").textContent = it.type === "weapon" ? "Damage (e.g. 2d6 + Justice)" : "AC";
+    el("mStatLabel").textContent = it.type === "weapon" ? "Damage (e.g. 2d6 + Justice)" : "AC bonus (applies to the sheet while printed)";
     el("mStat").value = (it.type === "weapon" ? it.dmg : it.ac) || "";
-    el("mStat").placeholder = it.type === "weapon" ? "3d4 slashing…" : "17…";
+    el("mStat").placeholder = it.type === "weapon" ? "3d4 slashing…" : "5";
   }
   el("mNote").value = it.note||"";
   el("mWiki").onclick = ()=>{ if(it.link) window.open(it.link,"_blank"); };

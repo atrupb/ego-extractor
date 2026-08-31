@@ -10,7 +10,6 @@ function renderSheet(){
   el("lvlVal").textContent = c.level;
   el("profVal").textContent = "+" + prof();
   el("acVal").textContent = acVal();
-  el("acMiscVal").textContent = (c.acMisc>=0?"+":"") + c.acMisc;
   el("initVal").textContent = fmtMod(statMod("JUS") + (c.initMisc|0));
   el("initMiscVal").textContent = fmtMod(c.initMisc|0);
   el("hpMax").textContent = maxHP();
@@ -127,8 +126,6 @@ function initSheet(){
 
   el("lvlMinus").onclick = ()=>{ const c=charS(); c.level=Math.max(1,c.level-1); saveChar(c); refreshAll(); };
   el("lvlPlus").onclick  = ()=>{ const c=charS(); c.level=Math.min(20,c.level+1); saveChar(c); refreshAll(); };
-  el("acMinus").onclick = ()=>{ const c=charS(); c.acMisc=(c.acMisc|0)-1; saveChar(c); renderSheet(); };
-  el("acPlus").onclick  = ()=>{ const c=charS(); c.acMisc=(c.acMisc|0)+1; saveChar(c); renderSheet(); };
   el("initMinus").onclick = ()=>{ const c=charS(); c.initMisc=(c.initMisc|0)-1; saveChar(c); renderSheet(); };
   el("initPlus").onclick  = ()=>{ const c=charS(); c.initMisc=(c.initMisc|0)+1; saveChar(c); renderSheet(); };
 

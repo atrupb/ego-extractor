@@ -15,7 +15,7 @@ function defaultChar(){
     saveProf:{CON:true, INT:true}, // artificer chassis defaults; tap to change
     skills:{},                   // {perception:0|1|2} — none / proficient / expertise
     capAdj:0,                    // player-managed permanent PE cap adjustment
-    acMisc:0, initMisc:0, hpCur:null, hpTemp:0,
+    initMisc:0, hpCur:null, hpTemp:0,
     hdLeft:null,                 // hit dice remaining; null = full (= level)
     originalUsed:false           // fully original E.G.O. — once per campaign
   };
@@ -83,7 +83,16 @@ function hdLeft(){
   const c = charS();
   return c.hdLeft === null ? c.level : Math.min(c.hdLeft, c.level);
 }
-function acVal(){ return 10 + statMod("JUS") + (charS().acMisc|0); }
+/* AC = 10 + Justice, plus the AC bonus of any actively printed suit */
+function printedAcBonus(){
+  const col = collection();
+  return loadoutS().reduce((a,e)=>{
+    const it = col.find(x=>x.id===e.id);
+    const n = it && it.type === "suit" ? parseInt(it.ac, 10) : 0;
+    return a + (isFinite(n) ? n : 0);
+  }, 0);
+}
+function acVal(){ return 10 + statMod("JUS") + printedAcBonus(); }
 
 /* PE cap: 100 base + player-managed adjustment + 10 per ASI-level cap choice */
 function peCap(){

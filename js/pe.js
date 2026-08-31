@@ -18,7 +18,7 @@ function renderLoadout(){
     const it = col.find(x=>x.id===e.id);
     if(!it) return "";
     // headline shorthand: weapon damage / suit AC, as filled in on the archive record
-    const stat = it.type === "weapon" ? (it.dmg || "") : it.type === "suit" ? (it.ac ? "AC "+it.ac : "") : "";
+    const stat = it.type === "weapon" ? (it.dmg || "") : it.type === "suit" ? (it.ac ? "+"+parseInt(it.ac,10)+" AC" : "") : "";
     return '<div class="printrow">'+
       '<div class="cimg">'+(it.img?'<img loading="lazy" src="'+esc(it.img)+'" alt="">':'<span class="noimg">—</span>')+'</div>'+
       '<span class="pn">'+esc(it.name)+
@@ -49,6 +49,6 @@ function initPE(){
     const l = loadoutS();
     l.splice(+b.dataset.rm, 1);
     saveLoadout(l);
-    renderPE();
+    refreshAll();          // a removed suit takes its AC bonus with it
   });
 }

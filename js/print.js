@@ -59,7 +59,7 @@ function initPrint(){
     l.push({id:it.id, cost, date:todayISO()});
     saveLoadout(l);
     el("pmodal").classList.remove("on");
-    renderPE();
+    refreshAll();          // a printed suit's AC bonus lands on the sheet
   };
   el("pCancel").onclick = ()=>el("pmodal").classList.remove("on");
 }
