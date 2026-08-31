@@ -65,7 +65,6 @@ function markArchiveUsed(){
 
 /* ---------- EXTRACTION: d4 category, d20 risk class, hand of 3, recover one ---------- */
 async function beginExtraction(){
-  if(charS().archiveUsed) return;
   resetExtractionScreen();
   markArchiveUsed();
   show("E");
@@ -118,8 +117,6 @@ function synthTarget(){
   return {type:t, grade:g, cost: SYNTH_COST[g], label: g+" "+t.toUpperCase()};
 }
 async function beginSynthesis(){
-  const c = charS();
-  if(c.archiveUsed) return;
   const t = synthTarget();
   if(peS().cur < t.cost) return;
   if(!confirm("Synthesize — "+t.label+" — for "+t.cost+" PE?")) return;
@@ -246,8 +243,7 @@ function renderTerminal(){
   el("stSync").textContent = store.get("syncAt")||"never";
   el("syncwarn").style.display = r.some(i=>i.type==="suit") ? "none" : "block";
 
-  // one archive action per session end
-  el("beginBtn").disabled = c.archiveUsed;
+  // one archive action per session end — informational only, never a lock
   el("usedNote").style.display = c.archiveUsed ? "block" : "none";
 
   // synthesis selects + cost line
@@ -256,7 +252,7 @@ function renderTerminal(){
   el("synSlotField").style.display  = isGift ? "block" : "none";
   const t = synthTarget();
   el("synCost").innerHTML = 'COST: <b class="'+(p.cur>=t.cost?'':'bad')+'">'+t.cost+' PE</b> (have '+p.cur+')';
-  el("synBtn").disabled = c.archiveUsed || p.cur < t.cost;
+  el("synBtn").disabled = p.cur < t.cost;
 
   // original E.G.O.
   el("origBtn").disabled = c.originalUsed || p.cur < SYNTH_COST.ORIGINAL;

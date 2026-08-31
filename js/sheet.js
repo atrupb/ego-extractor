@@ -82,8 +82,8 @@ function renderStatCards(c){
         '<button class="microbtn accent" data-k="'+s.k+'" data-act="t-">T−</button>'+
         '<button class="microbtn accent" data-k="'+s.k+'" data-act="t+">T+</button>'+
       '</div>'+
-      '<button class="workbtn" data-k="'+s.k+'" data-act="work" '+(c.work[s.k]?'disabled':'')+'>'+
-        (c.work[s.k] ? 'WORK LOGGED ✓' : (capped ? 'WORK → +2 PE CAP' : 'WORK +1'))+
+      '<button class="workbtn" data-k="'+s.k+'" data-act="work">'+
+        (capped ? 'WORK → +2 PE CAP' : 'WORK +1')+(c.work[s.k] ? ' ✓' : '')+
         '<small>'+esc(s.work)+'</small></button>'+
     '</div>';
   }).join("");
@@ -101,8 +101,7 @@ function initSheet(){
       case "t+": st.tmp = Math.min(15, (st.tmp|0)+1); break;
       case "t-": st.tmp = Math.max(-15, (st.tmp|0)-1); break;
       case "work":
-        if(c.work[k]) return;
-        c.work[k] = true;
+        c.work[k] = true;   // informational ✓ only — the 1/stat/session rule is the player's to keep
         if(st.base < statCapNow()) st.base++;
         else c.overflow.push({date:todayISO(), stat:k});  // capped: converts to +2 permanent PE cap
         break;
@@ -149,7 +148,7 @@ function initSheet(){
   });
 
   el("newSessBtn").onclick = ()=>{
-    if(!confirm("Start a new session? Resets work-type points and the session-end archive action.")) return;
+    if(!confirm("Start a new session? Clears the work-point and archive-action markers.")) return;
     const c = charS();
     c.sessionN++; c.work = {}; c.archiveUsed = false;
     saveChar(c); refreshAll();

@@ -49,7 +49,7 @@ function init(){
 
   // extraction screen
   el("recoverBtn").onclick = recoverRecord;
-  el("abortBtn").onclick = ()=>{ if(picked>=0 || confirm("Abort? The roll is lost — the session-end action is still spent.")) switchTab("T"); };
+  el("abortBtn").onclick = ()=>{ if(picked>=0 || confirm("Abort extraction? The roll is lost.")) switchTab("T"); };
 
   // original E.G.O. modal
   el("cType").onchange = onCTypeChange;
