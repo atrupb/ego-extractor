@@ -85,6 +85,9 @@ select:focus,input:focus,textarea:focus{outline:1px solid var(--orange)}
 .pehero .cap{font-size:18px;color:var(--dim)}
 .pebar{height:10px;border:1px solid var(--line);background:#000;margin:10px 0 2px;position:relative}
 .pebar i{position:absolute;top:0;bottom:0;left:0;background:linear-gradient(90deg,#0e6b5c,var(--teal))}
+.pestep{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;
+  font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase}
+.pestep input{width:64px;text-align:center;padding:6px}
 .rules{font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--dim)}
 .rules div{display:flex;justify-content:space-between;gap:12px;padding:3px 0;border-bottom:1px solid #1c1c1a}
 .rules div:last-child{border-bottom:none}

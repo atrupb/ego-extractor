@@ -24,9 +24,19 @@ function renderLoadout(){
     '<div class="statrow"><span>PE spent</span><b>'+l.cost+'</b></div>';
 }
 
+function peStep(){
+  const n = Math.floor(+el("peStep").value);
+  return isFinite(n) && n >= 1 ? Math.min(999, n) : 1;
+}
+
 function initPE(){
-  el("peMinus").onclick = ()=>{ addPE(-1); renderPE(); };
-  el("pePlus").onclick  = ()=>{ addPE(+1); renderPE(); };
+  el("peStep").value = store.get("peStep") || 1;
+  el("peStep").addEventListener("change", ()=>{
+    el("peStep").value = peStep();          // normalize junk input
+    store.set("peStep", peStep());
+  });
+  el("peMinus").onclick = ()=>{ addPE(-peStep()); renderPE(); };
+  el("pePlus").onclick  = ()=>{ addPE(+peStep()); renderPE(); };
   el("removePrintBtn").onclick = ()=>{ saveLoadout(null); renderPE(); };
   el("printOpenBtn").onclick = openPrintModal;
 }
