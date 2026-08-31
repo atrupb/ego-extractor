@@ -2,7 +2,21 @@
 /* ============ persistent state + derived numbers ============ */
 
 /* --- roster (all records that exist) & archive (records Waylon has recovered) --- */
-function roster(){ return store.get("roster") || SEED; }
+/* table exclusions, applied on read so they also cover an already-synced roster:
+   - Eye-slot gifts (the slot is sealed by 「Your Eyes」 forever — don't even draw them)
+   - Crumbling Armor's gifts
+   - the Standard Training E.G.O. set (gift, weapon, suit) */
+function rosterAllowed(it){
+  const tag = it.name + " " + (it.src||"") + " " + (it.link||"");
+  if(/standard[\s_-]*training/i.test(tag)) return false;
+  if(it.type === "gift"){
+    if(slotNorm(it.slot) === "eye") return false;
+    if(/crumbling[\s_-]*armor/i.test(tag)) return false;
+    if(/^bless$/i.test(it.name.trim())) return false;   // WhiteNight's blessing — a mechanic, not a gift
+  }
+  return true;
+}
+function roster(){ return (store.get("roster") || SEED).filter(rosterAllowed); }
 function collection(){ return store.get("col") || []; }
 function saveCol(c){ store.set("col", c); }
 

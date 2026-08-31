@@ -59,13 +59,13 @@ const SYNTH_COST = {GIFT:60, ZAYIN:60, TETH:80, HE:120, WAW:150, ALEPH:170, ORIG
 
 /* LC gift-slot taxonomy. Eye is permanently occupied by 「Your Eyes」. */
 const SLOTS = [
-  {id:"hat",   label:"Hat"},      {id:"eye",   label:"Eye"},
-  {id:"face",  label:"Face"},     {id:"cheek1",label:"Cheek 1"},
-  {id:"cheek2",label:"Cheek 2"},  {id:"mouth1",label:"Mouth 1"},
-  {id:"mouth2",label:"Mouth 2"},  {id:"ear",   label:"Ear"},
-  {id:"neck",  label:"Neckwear"}, {id:"hand1", label:"Hand 1"},
-  {id:"hand2", label:"Hand 2"},   {id:"brooch",label:"Brooch"},
-  {id:"special",label:"Special"}
+  {id:"hat",    label:"Hat"},      {id:"helmet", label:"Helmet"},
+  {id:"eye",    label:"Eye"},      {id:"face",   label:"Face"},
+  {id:"mouth1", label:"Mouth 1"},  {id:"mouth2", label:"Mouth 2"},
+  {id:"cheek",  label:"Cheek"},    {id:"brooch", label:"Brooch"},
+  {id:"neck",   label:"Neckwear"}, {id:"lback",  label:"Left Back"},
+  {id:"rback",  label:"Right Back"},
+  {id:"hand1",  label:"Hand 1"},   {id:"hand2",  label:"Hand 2"}
 ];
 /* normalize a wiki slot string ("Mouth 1", "Cheek", "Neckwear") to a base + optional number */
 function slotNorm(s){ return String(s||"").toLowerCase().replace(/[^a-z0-9]/g,""); }
