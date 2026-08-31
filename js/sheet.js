@@ -25,7 +25,7 @@ function renderSheet(){
   // feats
   el("featList").innerHTML = c.feats.length
     ? c.feats.map((f,i)=>'<div class="featrow"><span>'+esc(f)+'</span><span class="x" data-feat="'+i+'">×</span></div>').join("")
-    : '<div class="syncnote" style="margin-top:0">// no feats recorded.</div>';
+    : '<div class="syncnote" style="margin-top:0">// nothing recorded.</div>';
 
   // ASI-level choices: one feat OR +10 permanent PE cap (no ASIs, ever)
   const lvls = [4,8,12,16,19].filter(l=>l<=c.level);
