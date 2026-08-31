@@ -106,7 +106,7 @@ function prof(){ return 2 + Math.floor((charS().level - 1) / 4); }
 const HIT_DIE = 8;
 function maxHP(){
   const c = charS(), m = statMod("FOR");
-  return Math.max(1, HIT_DIE + m + (c.level - 1) * (HIT_DIE/2 + 1 + m));
+  return Math.max(1, HIT_DIE + m + (c.level - 1) * (HIT_DIE/2 + 1 + m) + bonusFor("HP"));
 }
 function hdLeft(){
   const c = charS();
@@ -123,11 +123,11 @@ function printedAcBonus(){
 }
 function acVal(){ return 10 + statMod("JUS") + printedAcBonus() + bonusFor("AC"); }
 
-/* PE cap: 100 base + player-managed adjustment + 10 per ASI-level cap choice */
+/* PE cap: 100 base + player-managed adjustment + 10 per ASI-level cap choice + equipped gifts */
 function peCap(){
   const c = charS();
   const asiCaps = Object.values(c.asi).filter(v => v === "cap").length;
-  return 100 + (c.capAdj|0) + 10*asiCaps;
+  return 100 + (c.capAdj|0) + 10*asiCaps + bonusFor("PECAP");
 }
 
 /* print cost for one item of a risk class (Temperance INT-mod discount, floored at 0) */
