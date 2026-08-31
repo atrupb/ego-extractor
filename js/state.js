@@ -9,13 +9,14 @@ function saveCol(c){ store.set("col", c); }
 /* --- character --- */
 function defaultChar(){
   return {
-    level:1, hitDie:8,
+    level:1,
     stats:{FOR:{base:10,tmp:0}, JUS:{base:10,tmp:0}, PRU:{base:10,tmp:0}, TEM:{base:10,tmp:0}},
     feats:[], asi:{},            // asi: {4:"feat"|"cap", 8:..., 12, 16, 19}
     saveProf:{CON:true, INT:true}, // artificer chassis defaults; tap to change
     skills:{},                   // {perception:0|1|2} — none / proficient / expertise
     capAdj:0,                    // player-managed permanent PE cap adjustment
-    acMisc:0, hpCur:null,
+    acMisc:0, hpCur:null, hpTemp:0,
+    hdLeft:null,                 // hit dice remaining; null = full (= level)
     originalUsed:false           // fully original E.G.O. — once per campaign
   };
 }
@@ -71,10 +72,16 @@ function saveGiftEq(g){ store.set("gifts", g); }
 function statCur(k){ const s = charS().stats[k]; return s.base + (s.tmp|0); }
 function statMod(k){ return Math.floor((statCur(k) - 10) / 2); }
 function prof(){ return 2 + Math.floor((charS().level - 1) / 4); }
-/* HP is derived live — retroactive: hit die + Fortitude mod × level, avg per level after 1st */
+/* HP is derived live — retroactive: hit die + Fortitude mod × level, avg per level after 1st.
+   Hit die is d8, per the Artificer rules. */
+const HIT_DIE = 8;
 function maxHP(){
   const c = charS(), m = statMod("FOR");
-  return Math.max(1, c.hitDie + m + (c.level - 1) * (c.hitDie/2 + 1 + m));
+  return Math.max(1, HIT_DIE + m + (c.level - 1) * (HIT_DIE/2 + 1 + m));
+}
+function hdLeft(){
+  const c = charS();
+  return c.hdLeft === null ? c.level : Math.min(c.hdLeft, c.level);
 }
 function acVal(){ return 10 + statMod("JUS") + (charS().acMisc|0); }
 

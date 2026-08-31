@@ -14,7 +14,8 @@ function renderSheet(){
   el("initVal").textContent = fmtMod(statMod("JUS"));
   el("hpMax").textContent = maxHP();
   el("hpCurVal").textContent = c.hpCur === null ? maxHP() : Math.min(c.hpCur, maxHP());
-  el("hitDieSel").value = String(c.hitDie);
+  el("hpTempVal").textContent = c.hpTemp | 0;
+  el("hdVal").textContent = hdLeft() + " / " + c.level;
 
   renderStatCards(c);
   renderSaves(c);
@@ -125,7 +126,6 @@ function initSheet(){
 
   el("lvlMinus").onclick = ()=>{ const c=charS(); c.level=Math.max(1,c.level-1); saveChar(c); refreshAll(); };
   el("lvlPlus").onclick  = ()=>{ const c=charS(); c.level=Math.min(20,c.level+1); saveChar(c); refreshAll(); };
-  el("hitDieSel").onchange = ()=>{ const c=charS(); c.hitDie=+el("hitDieSel").value; saveChar(c); refreshAll(); };
   el("acMinus").onclick = ()=>{ const c=charS(); c.acMisc=(c.acMisc|0)-1; saveChar(c); renderSheet(); };
   el("acPlus").onclick  = ()=>{ const c=charS(); c.acMisc=(c.acMisc|0)+1; saveChar(c); renderSheet(); };
 
@@ -139,6 +139,20 @@ function initSheet(){
   el("hpM5").onclick = hpAdj(-5); el("hpM1").onclick = hpAdj(-1);
   el("hpP1").onclick = hpAdj(+1); el("hpP5").onclick = hpAdj(+5);
   el("hpFull").onclick = ()=>{ const c=charS(); c.hpCur=null; saveChar(c); renderSheet(); };
+
+  // temp HP — sits on top of current HP, no maximum
+  const htAdj = d => ()=>{
+    const c = charS();
+    c.hpTemp = Math.max(0, (c.hpTemp|0) + d);
+    saveChar(c); renderSheet();
+  };
+  el("htM5").onclick = htAdj(-5); el("htM1").onclick = htAdj(-1);
+  el("htP1").onclick = htAdj(+1); el("htP5").onclick = htAdj(+5);
+  el("htZero").onclick = ()=>{ const c=charS(); c.hpTemp=0; saveChar(c); renderSheet(); };
+
+  // hit dice remaining — pool size scales with level
+  el("hdMinus").onclick = ()=>{ const c=charS(); c.hdLeft=Math.max(0, hdLeft()-1); saveChar(c); renderSheet(); };
+  el("hdPlus").onclick  = ()=>{ const c=charS(); c.hdLeft=Math.min(c.level, hdLeft()+1); saveChar(c); renderSheet(); };
 
   el("asiBody").addEventListener("change", e=>{
     const sel = e.target.closest("select[data-asi]");
