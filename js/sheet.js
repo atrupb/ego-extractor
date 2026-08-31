@@ -41,12 +41,15 @@ function renderProgression(c){
   let h = "";
   for(let lv = 1; lv <= 20; lv++){
     const t = notes[lv] || "";
+    // ASI milestones live on the track itself, not in the PE rules card
+    const mile = lv % 4 === 0 ? '<div class="lvlmile">choose: a feat or +10 max PE</div>' : "";
     h += '<div class="lvlrow'+(lv===c.level?" cur":"")+(lv>c.level?" future":"")+(lvlOpen===lv?" open":"")+'" data-lv="'+lv+'">'+
       '<span class="lvlnum">'+lv+'</span>'+
+      '<div class="lvlbody">'+mile+
       (lvlOpen === lv
-        ? '<textarea class="lvledit" data-lvedit="'+lv+'" placeholder="what level '+lv+' grants…">'+esc(t)+'</textarea>'
-        : '<div class="lvltext'+(t?'':' empty')+'">'+(t?esc(t):"—")+'</div>')+
-    '</div>';
+        ? '<textarea class="lvledit" data-lvedit="'+lv+'" placeholder="what level '+lv+' grants… markdown ok: **bold**, *italic*, `code`, - list, # header">'+esc(t)+'</textarea>'
+        : '<div class="lvltext'+(t?'':' empty')+'">'+(t?mdLite(t):"—")+'</div>')+
+      '</div></div>';
   }
   el("lvlList").innerHTML = h;
 }
