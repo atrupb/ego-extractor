@@ -17,7 +17,8 @@ function gradeStock(R, kinds, grade){
 
 function giftPoolBySlot(R, slotLabel, excludeKeys){
   const owned = new Set(collection().map(c=>c.type+"::"+c.name));
-  let p = R.filter(i=>i.type==="gift" && giftFitsSlot(i.slot, {label:slotLabel}));
+  const cell = SLOTS.find(s => s.label === slotLabel) || {label: slotLabel};
+  let p = R.filter(i=>i.type==="gift" && giftFitsSlot(i.slot, cell));
   if(excludeKeys) p = p.filter(i=>!excludeKeys.has(i.type+"::"+i.name));
   if(!el("optDup").checked) p = p.filter(i=>!owned.has(i.type+"::"+i.name));
   return p;

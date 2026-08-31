@@ -10,7 +10,8 @@ function rosterAllowed(it){
   const tag = it.name + " " + (it.src||"") + " " + (it.link||"");
   if(/standard[\s_-]*training/i.test(tag)) return false;
   if(it.type === "gift"){
-    if(slotNorm(it.slot) === "eye") return false;
+    // only gifts that fit a slot Waylon actually uses (eye excluded — sealed)
+    if(!SLOTS.some(s => s.id !== "eye" && giftFitsSlot(it.slot, s))) return false;
     if(/crumbling[\s_-]*armor/i.test(tag)) return false;
     if(/^bless$/i.test(it.name.trim())) return false;   // WhiteNight's blessing — a mechanic, not a gift
   }
@@ -80,7 +81,11 @@ function loadoutS(){
   return out;
 }
 function saveLoadout(l){ store.set("loadout", l); }
-function giftEq(){ return store.get("gifts") || {}; }   // {slotId: colItemId}
+function giftEq(){                                       // {slotId: colItemId}
+  const g = store.get("gifts") || {};
+  for(const k of Object.keys(g)) if(!SLOTS.some(s => s.id === k)) delete g[k];   // drop retired slots
+  return g;
+}
 function saveGiftEq(g){ store.set("gifts", g); }
 
 /* ============ derived character numbers ============ */

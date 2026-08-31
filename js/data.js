@@ -73,27 +73,20 @@ const PRINT_BASE = {ZAYIN:5, TETH:10, HE:17, WAW:30, ALEPH:40};
 /* synthesis price menu (spent from the shared PE pool) */
 const SYNTH_COST = {GIFT:60, ZAYIN:60, TETH:80, HE:120, WAW:150, ALEPH:170};
 
-/* LC gift-slot taxonomy. Eye is permanently occupied by 「Your Eyes」. */
+/* trimmed gift-slot taxonomy. Eye is permanently occupied by 「Your Eyes」.
+   `pool` is the wiki slot each cell draws from (Mouth uses Mouth 2's pool, Hand uses Hand 2's). */
 const SLOTS = [
-  {id:"hat",    label:"Hat"},      {id:"helmet", label:"Helmet"},
-  {id:"eye",    label:"Eye"},      {id:"face",   label:"Face"},
-  {id:"mouth1", label:"Mouth 1"},  {id:"mouth2", label:"Mouth 2"},
-  {id:"cheek",  label:"Cheek"},    {id:"brooch", label:"Brooch"},
-  {id:"neck",   label:"Neckwear"}, {id:"lback",  label:"Left Back"},
-  {id:"rback",  label:"Right Back"},
-  {id:"hand1",  label:"Hand 1"},   {id:"hand2",  label:"Hand 2"}
+  {id:"eye",    label:"Eye",    pool:"Eye"},
+  {id:"hat",    label:"Hat",    pool:"Hat"},
+  {id:"mouth2", label:"Mouth",  pool:"Mouth 2"},
+  {id:"cheek",  label:"Cheek",  pool:"Cheek"},
+  {id:"brooch", label:"Brooch", pool:"Brooch"},
+  {id:"hand2",  label:"Hand",   pool:"Hand 2"}
 ];
-/* normalize a wiki slot string ("Mouth 1", "Cheek", "Neckwear") to a base + optional number */
+/* normalize a wiki slot string ("Mouth 2", "Cheek") for comparison */
 function slotNorm(s){ return String(s||"").toLowerCase().replace(/[^a-z0-9]/g,""); }
-/* does a gift record (slot text) fit a slot cell? numbered records need the exact slot;
-   unnumbered ("Cheek") fit any numbered cell of the same base */
 function giftFitsSlot(recSlot, cell){
-  const r = slotNorm(recSlot), c = slotNorm(cell.label);
-  if(!r) return false;
-  if(r === c) return true;
-  if(r === "neck" || r === "neckwear") return c === "neckwear" || c === "neck";
-  const rBase = r.replace(/\d+$/,""), cBase = c.replace(/\d+$/,"");
-  return !/\d$/.test(r) && rBase === cBase;
+  return slotNorm(recSlot) === slotNorm(cell.pool || cell.label);
 }
 
 /* ============ seed roster (weapons only — recovery fills the rest) ============ */
