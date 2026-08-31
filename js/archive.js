@@ -126,8 +126,7 @@ function initArchive(){
     const eq = giftEq();
     for(const k of Object.keys(eq)) if(eq[k]===detailId) delete eq[k];
     saveGiftEq(eq);
-    const l = loadoutS();
-    if(l && (l.w===detailId || l.s===detailId)) saveLoadout(null);
+    saveLoadout(loadoutS().filter(e=>e.id!==detailId));
     el("modal").classList.remove("on");
     refreshAll();
   };

@@ -39,8 +39,20 @@ function peS(){
 }
 function savePe(p){ store.set("pe", p); }
 
-/* --- active print loadout & gift equips --- */
-function loadoutS(){ return store.get("loadout") || null; }
+/* --- active prints (a list — sets are common) & gift equips --- */
+function loadoutS(){
+  const l = store.get("loadout");
+  if(!l) return [];
+  if(Array.isArray(l)) return l;
+  // migrate the old single-print {w,s,cost} shape
+  const col = collection(), out = [];
+  for(const key of ["w","s"]){
+    const it = l[key] && col.find(x=>x.id===l[key]);
+    if(it) out.push({id:it.id, cost:printCost(it.grade), date:l.date||todayISO()});
+  }
+  store.set("loadout", out);
+  return out;
+}
 function saveLoadout(l){ store.set("loadout", l); }
 function giftEq(){ return store.get("gifts") || {}; }   // {slotId: colItemId}
 function saveGiftEq(g){ store.set("gifts", g); }

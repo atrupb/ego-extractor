@@ -1,5 +1,5 @@
 "use strict";
-/* ============ print flow — at initiative: pick weapon and/or suit, pay PE, one encounter ============ */
+/* ============ print flow — pick a weapon and/or suit, pay PE, they join the active list ============ */
 let pSel = {w:null, s:null};
 
 function printTotal(){
@@ -30,20 +30,21 @@ function renderPrintModal(){
     }
     box.innerHTML = items.map(it=>
       '<div class="pickrow'+(pSel[key]===it.id?' sel':'')+'" data-slot="'+key+'" data-id="'+it.id+'">'+
-        '<span class="pclass" style="color:'+GHEX[it.grade]+'">'+it.grade.slice(0,1)+'</span>'+
-        '<span style="flex:1;min-width:0">'+esc(it.name)+'</span>'+
+        '<div class="pimg">'+(it.img?'<img loading="lazy" src="'+it.img+'" alt="">':'<span class="noimg">—</span>')+'</div>'+
+        '<span style="flex:1;min-width:0">'+esc(it.name)+
+          '<span class="pclass" style="color:'+GHEX[it.grade]+';display:block;font-weight:400">'+it.grade+'</span></span>'+
         '<span class="pcost">'+printCost(it.grade)+' PE</span>'+
       '</div>').join("");
   }
   const total = printTotal();
   const both = pSel.w && pSel.s;
-  el("pTotal").innerHTML = 'TOTAL'+(both?' (FULL SET — DOUBLE)':'')+
+  el("pTotal").innerHTML = 'TOTAL'+(both?' (FULL SET)':'')+
     ': <b class="'+(total<=p.cur?'':'bad')+'">'+total+' PE</b> (have '+p.cur+')';
   el("pConfirm").disabled = (!pSel.w && !pSel.s) || total > p.cur;
 }
 
 function initPrint(){
-  // tap a row to select it; tap again to deselect (one weapon + one suit max)
+  // tap a row to select it; tap again to deselect (one weapon + one suit per print action)
   el("pmodal").addEventListener("click", e=>{
     const row = e.target.closest(".pickrow");
     if(!row) { if(e.target===el("pmodal")) el("pmodal").classList.remove("on"); return; }
@@ -55,7 +56,12 @@ function initPrint(){
     const total = printTotal();
     if((!pSel.w && !pSel.s) || total > peS().cur) return;
     addPE(-total);
-    saveLoadout({w:pSel.w, s:pSel.s, cost:total, date:todayISO()});   // a new print replaces the old one
+    const col = collection(), l = loadoutS();
+    for(const key of ["w","s"]){
+      const it = pSel[key] && col.find(x=>x.id===pSel[key]);
+      if(it) l.push({id:it.id, cost:printCost(it.grade), date:todayISO()});
+    }
+    saveLoadout(l);
     el("pmodal").classList.remove("on");
     renderPE();
   };

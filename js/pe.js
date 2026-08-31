@@ -11,17 +11,20 @@ function renderPE(){
 
 function renderLoadout(){
   const l = loadoutS(), box = el("loadoutPanel"), body = el("loadoutBody");
-  if(!l){ box.style.display = "none"; return; }
+  if(!l.length){ box.style.display = "none"; return; }
   box.style.display = "block";
   const col = collection();
-  const bits = [];
-  for(const [key,label] of [["w","WEAPON"],["s","SUIT"]]){
-    if(!l[key]) continue;
-    const it = col.find(x=>x.id===l[key]);
-    if(it) bits.push('<div class="statrow"><span>'+label+'</span><b style="color:'+GHEX[it.grade]+'">'+esc(it.name)+' ('+it.grade+')</b></div>');
-  }
-  body.innerHTML = bits.join("") +
-    '<div class="statrow"><span>PE spent</span><b>'+l.cost+'</b></div>';
+  body.innerHTML = l.map((e,i)=>{
+    const it = col.find(x=>x.id===e.id);
+    if(!it) return "";
+    return '<div class="printrow">'+
+      '<div class="pimg">'+(it.img?'<img loading="lazy" src="'+it.img+'" alt="">':'<span class="noimg">—</span>')+'</div>'+
+      '<span class="pn">'+esc(it.name)+
+        '<span class="pclass" style="color:'+GHEX[it.grade]+';display:block;font-weight:400">'+it.grade+' '+it.type.toUpperCase()+'</span></span>'+
+      '<span class="pcost">'+e.cost+' PE</span>'+
+      '<button class="prx" data-rm="'+i+'">×</button>'+
+    '</div>';
+  }).join("");
 }
 
 function peStep(){
@@ -37,6 +40,13 @@ function initPE(){
   });
   el("peMinus").onclick = ()=>{ addPE(-peStep()); renderPE(); };
   el("pePlus").onclick  = ()=>{ addPE(+peStep()); renderPE(); };
-  el("removePrintBtn").onclick = ()=>{ saveLoadout(null); renderPE(); };
   el("printOpenBtn").onclick = openPrintModal;
+  el("loadoutBody").addEventListener("click", e=>{
+    const b = e.target.closest("[data-rm]");
+    if(!b) return;
+    const l = loadoutS();
+    l.splice(+b.dataset.rm, 1);
+    saveLoadout(l);
+    renderPE();
+  });
 }

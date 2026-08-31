@@ -260,10 +260,20 @@ body.alert main{animation:alertfx 1s 3}
 .slotcell.lockedslot{border-color:var(--gift);cursor:default}
 .slotcell.lockedslot .sitem{color:var(--gift)}
 .slotcell.lockedslot .slabel{color:var(--gift)}
-/* ---------- pick rows (print / gift choosers) ---------- */
-.pickrow{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);
-  background:#000;padding:10px 11px;margin-bottom:7px;cursor:pointer;font-size:13px;font-weight:600;
+/* ---------- pick rows (print / gift choosers) + active print rows ---------- */
+.pickrow{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);
+  background:#000;padding:8px 10px;margin-bottom:7px;cursor:pointer;font-size:13px;font-weight:600;
   text-transform:uppercase;letter-spacing:.04em}
+.pimg{width:74px;aspect-ratio:2/1;flex:none;background:#651717;border:1px solid #2c2c28;
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+.pimg img{max-width:100%;max-height:100%;object-fit:contain}
+.pimg .noimg{font-family:var(--mono);font-size:9px;color:var(--dim)}
+.printrow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:#000;
+  padding:8px 10px;margin-bottom:7px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.printrow .pn{flex:1;min-width:0}
+.printrow .prx{flex:none;width:38px;height:38px;background:#000;border:1px solid var(--red);color:var(--red);
+  font-family:var(--mono);font-size:17px;cursor:pointer}
+.printrow .prx:active{background:var(--panel2)}
 .pickrow:active{background:var(--panel2)}
 .pickrow.sel{border-color:var(--orange);background:var(--panel2)}
 .pickrow .pcost{font-family:var(--mono);color:var(--teal);flex:none}
