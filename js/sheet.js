@@ -10,7 +10,7 @@ function renderSheet(){
   el("lvlVal").textContent = c.level;
   el("profVal").textContent = "+" + prof();
   el("acVal").textContent = acVal();
-  el("initVal").textContent = fmtMod(statMod("JUS") + (c.initMisc|0));
+  el("initVal").textContent = fmtMod(statMod("JUS") + (c.initMisc|0) + bonusFor("INIT"));
   el("initMiscVal").textContent = fmtMod(c.initMisc|0);
   el("hpMax").textContent = maxHP();
   el("hpCurVal").textContent = c.hpCur === null ? maxHP() : Math.min(c.hpCur, maxHP());
@@ -87,14 +87,14 @@ function renderSaves(c){
 function renderSkills(c){
   el("skillList").innerHTML = SKILLS.map(s=>{
     const lv = c.skills[s.id] | 0;
-    const mod = statMod(ABIL2MERGED[s.abil]) + lv * prof();
+    const mod = statMod(ABIL2MERGED[s.abil]) + lv * prof() + bonusFor(s.id);
     return '<div class="profrow" data-skill="'+s.id+'">'+
       '<span class="pdot'+(lv?' on':'')+(lv===2?' ex':'')+'">'+PROF_DOT[lv]+'</span>'+
       '<span class="pname">'+s.name+'</span>'+
       '<span class="psrc">'+s.abil+'</span>'+
       '<span class="pmod">'+fmtMod(mod)+'</span></div>';
   }).join("");
-  const pp = 10 + statMod("PRU") + (c.skills.perception|0) * prof();
+  const pp = 10 + statMod("PRU") + (c.skills.perception|0) * prof() + bonusFor("perception");
   el("passPerc").textContent = pp;
 }
 

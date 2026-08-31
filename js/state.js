@@ -83,7 +83,22 @@ function giftEq(){ return store.get("gifts") || {}; }   // {slotId: colItemId}
 function saveGiftEq(g){ store.set("gifts", g); }
 
 /* ============ derived character numbers ============ */
-function statCur(k){ const s = charS().stats[k]; return s.base + (s.tmp|0); }
+/* ---- equipped-gift bonuses: {target: total} summed over every slotted gift ---- */
+function giftBonuses(){
+  const eq = giftEq(), col = collection(), out = {};
+  for(const id of Object.values(eq)){
+    const it = col.find(x=>x.id===id);
+    if(!it || !Array.isArray(it.bonus)) continue;
+    for(const b of it.bonus){
+      if(!b || !b.t) continue;
+      out[b.t] = (out[b.t]|0) + (+b.n||0);
+    }
+  }
+  return out;
+}
+function bonusFor(t){ return giftBonuses()[t] | 0; }
+
+function statCur(k){ const s = charS().stats[k]; return s.base + (s.tmp|0) + bonusFor(k); }
 function statMod(k){ return Math.floor((statCur(k) - 10) / 2); }
 function prof(){ return 2 + Math.floor((charS().level - 1) / 4); }
 /* HP is derived live — retroactive: hit die + Fortitude mod × level, avg per level after 1st.
@@ -106,7 +121,7 @@ function printedAcBonus(){
     return a + (isFinite(n) ? n : 0);
   }, 0);
 }
-function acVal(){ return 10 + statMod("JUS") + printedAcBonus(); }
+function acVal(){ return 10 + statMod("JUS") + printedAcBonus() + bonusFor("AC"); }
 
 /* PE cap: 100 base + player-managed adjustment + 10 per ASI-level cap choice */
 function peCap(){

@@ -51,6 +51,14 @@ const SKILLS = [
   {id:"persuasion",     name:"Persuasion",      abil:"CHA"}
 ];
 
+/* what a gift's small boost can point at: AC, initiative, a stat score, or a single skill */
+const BONUS_TARGETS = [
+  {v:"AC", label:"AC"}, {v:"INIT", label:"Initiative"},
+  ...STATS.map(s=>({v:s.k, label:s.name+" score"})),
+  ...SKILLS.map(s=>({v:s.id, label:s.name}))
+];
+const BONUS_LABEL = Object.fromEntries(BONUS_TARGETS.map(b=>[b.v, b.label]));
+
 /* print cost per single item: base − Temperance INT-mod */
 const PRINT_BASE = {ZAYIN:5, TETH:10, HE:17, WAW:30, ALEPH:40};
 

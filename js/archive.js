@@ -85,9 +85,12 @@ function openDetail(id){
   for(const s of STATS) el("mReq"+s.k).value = String(reqs[s.k]|0);
   el("mReqWrap").style.display = it.type === "gift" ? "none" : "block";
   updateLockLine(it);
-  // the record's headline value: weapons carry damage, suits carry AC
+  // the record's headline value: weapons carry damage, suits carry AC;
+  // gifts instead carry small structured bonuses
+  el("mBonusWrap").style.display = it.type === "gift" ? "block" : "none";
   if(it.type === "gift"){
     el("mStatField").style.display = "none";
+    el("mBonusList").innerHTML = (it.bonus||[]).map(bonusRowHTML).join("");
   }else{
     el("mStatField").style.display = "block";
     el("mStatLabel").textContent = it.type === "weapon" ? "Damage (e.g. 2d6 + Justice)" : "AC bonus (applies to the sheet while printed)";
@@ -98,6 +101,18 @@ function openDetail(id){
   el("mWiki").onclick = ()=>{ if(it.link) window.open(it.link,"_blank"); };
   el("modal").classList.add("on");
 }
+function bonusRowHTML(b){
+  const opts = BONUS_TARGETS.map(t=>'<option value="'+t.v+'"'+(b && b.t===t.v?' selected':'')+'>'+esc(t.label)+'</option>').join("");
+  return '<div class="bonusrow"><select class="bt">'+opts+'</select>'+
+    '<input type="number" class="bn" value="'+(b ? (+b.n||0) : 1)+'" inputmode="numeric">'+
+    '<button class="bx">×</button></div>';
+}
+function readModalBonuses(){
+  return [...el("mBonusList").querySelectorAll(".bonusrow")]
+    .map(r=>({t:r.querySelector(".bt").value, n:+r.querySelector(".bn").value||0}))
+    .filter(b=>b.n);
+}
+
 function readModalReqs(){
   return Object.fromEntries(STATS.map(s=>[s.k, +el("mReq"+s.k).value]));
 }
@@ -120,6 +135,14 @@ function initArchive(){
     renderArchive();
   });
 
+  el("mBonusAdd").onclick = ()=>{
+    el("mBonusList").insertAdjacentHTML("beforeend", bonusRowHTML(null));
+  };
+  el("mBonusList").addEventListener("click", e=>{
+    const x = e.target.closest(".bx");
+    if(x) x.closest(".bonusrow").remove();
+  });
+
   // live lock preview while editing requirement grades
   for(const s of STATS) el("mReq"+s.k).addEventListener("change", ()=>{
     const it = collection().find(x=>x.id===detailId);
@@ -133,6 +156,7 @@ function initArchive(){
       if(it.type !== "gift") it.reqs = readModalReqs();
       if(it.type === "weapon") it.dmg = el("mStat").value.trim();
       if(it.type === "suit")   it.ac  = el("mStat").value.trim();
+      if(it.type === "gift")   it.bonus = readModalBonuses();
       saveCol(c);
     }
     el("modal").classList.remove("on");

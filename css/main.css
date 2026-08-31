@@ -261,6 +261,12 @@ body.alert main{animation:alertfx 1s 3}
 .slotcell.lockedslot{border-color:var(--gift);cursor:default}
 .slotcell.lockedslot .sitem{color:var(--gift)}
 .slotcell.lockedslot .slabel{color:var(--gift)}
+.slotcell .sbonus{font-family:var(--mono);font-size:9.5px;color:var(--teal);margin-top:3px}
+.bonusrow{display:flex;gap:6px;margin-top:6px}
+.bonusrow select{flex:1;min-width:0}
+.bonusrow input{width:58px;flex:none;text-align:center}
+.bonusrow .bx{flex:none;width:40px;background:#000;border:1px solid var(--red);color:var(--red);
+  font-family:var(--mono);font-size:15px;cursor:pointer}
 /* ---------- pick rows (print / gift choosers) + active print rows ---------- */
 .pickrow{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);
   background:#000;padding:8px 10px;margin-bottom:7px;cursor:pointer;font-size:13px;font-weight:600;

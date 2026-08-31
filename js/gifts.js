@@ -11,9 +11,11 @@ function renderGifts(){
         '<div class="sitem">「Your Eyes」</div></div>';
     }
     const it = eq[s.id] ? col.find(x=>x.id===eq[s.id]) : null;
+    const bon = it && (it.bonus||[]).length
+      ? '<div class="sbonus">'+esc((it.bonus||[]).map(b=>(b.n>0?"+":"")+b.n+" "+(BONUS_LABEL[b.t]||b.t)).join(", "))+'</div>' : '';
     return '<div class="slotcell'+(it?'':' emptyslot')+'" data-slot="'+s.id+'">'+
       '<div class="slabel">'+s.label+'</div>'+
-      '<div class="sitem">'+(it?esc(it.name):'— empty —')+'</div></div>';
+      '<div class="sitem">'+(it?esc(it.name):'— empty —')+'</div>'+bon+'</div>';
   }).join("");
 }
 
@@ -58,7 +60,7 @@ function initGifts(){
     }
     saveGiftEq(eq);
     el("gmodal").classList.remove("on");
-    renderGifts();
+    refreshAll();   // equipping a gift can move AC, initiative, stats, skills
   });
   el("gClose").onclick = ()=>el("gmodal").classList.remove("on");
 }
