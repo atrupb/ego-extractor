@@ -1,4 +1,4 @@
-const CACHE = "ego-terminal-auto-v12";
+const CACHE = "ego-terminal-auto-v13";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./snap.mp3",
   "./assets/gillsans.ttf", "./assets/ebox.png", "./assets/logo.png",
   "./assets/stat-for.png", "./assets/stat-jus.png", "./assets/stat-pru.png", "./assets/stat-tem.png",
@@ -26,9 +26,10 @@ self.addEventListener("fetch", e => {
     (e.request.mode === "navigate" || SHELL.some(p => url.pathname.endsWith(p.replace("./", "/"))));
 
   if (isShell) {
-    // NETWORK-FIRST: a git push reaches installed copies on their next online launch.
+    // NETWORK-FIRST, bypassing the HTTP cache: a git push reaches installed copies
+    // on their next online launch instead of waiting out GitHub Pages' max-age.
     e.respondWith(
-      fetch(e.request).then(res => {
+      fetch(e.request, { cache: "no-cache" }).then(res => {
         const clone = res.clone();
         caches.open(CACHE).then(c => c.put(e.request, clone));
         return res;
