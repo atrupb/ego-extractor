@@ -136,6 +136,16 @@ select:focus,input:focus,textarea:focus{outline:1px solid var(--orange)}
 .workbtn:disabled{border-color:#2a4a44;color:#2a4a44}
 .workbtn small{display:block;font-family:var(--mono);font-size:9px;font-weight:400;text-transform:none;margin-top:2px;color:var(--dim)}
 .workbtn:disabled small{color:#2a4a44}
+/* saves + skills: tappable proficiency rows */
+.profrow{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12.5px;
+  padding:7px 2px;border-bottom:1px solid #1c1c1a;cursor:pointer;user-select:none}
+.profrow:active{background:var(--panel2)}
+.profrow .pdot{color:#4a4842;font-size:14px;flex:none;width:16px;text-align:center}
+.profrow .pdot.on{color:var(--orange)}
+.profrow .pdot.ex{color:var(--teal)}
+.profrow .pname{flex:1;min-width:0;color:var(--white)}
+.profrow .psrc{color:var(--dim);font-size:10px;letter-spacing:.08em;text-transform:uppercase;flex:none}
+.profrow .pmod{color:var(--white);flex:none;width:34px;text-align:right}
 .featrow{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:12.5px;
   border-bottom:1px solid #1c1c1a;padding:6px 0}
 .featrow .x{color:var(--red);cursor:pointer;padding:2px 8px;font-size:14px}

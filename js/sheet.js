@@ -1,9 +1,14 @@
 "use strict";
 /* ============ character sheet — merged stats, grades, derived numbers, session work ============ */
 
+const PROF_DOT = ["○","●","◉"];   // none / proficient / expertise
+const fmtMod = m => (m>=0?"+":"") + m;
+
 function renderSheet(){
   const c = charS();
   renderStatCards(c);
+  renderSaves(c);
+  renderSkills(c);
 
   // derived block
   el("lvlVal").textContent = c.level;
@@ -41,6 +46,34 @@ function renderSheet(){
     ? c.overflow.map(o=>'<div class="statrow"><span>'+o.date+' // '+STAT_NAME[o.stat]+' capped</span><b class="t">+2 PE cap</b></div>').join("")
     : '<div class="syncnote" style="margin-top:0">// no capped-stat conversions yet.</div>';
   el("capTotal").textContent = peCap();
+}
+
+/* saving throws — standard 5e rolls; the merged stat IS the ability (STR & CON both read Fortitude) */
+function renderSaves(c){
+  el("saveList").innerHTML = SAVES.map(a=>{
+    const on = !!c.saveProf[a];
+    const mod = statMod(ABIL2MERGED[a]) + (on ? prof() : 0);
+    return '<div class="profrow" data-save="'+a+'">'+
+      '<span class="pdot'+(on?' on':'')+'">'+PROF_DOT[on?1:0]+'</span>'+
+      '<span class="pname">'+a+'</span>'+
+      '<span class="psrc">'+STAT_NAME[ABIL2MERGED[a]]+'</span>'+
+      '<span class="pmod">'+fmtMod(mod)+'</span></div>';
+  }).join("");
+}
+
+/* skills — tap the dot to cycle none → proficient → expertise */
+function renderSkills(c){
+  el("skillList").innerHTML = SKILLS.map(s=>{
+    const lv = c.skills[s.id] | 0;
+    const mod = statMod(ABIL2MERGED[s.abil]) + lv * prof();
+    return '<div class="profrow" data-skill="'+s.id+'">'+
+      '<span class="pdot'+(lv?' on':'')+(lv===2?' ex':'')+'">'+PROF_DOT[lv]+'</span>'+
+      '<span class="pname">'+s.name+'</span>'+
+      '<span class="psrc">'+s.abil+'</span>'+
+      '<span class="pmod">'+fmtMod(mod)+'</span></div>';
+  }).join("");
+  const pp = 10 + statMod("PRU") + (c.skills.perception|0) * prof();
+  el("passPerc").textContent = pp;
 }
 
 function renderStatCards(c){
@@ -99,6 +132,22 @@ function initSheet(){
     }
     saveChar(c);
     refreshAll();
+  });
+
+  // saves toggle proficiency; skills cycle none → prof → expertise
+  el("saveList").addEventListener("click", e=>{
+    const row = e.target.closest(".profrow[data-save]");
+    if(!row) return;
+    const c = charS(), a = row.dataset.save;
+    c.saveProf[a] = !c.saveProf[a];
+    saveChar(c); renderSheet();
+  });
+  el("skillList").addEventListener("click", e=>{
+    const row = e.target.closest(".profrow[data-skill]");
+    if(!row) return;
+    const c = charS(), id = row.dataset.skill;
+    c.skills[id] = ((c.skills[id]|0) + 1) % 3;
+    saveChar(c); renderSheet();
   });
 
   el("lvlMinus").onclick = ()=>{ const c=charS(); c.level=Math.max(1,c.level-1); saveChar(c); refreshAll(); };

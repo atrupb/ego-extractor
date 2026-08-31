@@ -25,6 +25,32 @@ function gradeRank(score){
 /* lower bound of each grade band (for progress-to-next display) */
 const GRADE_FLOOR = {1:8, 2:10, 3:13, 4:16, 5:18, 6:21};
 
+/* the six D&D abilities map onto the four merged stats — the merged score IS the ability score */
+const ABIL2MERGED = {STR:"FOR", CON:"FOR", DEX:"JUS", WIS:"PRU", INT:"TEM", CHA:"TEM"};
+const SAVES = ["STR","DEX","CON","INT","WIS","CHA"];
+
+/* standard 5e skill list; each follows its parent ability into its new home */
+const SKILLS = [
+  {id:"athletics",      name:"Athletics",       abil:"STR"},
+  {id:"acrobatics",     name:"Acrobatics",      abil:"DEX"},
+  {id:"sleight",        name:"Sleight of Hand", abil:"DEX"},
+  {id:"stealth",        name:"Stealth",         abil:"DEX"},
+  {id:"arcana",         name:"Arcana",          abil:"INT"},
+  {id:"history",        name:"History",         abil:"INT"},
+  {id:"investigation",  name:"Investigation",   abil:"INT"},
+  {id:"nature",         name:"Nature",          abil:"INT"},
+  {id:"religion",       name:"Religion",        abil:"INT"},
+  {id:"animal",         name:"Animal Handling", abil:"WIS"},
+  {id:"insight",        name:"Insight",         abil:"WIS"},
+  {id:"medicine",       name:"Medicine",        abil:"WIS"},
+  {id:"perception",     name:"Perception",      abil:"WIS"},
+  {id:"survival",       name:"Survival",        abil:"WIS"},
+  {id:"deception",      name:"Deception",       abil:"CHA"},
+  {id:"intimidation",   name:"Intimidation",    abil:"CHA"},
+  {id:"performance",    name:"Performance",     abil:"CHA"},
+  {id:"persuasion",     name:"Persuasion",      abil:"CHA"}
+];
+
 /* print cost per single item: base − Temperance INT-mod */
 const PRINT_BASE = {ZAYIN:5, TETH:10, HE:17, WAW:30, ALEPH:40};
 

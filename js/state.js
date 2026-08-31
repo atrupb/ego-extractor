@@ -12,6 +12,8 @@ function defaultChar(){
     level:1, hitDie:8,
     stats:{FOR:{base:10,tmp:0}, JUS:{base:10,tmp:0}, PRU:{base:10,tmp:0}, TEM:{base:10,tmp:0}},
     feats:[], asi:{},            // asi: {4:"feat"|"cap", 8:..., 12, 16, 19}
+    saveProf:{},                 // {STR:true,...} — proficient saving throws
+    skills:{},                   // {perception:0|1|2} — none / proficient / expertise
     overflow:[],                 // [{date, stat}] — each is +2 permanent PE cap
     acMisc:0, hpCur:null,
     originalUsed:false           // fully original E.G.O. — once per campaign
