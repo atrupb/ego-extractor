@@ -480,21 +480,6 @@ body.alert main{animation:alertfx 1s 3}
 .reqgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
 .lockline{font-family:var(--mono);font-size:11px;text-align:center;letter-spacing:.14em;margin-bottom:10px}
 .lockline.ok{color:var(--zayin)} .lockline.no{color:var(--red)}
-/* ---------- passcode gate ---------- */
-#lockscreen{position:fixed;inset:0;z-index:40;display:none;background:#141412;
-  align-items:center;justify-content:center;padding:24px;
-  background-image:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,0))}
-#lockscreen.on{display:flex}
-.lockstripe{position:absolute;top:0;left:0;right:0}
-.lockbox{width:min(320px,100%);text-align:center}
-.locklogo{height:64px;width:auto;display:block;margin:0 auto 14px}
-.locktitle{font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--white)}
-.locksub{font-family:var(--mono);font-size:11px;color:var(--dim);margin:8px 0 16px;min-height:14px}
-.locksub.bad{color:var(--red)}
-.lockbox input{margin-bottom:10px;text-align:center;font-family:var(--mono);letter-spacing:.3em}
-.lockbox input::placeholder{letter-spacing:.14em}
-
 @media (prefers-reduced-motion:reduce){
   .cin{transition:none}.die.rolling,.die.landed,.die.rolling .dienum,.die.landed .dienum{animation:none}
   body.alert main{animation:none}.card{animation:none}.cback .cbdot{animation:none}

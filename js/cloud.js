@@ -7,7 +7,7 @@
    the worst case is the same key edited on two devices, where the newer edit wins.
    The gist keeps every revision, so History can restore any earlier snapshot. */
 
-const CLOUD_KEYS = ["col","char","pe","loadout","gifts","slotPos","roster","syncAt","peStep","lockHash"];
+const CLOUD_KEYS = ["col","char","pe","loadout","gifts","slotPos","roster","syncAt","peStep"];
 const GIST_FILE    = "ego-state-v2.json";
 const GIST_FILE_V1 = "ego-state.json";   // read-only legacy: old app versions wrote here,
                                          // and new ones ignore their pushes entirely
@@ -242,7 +242,7 @@ function renderCloud(){
   const box = el("cloudBody"); if(!box) return;
   if(!cloudOn()){
     box.innerHTML =
-      '<div class="syncnote" style="margin-top:0">Mirrors the archive, sheet, PE, prints, gifts and passcode across devices through a private GitHub gist. Create a <b>classic</b> token with only the <b>gist</b> scope and paste it on each device. The first device seeds the cloud with its data; later devices adopt the cloud copy.</div>'+
+      '<div class="syncnote" style="margin-top:0">Mirrors the archive, sheet, PE, prints and gifts across devices through a private GitHub gist. Create a <b>classic</b> token with only the <b>gist</b> scope and paste it on each device. The first device seeds the cloud with its data; later devices adopt the cloud copy.</div>'+
       '<div class="syncnote">github.com/settings/tokens/new?scopes=gist</div>'+
       '<div class="field"><label>GitHub token</label><input type="password" id="ghTok" placeholder="ghp_…" autocomplete="off"></div>'+
       '<button class="smallbtn accent" id="cloudConnBtn" style="margin-top:10px">Connect</button>'+
