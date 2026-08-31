@@ -52,6 +52,14 @@ function renderProgression(c){
       '</div></div>';
   }
   el("lvlList").innerHTML = h;
+  const ta = el("lvlList").querySelector("textarea");
+  if(ta) growNote(ta);
+}
+
+/* the editor grows with its text — no inner scrolling, ever */
+function growNote(ta){
+  ta.style.height = "auto";
+  ta.style.height = ((ta.scrollHeight|0) + 4) + "px";
 }
 
 /* debug mode: how every derived number is put together */
@@ -207,6 +215,7 @@ function initSheet(){
   el("lvlList").addEventListener("input", e=>{
     const ta = e.target.closest("[data-lvedit]");
     if(!ta) return;
+    growNote(ta);
     const c = charS();
     c.levelNotes = c.levelNotes || {};
     if(ta.value.trim()) c.levelNotes[ta.dataset.lvedit] = ta.value;
