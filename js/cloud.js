@@ -109,6 +109,7 @@ async function cloudPush(){
     // this push can only ever add news, never roll another device's keys back
     const remote = await readGist(await gh("/gists/" + store.get("gistId")));
     if(remote && (remote.v|0) >= 2) mergeRemote(remote);
+    lastPullTs = Date.now();   // a push merges the cloud first — it counts as a check
     const seqAtSend = writeSeq;
     const p = payloadNow();
     await gh("/gists/" + store.get("gistId"), {method:"PATCH",
@@ -286,16 +287,25 @@ function initCloud(){
   renderCloud();
   if(cloudOn()) cloudPull();
   else cloudReady = true;
-  window.addEventListener("focus", ()=>{
-    if(!cloudOn() || Date.now() - lastPullTs <= 60000) return;
-    // don't steal focus from an open editor; dirty devices push instead of pulling
-    const ae = document.activeElement;
-    const editing = ae && (ae.tagName === "TEXTAREA" || ae.tagName === "INPUT");
-    if(store.get("cloudDirty")){ cloudPush(); return; }
-    if(editing) return;
-    cloudPull();
-  });
+  // sync on every way a device can wake up, and steadily while it sits open —
+  // resuming a phone app fires visibilitychange, not focus, which is why a
+  // resumed phone used to sit on stale data until relaunched
+  window.addEventListener("focus", ()=>cloudWake(5000));
   document.addEventListener("visibilitychange", ()=>{
-    if(document.hidden && cloudOn() && store.get("cloudDirty")) cloudPush();
+    if(document.hidden){ if(cloudOn() && store.get("cloudDirty")) cloudPush(); }
+    else cloudWake(3000);
   });
+  setInterval(()=>{ if(!document.hidden) cloudWake(40000); }, 45000);
+}
+
+/* one sync heartbeat: dirty devices push (which merges first), clean ones pull.
+   minGap keeps wake-up storms from hammering the API. */
+function cloudWake(minGap){
+  if(!cloudOn() || cloudBusy || !cloudReady) return;
+  if(Date.now() - lastPullTs < minGap) return;
+  if(store.get("cloudDirty")){ cloudPush(); return; }
+  // don't steal focus from an open editor — its keystrokes sync on push anyway
+  const ae = document.activeElement;
+  if(ae && (ae.tagName === "TEXTAREA" || ae.tagName === "INPUT")) return;
+  cloudPull();
 }
