@@ -20,5 +20,10 @@ function sample(pool, n){
 const mem = {};
 const store = {
   get(k){ try{ const v = localStorage.getItem(k); return v !== null ? JSON.parse(v) : (k in mem ? mem[k] : null); }catch(e){ return k in mem ? mem[k] : null; } },
-  set(k, v){ mem[k] = v; try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+  set(k, v){
+    mem[k] = v;
+    try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){}
+    // cloud.js watches writes so synced keys auto-upload; guard: it loads later
+    if(typeof cloudTouch === "function") try{ cloudTouch(k); }catch(e){}
+  }
 };

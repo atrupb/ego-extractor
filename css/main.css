@@ -89,7 +89,7 @@ input[type=checkbox]{accent-color:var(--orange)}
 /* ---------- form fields ---------- */
 .field{margin-top:10px}
 .field label{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:4px}
-select,input[type=text],input[type=number]{width:100%;background:#000;border:1px solid #3a3a36;color:var(--white);
+select,input[type=text],input[type=number],input[type=password]{width:100%;background:#000;border:1px solid #3a3a36;color:var(--white);
   font-family:var(--mono);font-size:13px;padding:9px;border-radius:0;appearance:none;-webkit-appearance:none}
 select:focus,input:focus,textarea:focus{outline:1px solid var(--orange)}
 .fieldrow{display:flex;gap:8px}
@@ -458,6 +458,21 @@ body.alert main{animation:alertfx 1s 3}
 .reqgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
 .lockline{font-family:var(--mono);font-size:11px;text-align:center;letter-spacing:.14em;margin-bottom:10px}
 .lockline.ok{color:var(--zayin)} .lockline.no{color:var(--red)}
+/* ---------- passcode gate ---------- */
+#lockscreen{position:fixed;inset:0;z-index:40;display:none;background:#141412;
+  align-items:center;justify-content:center;padding:24px;
+  background-image:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,0))}
+#lockscreen.on{display:flex}
+.lockstripe{position:absolute;top:0;left:0;right:0}
+.lockbox{width:min(320px,100%);text-align:center}
+.locklogo{height:64px;width:auto;display:block;margin:0 auto 14px}
+.locktitle{font-family:var(--disp);font-weight:700;font-size:18px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--white)}
+.locksub{font-family:var(--mono);font-size:11px;color:var(--dim);margin:8px 0 16px;min-height:14px}
+.locksub.bad{color:var(--red)}
+.lockbox input{margin-bottom:10px;text-align:center;font-family:var(--mono);letter-spacing:.3em}
+.lockbox input::placeholder{letter-spacing:.14em}
+
 @media (prefers-reduced-motion:reduce){
   .cin{transition:none}.die.rolling,.die.landed,.die.rolling .dienum,.die.landed .dienum{animation:none}
   body.alert main{animation:none}.card{animation:none}.cback .cbdot{animation:none}

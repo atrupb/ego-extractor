@@ -275,6 +275,21 @@
   </div>
 
   <div class="panel">
+    <span class="ptitle">Cloud sync</span>
+    <div class="pbody" id="cloudBody"></div>
+  </div>
+
+  <div class="panel">
+    <span class="ptitle">Security</span>
+    <div class="pbody">
+      <div class="row" style="margin-top:0">
+        <button class="smallbtn" id="chpassBtn">Change passcode</button>
+        <button class="smallbtn accent" id="lockNowBtn">Lock terminal</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
     <span class="ptitle">Debug options</span>
     <div class="pbody">
       <label class="chk" style="margin-top:0"><input type="checkbox" id="optDebug"> Debug mode — sheet internals &amp; gift-dot tools</label>
@@ -322,6 +337,20 @@
 </main>
 
 <div id="chamberFade"></div>
+
+<!-- PASSCODE GATE -->
+<div id="lockscreen">
+  <div class="stripe lockstripe"></div>
+  <div class="lockbox">
+    <img class="locklogo" src="assets/logo.png" alt="">
+    <div class="locktitle">Operator authentication</div>
+    <div class="locksub" id="lockMsg">// enter passcode</div>
+    <input type="password" id="lockPw" placeholder="PASSCODE" autocomplete="off">
+    <input type="password" id="lockPw2" placeholder="CONFIRM" autocomplete="off" style="display:none">
+    <button class="bigbtn" id="lockBtn">Unlock</button>
+    <button class="smallbtn" id="lockCancel" style="display:none;margin-top:10px">Cancel</button>
+  </div>
+</div>
 
 <!-- DETAIL MODAL -->
 <div class="modal" id="modal">
@@ -404,6 +433,8 @@
 <script src="js/data.js"></script>
 <script src="js/state.js"></script>
 <script src="js/sync.js"></script>
+<script src="js/cloud.js"></script>
+<script src="js/lock.js"></script>
 <script src="js/extraction.js"></script>
 <script src="js/pe.js"></script>
 <script src="js/print.js"></script>

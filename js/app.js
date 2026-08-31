@@ -58,6 +58,8 @@ function init(){
   };
 
   refreshAll();
+  initLock();
+  initCloud();   // after first render — a boot pull re-renders on top
 
   /* offline app shell */
   if ("serviceWorker" in navigator && location.protocol === "https:") {
