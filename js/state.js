@@ -25,7 +25,15 @@ function charS(){
   // old saves logged cap overflow as a list — fold it into the plain adjustment
   if(Array.isArray(c.overflow)){ c.capAdj = (c.capAdj|0) + 2*c.overflow.length; delete c.overflow; }
   // migrate quietly if fields were added since the save was written
-  return Object.assign(defaultChar(), c, {stats:Object.assign(defaultChar().stats, c.stats||{})});
+  const m = Object.assign(defaultChar(), c, {stats:Object.assign(defaultChar().stats, c.stats||{})});
+  // the temp-modifier UI is gone — fold any stored temp values into base so − / + work on the real number
+  let folded = false;
+  for(const k of Object.keys(m.stats)){
+    const st = m.stats[k];
+    if(st.tmp){ st.base += st.tmp|0; st.tmp = 0; folded = true; }
+  }
+  if(folded) store.set("char", m);
+  return m;
 }
 function saveChar(c){ store.set("char", c); }
 
