@@ -32,7 +32,7 @@ function peS(){
   let p = store.get("pe");
   if(!p){
     // starting reserve: 10 + 5 × starting level
-    p = {cur:10 + 5*charS().level, inCombat:false, cr:1, log:[]};
+    p = {cur:10 + 5*charS().level};
     store.set("pe", p);
   }
   return p;
@@ -88,25 +88,10 @@ function cheapestPrint(){
   return costs.length ? Math.min(...costs) : null;
 }
 
-/* ============ PE mutations (every change goes through the log so undo is exact) ============ */
-function addPE(label, delta, kind){
+/* ============ PE mutation — clamped to [0, cap] ============ */
+function addPE(delta){
   const p = peS(), cap = peCap();
-  const next = Math.min(cap, Math.max(0, p.cur + delta));
-  const applied = next - p.cur;
-  p.cur = next;
-  p.log.unshift({ts:Date.now(), label, d:applied, kind:kind||"gain"});
-  if(p.log.length > 300) p.log.length = 300;
+  p.cur = Math.min(cap, Math.max(0, p.cur + delta));
   savePe(p);
-  return applied;
-}
-function undoPE(){
-  const p = peS();
-  const e = p.log.shift();
-  if(!e) return null;
-  p.cur = Math.min(peCap(), Math.max(0, p.cur - e.d));
-  if(e.kind === "combat-start") p.inCombat = false;
-  if(e.kind === "combat-end")   p.inCombat = true;
-  savePe(p);
-  if(e.kind === "print") saveLoadout(null);
-  return e;
+  return p.cur;
 }

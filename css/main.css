@@ -75,29 +75,22 @@ select,input[type=text],input[type=number]{width:100%;background:#000;border:1px
 select:focus,input:focus,textarea:focus{outline:1px solid var(--orange)}
 .fieldrow{display:flex;gap:8px}
 .fieldrow .field{flex:1;margin-top:10px}
-/* ---------- PE tracker ---------- */
-.pehero{display:flex;align-items:baseline;justify-content:center;gap:10px;padding:8px 0 2px;font-family:var(--mono)}
+/* ---------- PE tab ---------- */
+.peadj{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0}
+.pebtn{width:56px;height:56px;flex:none;background:#000;border:1px solid var(--teal);color:var(--teal);
+  font-family:var(--mono);font-size:26px;cursor:pointer;clip-path:var(--nclip)}
+.pebtn:active{background:var(--panel2)}
+.pehero{display:flex;align-items:baseline;justify-content:center;gap:10px;font-family:var(--mono)}
 .pehero .cur{font-size:58px;color:var(--teal);text-shadow:0 0 18px rgba(46,232,200,.35);line-height:1}
 .pehero .cap{font-size:18px;color:var(--dim)}
 .pebar{height:10px;border:1px solid var(--line);background:#000;margin:10px 0 2px;position:relative}
 .pebar i{position:absolute;top:0;bottom:0;left:0;background:linear-gradient(90deg,#0e6b5c,var(--teal))}
-.cannot{padding:11px;border:1px solid var(--red);color:var(--red);font-family:var(--mono);
-  font-size:13px;letter-spacing:.24em;text-align:center;margin-top:10px;
-  animation:blink 1.3s steps(2) infinite}
-@keyframes blink{50%{opacity:.4}}
-.btngrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.gainbtn{min-height:58px;background:#000;border:1px solid var(--line);color:var(--white);font-family:var(--disp);
-  font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:8px 6px;
-  clip-path:var(--nclip)}
-.gainbtn small{display:block;font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.04em;margin-top:3px;text-transform:none;font-weight:400}
-.gainbtn:active{background:var(--panel2)}
-.gainbtn:disabled{opacity:.35}
-.gainbtn.teal{border-color:var(--teal);color:var(--teal)}
-.gainbtn.orange{border-color:var(--orange);color:var(--orange)}
-.gainbtn.red{border-color:var(--red);color:var(--red)}
-.gainbtn.onstate{background:var(--orange);border-color:var(--orange);color:#000}
-.gainbtn.onstate small{color:#3a2600}
-.gainbtn.wide{grid-column:1/-1}
+.rules{font-family:var(--mono);font-size:12px;line-height:1.7;color:var(--dim)}
+.rules div{display:flex;justify-content:space-between;gap:12px;padding:3px 0;border-bottom:1px solid #1c1c1a}
+.rules div:last-child{border-bottom:none}
+.rules b{color:var(--white);font-weight:400}
+.rules .rulesplit{display:block}
+.rules .rulesplit b{display:block;margin-bottom:2px}
 .stepper{display:flex;align-items:stretch;border:1px solid var(--line);background:#000}
 .stepper button{width:46px;background:#000;border:none;color:var(--orange);font-family:var(--mono);
   font-size:20px;cursor:pointer;padding:10px 0}
@@ -105,9 +98,6 @@ select:focus,input:focus,textarea:focus{outline:1px solid var(--orange)}
 .stepper .val{flex:1;display:flex;align-items:center;justify-content:center;font-family:var(--mono);
   font-size:17px;border-left:1px solid #3a3a36;border-right:1px solid #3a3a36}
 .steplabel{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;margin:10px 0 4px}
-.evlog{font-family:var(--mono);font-size:11.5px;line-height:1.9;max-height:230px;overflow-y:auto}
-.evlog .gain{color:var(--teal)} .evlog .loss{color:var(--red)} .evlog .d{color:var(--dim)}
-.evlog div{border-bottom:1px solid #1c1c1a;padding:1px 0}
 /* ---------- character sheet ---------- */
 .statgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 .statcard{border:1px solid var(--line);background:var(--panel);padding:10px;clip-path:var(--nclip);position:relative}

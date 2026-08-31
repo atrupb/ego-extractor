@@ -39,8 +39,7 @@ function renderPrintModal(){
   const both = pSel.w && pSel.s;
   el("pTotal").innerHTML = 'TOTAL'+(both?' (FULL SET — DOUBLE)':'')+
     ': <b class="'+(total<=p.cur?'':'bad')+'">'+total+' PE</b> (have '+p.cur+')';
-  el("pConfirm").disabled = (!pSel.w && !pSel.s) || total > p.cur || !!loadoutS();
-  el("pActive").style.display = loadoutS() ? "block" : "none";
+  el("pConfirm").disabled = (!pSel.w && !pSel.s) || total > p.cur;
 }
 
 function initPrint(){
@@ -54,11 +53,9 @@ function initPrint(){
   });
   el("pConfirm").onclick = ()=>{
     const total = printTotal();
-    if((!pSel.w && !pSel.s) || total > peS().cur || loadoutS()) return;
-    const col = collection();
-    const names = ["w","s"].map(k=>pSel[k] && (col.find(x=>x.id===pSel[k])||{}).name).filter(Boolean);
-    addPE("PRINT: "+names.join(" + "), -total, "print");
-    saveLoadout({w:pSel.w, s:pSel.s, cost:total, date:todayISO()});
+    if((!pSel.w && !pSel.s) || total > peS().cur) return;
+    addPE(-total);
+    saveLoadout({w:pSel.w, s:pSel.s, cost:total, date:todayISO()});   // a new print replaces the old one
     el("pmodal").classList.remove("on");
     renderPE();
   };

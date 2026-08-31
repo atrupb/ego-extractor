@@ -115,7 +115,7 @@ async function beginSynthesis(){
   const t = synthTarget();
   if(peS().cur < t.cost) return;
   if(!confirm("Synthesize — "+t.label+" — for "+t.cost+" PE?")) return;
-  addPE("SYNTHESIS: "+t.label, -t.cost, "synth");
+  addPE(-t.cost);
   resetExtractionScreen();
   show("E");
   logLine('<span class="d">// synthesis protocol. '+t.cost+' PE committed.</span>');
@@ -219,7 +219,7 @@ function saveOriginal(){
     reqs: Object.fromEntries(["FOR","JUS","PRU","TEM"].map(k=>[k, +el("cReq"+k).value])),
     original: true
   };
-  addPE("ORIGINAL E.G.O.: "+name, -SYNTH_COST.ORIGINAL, "synth");
+  addPE(-SYNTH_COST.ORIGINAL);
   const c = charS(); c.originalUsed = true; saveChar(c);
   const col = collection(); col.unshift(it); saveCol(col);
   el("cmodal").classList.remove("on");

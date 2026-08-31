@@ -28,29 +28,18 @@
 </nav>
 <main>
 
-<!-- ══════════ PE TRACKER (home during a session) ══════════ -->
+<!-- ══════════ PE (home) ══════════ -->
 <section class="screen on" id="scrP">
   <div class="panel teal">
     <span class="ptitle">Positive Enkephalin</span>
     <div class="pbody">
-      <div class="pehero"><span class="cur" id="peCur">0</span><span class="cap" id="peCap">/ 100</span></div>
-      <div class="pebar"><i id="peBarFill"></i></div>
-      <div class="syncnote" id="cheapLine" style="margin-top:6px"></div>
-      <div class="cannot" id="cannotBox" style="display:none">▚ CANNOT PRINT ▚</div>
-    </div>
-  </div>
-
-  <div class="panel orange">
-    <span class="ptitle">Combat</span>
-    <div class="pbody">
-      <div class="steplabel">Highest enemy CR present</div>
-      <div class="stepper"><button id="crMinus">−</button><div class="val" id="crVal">1</div><button id="crPlus">+</button></div>
-      <div class="btngrid" style="margin-top:10px">
-        <button class="gainbtn orange" id="cStart">Combat Start<small>+CR to reserve</small></button>
-        <button class="gainbtn orange" id="cEnd">Combat End<small>+CR // print dissolves</small></button>
+      <div class="peadj">
+        <button class="pebtn" id="peMinus">−</button>
+        <div class="pehero"><span class="cur" id="peCur">0</span><span class="cap" id="peCap">/ 100</span></div>
+        <button class="pebtn" id="pePlus">+</button>
       </div>
-      <div class="syncnote" id="combatState" style="text-align:center">// out of combat</div>
-      <button class="bigbtn" id="printOpenBtn" style="margin-top:10px">Print E.G.O.</button>
+      <div class="pebar"><i id="peBarFill"></i></div>
+      <button class="bigbtn" id="printOpenBtn" style="margin-top:12px">Print E.G.O.</button>
     </div>
   </div>
 
@@ -58,39 +47,22 @@
     <span class="ptitle">Active print</span>
     <div class="pbody">
       <div id="loadoutBody"></div>
-      <button class="smallbtn danger" id="dissolveBtn" style="margin-top:10px">Dissolve early</button>
+      <button class="smallbtn danger" id="removePrintBtn" style="margin-top:10px">Remove</button>
     </div>
   </div>
 
   <div class="panel">
-    <span class="ptitle">Gain triggers</span>
-    <div class="pbody">
-      <div class="btngrid">
-        <button class="gainbtn teal" id="missMeBtn">Missed me<small>enemy miss / my save · +5</small></button>
-        <button class="gainbtn teal" id="missAllyBtn">Missed ally<small>enemy miss / ally save · +3</small></button>
-      </div>
-      <div class="steplabel">Damage dice rolled</div>
-      <div class="stepper"><button id="diceMinus">−</button><div class="val" id="diceVal">1</div><button id="dicePlus">+</button></div>
-      <div class="btngrid" style="margin-top:10px">
-        <button class="gainbtn" id="critBtn">Crit<small>doubles the dice count</small></button>
-        <button class="gainbtn teal" id="hitBtn">Attack landed <span id="hitGain">+2</span><small>+1 + dice rolled</small></button>
-        <button class="gainbtn teal" id="saveSpellBtn">Save-spell dmg <span id="saveGain">+1</span><small>+caster's dice</small></button>
-        <button class="gainbtn" id="restBtn">Long rest<small>+1 · a trickle</small></button>
-      </div>
-      <div class="steplabel">Manual correction</div>
-      <div class="stepper"><button id="adjMinus">−</button><div class="val" id="adjVal">5</div><button id="adjPlus">+</button></div>
-      <div class="btngrid" style="margin-top:10px">
-        <button class="gainbtn teal" id="adjGain">Gain</button>
-        <button class="gainbtn red" id="adjSpend">Spend</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <span class="ptitle">Event log</span>
-    <div class="pbody">
-      <button class="smallbtn danger" id="undoBtn" style="width:100%;margin-bottom:10px">Undo last event</button>
-      <div class="evlog" id="evlog"></div>
+    <span class="ptitle">PE rules</span>
+    <div class="pbody rules">
+      <div><b>Combat start</b> + highest enemy CR present</div>
+      <div><b>Combat end</b> + highest enemy CR present</div>
+      <div><b>Enemy misses you / you make a save</b> +5</div>
+      <div><b>Enemy misses an ally / ally makes a save</b> +3</div>
+      <div><b>You or an ally land an attack</b> +1 + damage dice rolled</div>
+      <div><b>Crit</b> +1 + 2× damage dice</div>
+      <div><b>Save-based damage spell connects</b> + caster's dice</div>
+      <div><b>Long rest</b> +1</div>
+      <div class="rulesplit"><b>Print cost</b> Z 5 · T 10 · H 17 · W 30 · A 40, each − Temperance mod; full set = both items</div>
     </div>
   </div>
 </section>
@@ -359,8 +331,7 @@
     <div class="pstripe"></div>
     <div class="inner">
       <h3>Print at Initiative</h3>
-      <div class="ctag">one combat encounter // no refund on dissolve</div>
-      <div class="syncnote" id="pActive" style="display:none;color:var(--orange)">// a print is already active. it dissolves at combat end.</div>
+      <div class="ctag">a new print replaces the current one</div>
       <div class="picklabel">E.G.O. Weapon</div>
       <div id="pWeapons"></div>
       <div class="picklabel">E.G.O. Suit</div>
