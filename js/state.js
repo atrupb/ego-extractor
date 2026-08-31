@@ -12,9 +12,9 @@ function defaultChar(){
     level:1, hitDie:8,
     stats:{FOR:{base:10,tmp:0}, JUS:{base:10,tmp:0}, PRU:{base:10,tmp:0}, TEM:{base:10,tmp:0}},
     feats:[], asi:{},            // asi: {4:"feat"|"cap", 8:..., 12, 16, 19}
-    saveProf:{},                 // {STR:true,...} — proficient saving throws
+    saveProf:{CON:true, INT:true}, // artificer chassis defaults; tap to change
     skills:{},                   // {perception:0|1|2} — none / proficient / expertise
-    overflow:[],                 // [{date, stat}] — each is +2 permanent PE cap
+    capAdj:0,                    // player-managed permanent PE cap adjustment
     acMisc:0, hpCur:null,
     originalUsed:false           // fully original E.G.O. — once per campaign
   };
@@ -22,6 +22,8 @@ function defaultChar(){
 function charS(){
   const c = store.get("char");
   if(!c) return defaultChar();
+  // old saves logged cap overflow as a list — fold it into the plain adjustment
+  if(Array.isArray(c.overflow)){ c.capAdj = (c.capAdj|0) + 2*c.overflow.length; delete c.overflow; }
   // migrate quietly if fields were added since the save was written
   return Object.assign(defaultChar(), c, {stats:Object.assign(defaultChar().stats, c.stats||{})});
 }
@@ -60,7 +62,6 @@ function saveGiftEq(g){ store.set("gifts", g); }
 /* ============ derived character numbers ============ */
 function statCur(k){ const s = charS().stats[k]; return s.base + (s.tmp|0); }
 function statMod(k){ return Math.floor((statCur(k) - 10) / 2); }
-function statCapNow(){ return charS().level >= 9 ? 20 : 16; }   // EX never via growth
 function prof(){ return 2 + Math.floor((charS().level - 1) / 4); }
 /* HP is derived live — retroactive: hit die + Fortitude mod × level, avg per level after 1st */
 function maxHP(){
@@ -69,11 +70,11 @@ function maxHP(){
 }
 function acVal(){ return 10 + statMod("JUS") + (charS().acMisc|0); }
 
-/* PE cap: 100 base, +2 per capped-stat overflow, +10 per ASI-level cap choice */
+/* PE cap: 100 base + player-managed adjustment + 10 per ASI-level cap choice */
 function peCap(){
   const c = charS();
   const asiCaps = Object.values(c.asi).filter(v => v === "cap").length;
-  return 100 + 2*c.overflow.length + 10*asiCaps;
+  return 100 + (c.capAdj|0) + 10*asiCaps;
 }
 
 /* print cost for one item of a risk class (Temperance INT-mod discount, floored at 0) */

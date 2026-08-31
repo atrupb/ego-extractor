@@ -1,28 +1,29 @@
 "use strict";
-/* ============ character sheet — merged stats, grades, derived numbers, session work ============ */
-
+/* ============ character sheet — merged stats, saves, skills, derived numbers ============ */
 const PROF_DOT = ["○","●","◉"];   // none / proficient / expertise
 const fmtMod = m => (m>=0?"+":"") + m;
 
 function renderSheet(){
   const c = charS();
+
+  // core numbers
+  el("lvlVal").textContent = c.level;
+  el("profVal").textContent = "+" + prof();
+  el("acVal").textContent = acVal();
+  el("acMiscVal").textContent = (c.acMisc>=0?"+":"") + c.acMisc;
+  el("initVal").textContent = fmtMod(statMod("JUS"));
+  el("hpMax").textContent = maxHP();
+  el("hpCurVal").textContent = c.hpCur === null ? maxHP() : Math.min(c.hpCur, maxHP());
+  el("hitDieSel").value = String(c.hitDie);
+
   renderStatCards(c);
   renderSaves(c);
   renderSkills(c);
 
-  // derived block
-  el("lvlVal").textContent = c.level;
-  el("profVal").textContent = "+" + prof();
-  el("hitDieSel").value = String(c.hitDie);
-  el("hpMax").textContent = maxHP();
-  const cur = c.hpCur === null ? maxHP() : Math.min(c.hpCur, maxHP());
-  el("hpCurVal").textContent = cur;
-  el("acVal").textContent = acVal();
-  el("acMiscVal").textContent = (c.acMisc>=0?"+":"") + c.acMisc;
-  const init = statMod("JUS");
-  el("initVal").textContent = (init>=0?"+":"") + init;
-  el("alephGate").textContent = prof() >= 4 ? "OPEN (prof +"+prof()+")" : "SEALED — needs prof +4 (lv 9+)";
-  el("alephGate").style.color = prof() >= 4 ? "var(--zayin)" : "var(--red)";
+  // feats
+  el("featList").innerHTML = c.feats.length
+    ? c.feats.map((f,i)=>'<div class="featrow"><span>'+esc(f)+'</span><span class="x" data-feat="'+i+'">×</span></div>').join("")
+    : '<div class="syncnote" style="margin-top:0">// no feats recorded.</div>';
 
   // ASI-level choices: one feat OR +10 permanent PE cap (no ASIs, ever)
   const lvls = [4,8,12,16,19].filter(l=>l<=c.level);
@@ -36,16 +37,36 @@ function renderSheet(){
         '<option value="cap"'+(c.asi[l]==="cap"?' selected':'')+'>+10 PE cap</option>'+
       '</select></div>').join("");
 
-  // feats
-  el("featList").innerHTML = c.feats.length
-    ? c.feats.map((f,i)=>'<div class="featrow"><span>'+esc(f)+'</span><span class="x" data-feat="'+i+'">×</span></div>').join("")
-    : '<div class="syncnote" style="margin-top:0">// no feats recorded.</div>';
-
-  // overflow-conversion log
-  el("ovflList").innerHTML = c.overflow.length
-    ? c.overflow.map(o=>'<div class="statrow"><span>'+o.date+' // '+STAT_NAME[o.stat]+' capped</span><b class="t">+2 PE cap</b></div>').join("")
-    : '<div class="syncnote" style="margin-top:0">// no capped-stat conversions yet.</div>';
+  // PE cap
   el("capTotal").textContent = peCap();
+  el("capAdjVal").textContent = ((c.capAdj>=0?"+":"") + (c.capAdj|0));
+}
+
+function renderStatCards(c){
+  el("statgrid").innerHTML = STATS.map(s=>{
+    const cur = statCur(s.k);
+    const rank = gradeRank(cur);
+    // progress toward the next grade band
+    let prog = 100;
+    if(rank < 6){
+      const lo = GRADE_FLOOR[rank], hi = GRADE_FLOOR[rank+1];
+      prog = Math.max(0, Math.min(100, 100*(cur-lo)/(hi-lo)));
+    }
+    return '<div class="statcard">'+
+      '<div class="sname">'+s.name+'</div><div class="ssub">'+s.sub+'</div>'+
+      '<div class="srow">'+
+        '<div class="score">'+cur+'</div>'+
+        '<div class="gradebadge'+(rank===6?' ex':'')+'">'+GRADE_NAMES[rank]+'</div>'+
+      '</div>'+
+      '<div class="modline">MOD <b>'+fmtMod(statMod(s.k))+'</b></div>'+
+      '<div class="prog"><i style="width:'+prog+'%"></i></div>'+
+      '<div class="capnote">'+(rank===6 ? 'EX' : 'next: '+GRADE_NAMES[rank+1]+' at '+GRADE_FLOOR[rank+1])+'</div>'+
+      '<div class="microbtns">'+
+        '<button class="microbtn" data-k="'+s.k+'" data-act="b-">−</button>'+
+        '<button class="microbtn" data-k="'+s.k+'" data-act="b+">+</button>'+
+      '</div>'+
+    '</div>';
+  }).join("");
 }
 
 /* saving throws — standard 5e rolls; the merged stat IS the ability (STR & CON both read Fortitude) */
@@ -76,65 +97,17 @@ function renderSkills(c){
   el("passPerc").textContent = pp;
 }
 
-function renderStatCards(c){
-  const cap = statCapNow();
-  el("statgrid").innerHTML = STATS.map(s=>{
-    const st = c.stats[s.k];
-    const cur = st.base + (st.tmp|0);
-    const rank = gradeRank(cur);
-    const mod = Math.floor((cur-10)/2);
-    // progress toward next grade band
-    let prog = 100;
-    if(rank < 6){
-      const lo = GRADE_FLOOR[rank], hi = GRADE_FLOOR[rank+1];
-      prog = Math.max(0, Math.min(100, 100*(cur-lo)/(hi-lo)));
-    }
-    const capped = st.base >= cap;
-    return '<div class="statcard">'+
-      '<div class="sname">'+s.name+'</div><div class="ssub">'+esc(s.sub)+'</div>'+
-      '<div class="srow">'+
-        '<div class="score">'+cur+(st.tmp?'<small> ('+st.base+(st.tmp>0?'+':'')+st.tmp+')</small>':'')+'</div>'+
-        '<div class="gradebadge'+(rank===6?' ex':'')+'">'+GRADE_NAMES[rank]+'</div>'+
-      '</div>'+
-      '<div class="modline">MOD <b>'+(mod>=0?'+':'')+mod+'</b></div>'+
-      '<div class="prog"><i style="width:'+prog+'%"></i></div>'+
-      '<div class="capnote">'+(rank===6 ? '<span class="warn">EX — external effect</span>'
-        : 'next: '+GRADE_NAMES[rank+1]+' at '+GRADE_FLOOR[rank+1])+
-        (capped?' <span class="warn">// CAP '+cap+'</span>':' // cap '+cap)+'</div>'+
-      '<div class="microbtns">'+
-        '<button class="microbtn" data-k="'+s.k+'" data-act="b-">−</button>'+
-        '<button class="microbtn" data-k="'+s.k+'" data-act="b+">+</button>'+
-        '<button class="microbtn accent" data-k="'+s.k+'" data-act="t-">T−</button>'+
-        '<button class="microbtn accent" data-k="'+s.k+'" data-act="t+">T+</button>'+
-      '</div>'+
-      '<button class="workbtn" data-k="'+s.k+'" data-act="work">'+
-        (capped ? 'WORK → +2 PE CAP' : 'WORK +1')+
-        '<small>'+esc(s.work)+'</small></button>'+
-    '</div>';
-  }).join("");
-}
-
 function initSheet(){
-  // stat card buttons (base is real growth — capped; temp models external effects and can reach EX)
   el("statgrid").addEventListener("click", e=>{
     const b = e.target.closest("button");
     if(!b) return;
-    const c = charS(), k = b.dataset.k, st = c.stats[k];
-    switch(b.dataset.act){
-      case "b+": st.base = Math.min(statCapNow(), st.base+1); break;
-      case "b-": st.base = Math.max(3, st.base-1); break;
-      case "t+": st.tmp = Math.min(15, (st.tmp|0)+1); break;
-      case "t-": st.tmp = Math.max(-15, (st.tmp|0)-1); break;
-      case "work":
-        if(st.base < statCapNow()) st.base++;
-        else c.overflow.push({date:todayISO(), stat:k});  // capped: converts to +2 permanent PE cap
-        break;
-    }
+    const c = charS(), st = c.stats[b.dataset.k];
+    if(b.dataset.act === "b+") st.base = Math.min(30, st.base+1);
+    if(b.dataset.act === "b-") st.base = Math.max(3, st.base-1);
     saveChar(c);
     refreshAll();
   });
 
-  // saves toggle proficiency; skills cycle none → prof → expertise
   el("saveList").addEventListener("click", e=>{
     const row = e.target.closest(".profrow[data-save]");
     if(!row) return;
@@ -186,4 +159,8 @@ function initSheet(){
     if(!x) return;
     const c = charS(); c.feats.splice(+x.dataset.feat,1); saveChar(c); renderSheet();
   });
+
+  // permanent PE cap — player-counted, ±2 per tap
+  el("capMinus").onclick = ()=>{ const c=charS(); c.capAdj=(c.capAdj|0)-2; saveChar(c); refreshAll(); };
+  el("capPlus").onclick  = ()=>{ const c=charS(); c.capAdj=(c.capAdj|0)+2; saveChar(c); refreshAll(); };
 }

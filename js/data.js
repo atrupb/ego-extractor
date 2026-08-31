@@ -10,10 +10,10 @@ const CLASSES = ["ZAYIN","TETH","HE","WAW","ALEPH"];
 
 /* the four merged LC stats — the merged score IS the D&D stat */
 const STATS = [
-  {k:"FOR", name:"Fortitude",  sub:"STR + CON // HP, endure",      work:"Endured meaningful damage"},
-  {k:"JUS", name:"Justice",    sub:"DEX // AC, initiative, ranged", work:"Notable evasion / avoided attacks"},
-  {k:"PRU", name:"Prudence",   sub:"WIS // perception, insight",    work:"Major observation / investigation"},
-  {k:"TEM", name:"Temperance", sub:"INT + CHA // print cost, social", work:"Attachment work — made someone amiable"}
+  {k:"FOR", name:"Fortitude",  sub:"STR + CON"},
+  {k:"JUS", name:"Justice",    sub:"DEX"},
+  {k:"PRU", name:"Prudence",   sub:"WIS"},
+  {k:"TEM", name:"Temperance", sub:"INT + CHA"}
 ];
 const STAT_NAME = Object.fromEntries(STATS.map(s=>[s.k,s.name]));
 
