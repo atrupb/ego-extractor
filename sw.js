@@ -1,5 +1,8 @@
-const CACHE = "ego-terminal-auto-v1";
-const SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./snap.mp3"];
+const CACHE = "ego-terminal-auto-v2";
+const SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./snap.mp3",
+  "./css/main.css",
+  "./js/util.js", "./js/data.js", "./js/state.js", "./js/sync.js", "./js/extraction.js",
+  "./js/pe.js", "./js/print.js", "./js/sheet.js", "./js/gifts.js", "./js/archive.js", "./js/app.js"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));

@@ -1,0 +1,136 @@
+"use strict";
+/* ============ archive — every recovered record, lock states, shattered records ============ */
+let fCat = "all", fClass = "all", fShatter = false;
+
+function reqTagHTML(it){
+  const reqs = it.reqs || {};
+  const bits = [];
+  for(const s of STATS){
+    const need = reqs[s.k] | 0;
+    if(!need) continue;
+    const ok = gradeRank(statCur(s.k)) >= need;
+    bits.push('<span class="'+(ok?'ok':'no')+'">'+s.k+' '+GRADE_NAMES[need]+'</span>');
+  }
+  if(it.grade === "ALEPH")
+    bits.push('<span class="'+(prof()>=4?'ok':'no')+'">PROF+4</span>');
+  return bits.length ? '<div class="reqtags">'+bits.join(' · ')+'</div>' : '';
+}
+
+function renderArchive(){
+  // chips reflect filter state
+  document.querySelectorAll("#fCatRow .chip").forEach(ch=>ch.classList.toggle("on", ch.dataset.v===fCat));
+  document.querySelectorAll("#fClassRow .chip").forEach(ch=>ch.classList.toggle("on", ch.dataset.v===fClass));
+  el("fShatter").classList.toggle("on", fShatter);
+
+  const list = el("alist"); list.innerHTML = "";
+  const col = collection();
+  const match = it => (fCat==="all" || it.type===fCat) &&
+                      (fClass==="all" || it.grade===fClass);
+
+  const rec = col.filter(match);
+  rec.forEach(it=>{
+    const g = it.type==="gift"?"GIFT":it.grade;
+    const u = unlockState(it);
+    const r = document.createElement("div");
+    r.className = "arow" + (u.ok ? "" : " locked");
+    r.style.setProperty("--g", GCOLOR[g]);
+    r.innerHTML = (u.ok?'':'<span class="lockicon">▚ LOCKED</span>')+
+      '<div class="cimg">'+(it.img?'<img loading="lazy" src="'+it.img+'" alt="">':'<span class="noimg">—</span>')+'</div>'+
+      '<div class="cmeta"><div class="cname">'+esc(it.name)+'</div>'+
+      '<div class="ctag"><b style="color:'+GHEX[g]+'">'+g+'</b> // '+esc(typeTag(it))+' // recovered '+it.date+'</div>'+
+      reqTagHTML(it)+
+      (it.note?'<div class="csrc">'+esc(it.note.slice(0,70))+(it.note.length>70?'…':'')+'</div>':'')+'</div>';
+    r.addEventListener("click",()=>openDetail(it.id));
+    list.appendChild(r);
+  });
+
+  // shattered records: exist in the index, not yet recovered — trophies waiting
+  if(fShatter){
+    const owned = new Set(col.map(c=>c.type+"::"+c.name));
+    roster().filter(it=>match(it) && !owned.has(it.type+"::"+it.name)).forEach(it=>{
+      const g = it.type==="gift"?"GIFT":it.grade;
+      const r = document.createElement("div");
+      r.className = "arow shattered";
+      r.style.setProperty("--g", GCOLOR[g]);
+      r.innerHTML = '<div class="cimg">'+(it.img?'<img loading="lazy" src="'+it.img+'" alt="">':'<span class="noimg">—</span>')+'</div>'+
+        '<div class="cmeta"><div class="cname">'+esc(it.name)+'</div>'+
+        '<div class="ctag"><b style="color:'+GHEX[g]+'">'+g+'</b> // '+esc(typeTag(it))+' // ▚ SHATTERED</div></div>';
+      if(it.link) r.addEventListener("click",()=>window.open(it.link,"_blank"));
+      list.appendChild(r);
+    });
+  }
+
+  if(!list.children.length){
+    list.innerHTML = '<div class="empty">// nothing here.<br>run the session-end protocol on the terminal to recover your first record.</div>';
+  }
+}
+
+/* ---------- detail modal: flavor, requirements (numeral grades), mechanics ---------- */
+let detailId = null;
+function openDetail(id){
+  const it = collection().find(x=>x.id===id); if(!it) return;
+  detailId = id;
+  const g = it.type==="gift"?"GIFT":it.grade;
+  el("mImg").innerHTML = it.img?'<img src="'+it.img+'" alt="">':'<span class="noimg">NO FEED</span>';
+  el("mName").textContent = it.name;
+  el("mTag").innerHTML = '<b style="color:'+GHEX[g]+'">'+g+'</b> // '+esc(typeTag(it))+(it.src?' // ex. '+esc(it.src):'');
+  el("mFlav").innerHTML = '<span class="d">// retrieving record…</span>';
+  getFlavor(it).then(f=>{
+    el("mFlav").innerHTML = f ? '“'+esc(f)+'”' : '<span class="d">// no description recovered — open the full record.</span>';
+  });
+  const reqs = it.reqs || {};
+  for(const s of STATS) el("mReq"+s.k).value = String(reqs[s.k]|0);
+  updateLockLine(it);
+  el("mNote").value = it.note||"";
+  el("mWiki").onclick = ()=>{ if(it.link) window.open(it.link,"_blank"); };
+  el("modal").classList.add("on");
+}
+function readModalReqs(){
+  return Object.fromEntries(STATS.map(s=>[s.k, +el("mReq"+s.k).value]));
+}
+function updateLockLine(base){
+  const probe = {...base, reqs: readModalReqs()};
+  const u = unlockState(probe);
+  el("mLock").className = "lockline " + (u.ok?"ok":"no");
+  el("mLock").textContent = u.ok ? "▸ EQUIPPABLE — REQUIREMENTS MET" : "▚ LOCKED — NEEDS "+u.reasons.join(" · ");
+}
+
+function initArchive(){
+  el("fCatRow").addEventListener("click", e=>{
+    const ch = e.target.closest(".chip"); if(!ch) return;
+    fCat = ch.dataset.v; renderArchive();
+  });
+  el("fClassRow").addEventListener("click", e=>{
+    const ch = e.target.closest(".chip"); if(!ch) return;
+    if(ch.id==="fShatter"){ fShatter = !fShatter; }
+    else fClass = ch.dataset.v;
+    renderArchive();
+  });
+
+  // live lock preview while editing requirement grades
+  for(const s of STATS) el("mReq"+s.k).addEventListener("change", ()=>{
+    const it = collection().find(x=>x.id===detailId);
+    if(it) updateLockLine(it);
+  });
+
+  el("mSave").onclick = ()=>{
+    const c = collection(); const it = c.find(x=>x.id===detailId);
+    if(it){ it.note = el("mNote").value; it.reqs = readModalReqs(); saveCol(c); }
+    el("modal").classList.remove("on");
+    refreshAll();
+  };
+  el("mDel").onclick = ()=>{
+    if(!confirm("Shatter this record? It leaves the archive — recover it again through extraction or synthesis.")) return;
+    saveCol(collection().filter(x=>x.id!==detailId));
+    // clean any gift equip or loadout pointing at it
+    const eq = giftEq();
+    for(const k of Object.keys(eq)) if(eq[k]===detailId) delete eq[k];
+    saveGiftEq(eq);
+    const l = loadoutS();
+    if(l && (l.w===detailId || l.s===detailId)) saveLoadout(null);
+    el("modal").classList.remove("on");
+    refreshAll();
+  };
+  el("mClose").onclick = ()=>el("modal").classList.remove("on");
+  el("modal").addEventListener("click",e=>{ if(e.target===el("modal")) el("modal").classList.remove("on"); });
+}
