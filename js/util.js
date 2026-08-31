@@ -14,12 +14,23 @@ function mdLite(src){
     .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
     .replace(/\*([^*]+)\*/g, "<i>$1</i>")
     .replace(/`([^`]+)`/g, "<code>$1</code>");
+  const table = lines => {
+    const cells = l => l.trim().replace(/^\|/,"").replace(/\|$/,"").split("|").map(c => c.trim());
+    const rows = lines.map(cells).filter(r => !r.every(c => /^:?-{3,}:?$/.test(c) || c === ""));
+    const head = rows.shift() || [];
+    return '<div class="mdtw"><table class="mdtable"><tr>'+
+      head.map(c => "<th>"+inline(c)+"</th>").join("")+"</tr>"+
+      rows.map(r => "<tr>"+r.map(c => "<td>"+inline(c)+"</td>").join("")+"</tr>").join("")+
+      "</table></div>";
+  };
   const out = [];
-  let list = null;
+  let list = null, tbl = null;
   for(const line of String(src).split("\n")){
     const m = line.match(/^\s*[-*]\s+(.*)/);
     if(m){ (list = list || []).push("<li>"+inline(m[1])+"</li>"); continue; }
     if(list){ out.push("<ul>"+list.join("")+"</ul>"); list = null; }
+    if(/^\s*\|.*\|\s*$/.test(line)){ (tbl = tbl || []).push(line); continue; }
+    if(tbl){ out.push(table(tbl)); tbl = null; }
     if(/^\s*-{3,}\s*$/.test(line)){ out.push('<div class="mdhr"></div>'); continue; }
     const h = line.match(/^#+\s+(.*)/);
     if(h){ out.push('<div class="mdh">'+inline(h[1])+"</div>"); continue; }
@@ -27,6 +38,7 @@ function mdLite(src){
     out.push("<div>"+inline(line)+"</div>");
   }
   if(list) out.push("<ul>"+list.join("")+"</ul>");
+  if(tbl) out.push(table(tbl));
   return out.join("");
 }
 
