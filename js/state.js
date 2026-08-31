@@ -27,6 +27,7 @@ function defaultChar(){
     level:1,
     stats:{FOR:{base:10,tmp:0}, JUS:{base:10,tmp:0}, PRU:{base:10,tmp:0}, TEM:{base:10,tmp:0}},
     feats:[],
+    levelNotes:{},               // {"1":"what level 1 grants", …} — the progression track
     saveProf:{CON:true, INT:true}, // artificer chassis defaults; tap to change
     skills:{},                   // {perception:0|1|2} — none / proficient / expertise
     capAdj:0,                    // player-managed permanent PE cap adjustment
@@ -41,6 +42,12 @@ function charS(){
   if(Array.isArray(c.overflow)){ c.capAdj = (c.capAdj|0) + 2*c.overflow.length; delete c.overflow; }
   // the ASI panel is gone — fold its +10-cap choices into the adjustment too
   if(c.asi){ c.capAdj = (c.capAdj|0) + 10*Object.values(c.asi).filter(v=>v==="cap").length; delete c.asi; }
+  // the flat Notes list became a per-level progression track — old entries were level-1 grants
+  // (proficiencies, background, the Variant Human feat all arrive at level 1)
+  if(Array.isArray(c.feats) && c.feats.length && !(c.levelNotes && Object.keys(c.levelNotes).length)){
+    c.levelNotes = {"1": c.feats.join("\n")};
+    c.feats = [];
+  }
   // migrate quietly if fields were added since the save was written
   const m = Object.assign(defaultChar(), c, {stats:Object.assign(defaultChar().stats, c.stats||{})});
   // the temp-modifier UI is gone — fold any stored temp values into base so − / + work on the real number

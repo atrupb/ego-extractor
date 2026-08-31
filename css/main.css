@@ -198,11 +198,20 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .profrow .pname{flex:1;min-width:0;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .profrow .psrc{color:var(--dim);font-size:9px;letter-spacing:.05em;text-transform:uppercase;flex:none}
 .profrow .pmod{color:var(--white);flex:none;width:26px;text-align:right}
-.featrow{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:12.5px;
-  border-bottom:1px solid #1c1c1a;padding:6px 0}
-.featrow .x{color:var(--red);cursor:pointer;padding:2px 8px;font-size:14px}
-.addrow{display:flex;gap:8px;margin-top:10px}
-.addrow input{flex:1}
+/* ---------- progression track : one row per level ---------- */
+.lvlrow{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #26261f;cursor:pointer}
+.lvlrow:last-child{border-bottom:none;padding-bottom:0}
+.lvlrow:first-child{padding-top:0}
+.lvlnum{flex:none;width:30px;height:21px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;color:var(--dim);border:1px solid #3a3a36;margin-top:1px}
+.lvlrow.cur .lvlnum{color:var(--orange);border-color:var(--orange)}
+.lvlrow.future{opacity:.45}
+.lvlrow.open{cursor:default}
+.lvltext{flex:1;min-width:0;font-size:12.5px;line-height:1.5;color:var(--white);
+  white-space:pre-wrap;overflow-wrap:anywhere;padding-top:2px}
+.lvltext.empty{color:var(--dim)}
+.lvledit{flex:1;min-width:0;background:#000;border:1px solid var(--orange);color:var(--white);
+  font-family:inherit;font-size:12.5px;line-height:1.5;padding:8px;min-height:84px;border-radius:0}
 /* ---------- session end protocol : extraction | synthesis ---------- */
 .sessgrid{display:grid;grid-template-columns:1fr 1fr;gap:0}
 .sesscol{min-width:0;padding-right:12px}

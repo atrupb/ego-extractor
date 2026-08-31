@@ -24,16 +24,31 @@ function renderSheet(){
   renderSaves(c);
   renderSkills(c);
 
-  // feats
-  el("featList").innerHTML = c.feats.length
-    ? c.feats.map((f,i)=>'<div class="featrow"><span>'+esc(f)+'</span><span class="x" data-feat="'+i+'">×</span></div>').join("")
-    : '<div class="syncnote" style="margin-top:0">// nothing recorded.</div>';
+  renderProgression(c);
 
   // PE cap
   el("capTotal").textContent = peCap();
   el("capAdjVal").textContent = ((c.capAdj>=0?"+":"") + (c.capAdj|0));
 
   renderInternals(c);
+}
+
+/* per-level grant track — every level gets a row; tap one to write what it gave.
+   Current level is lit, levels not yet reached are dimmed (never locked). */
+let lvlOpen = 0;
+function renderProgression(c){
+  const notes = c.levelNotes || {};
+  let h = "";
+  for(let lv = 1; lv <= 20; lv++){
+    const t = notes[lv] || "";
+    h += '<div class="lvlrow'+(lv===c.level?" cur":"")+(lv>c.level?" future":"")+(lvlOpen===lv?" open":"")+'" data-lv="'+lv+'">'+
+      '<span class="lvlnum">'+lv+'</span>'+
+      (lvlOpen === lv
+        ? '<textarea class="lvledit" data-lvedit="'+lv+'" placeholder="what level '+lv+' grants…">'+esc(t)+'</textarea>'
+        : '<div class="lvltext'+(t?'':' empty')+'">'+(t?esc(t):"—")+'</div>')+
+    '</div>';
+  }
+  el("lvlList").innerHTML = h;
 }
 
 /* debug mode: how every derived number is put together */
@@ -175,16 +190,25 @@ function initSheet(){
   el("hdMinus").onclick = ()=>{ const c=charS(); c.hdLeft=Math.max(0, hdLeft()-1); saveChar(c); renderSheet(); };
   el("hdPlus").onclick  = ()=>{ const c=charS(); c.hdLeft=Math.min(c.level, hdLeft()+1); saveChar(c); renderSheet(); };
 
-  el("featAdd").onclick = ()=>{
-    const v = el("featInput").value.trim();
-    if(!v) return;
-    const c = charS(); c.feats.push(v); saveChar(c);
-    el("featInput").value = ""; renderSheet();
-  };
-  el("featList").addEventListener("click", e=>{
-    const x = e.target.closest(".x");
-    if(!x) return;
-    const c = charS(); c.feats.splice(+x.dataset.feat,1); saveChar(c); renderSheet();
+  // progression track: tap a level to open its editor, tap it again to fold it away.
+  // typing autosaves without a rerender so the keyboard keeps focus.
+  el("lvlList").addEventListener("click", e=>{
+    if(e.target.closest("textarea")) return;
+    const row = e.target.closest(".lvlrow");
+    if(!row) return;
+    lvlOpen = lvlOpen === +row.dataset.lv ? 0 : +row.dataset.lv;
+    renderSheet();
+    const ta = el("lvlList").querySelector("textarea");
+    if(ta) ta.focus();
+  });
+  el("lvlList").addEventListener("input", e=>{
+    const ta = e.target.closest("[data-lvedit]");
+    if(!ta) return;
+    const c = charS();
+    c.levelNotes = c.levelNotes || {};
+    if(ta.value.trim()) c.levelNotes[ta.dataset.lvedit] = ta.value;
+    else delete c.levelNotes[ta.dataset.lvedit];
+    saveChar(c);
   });
 
   // permanent PE cap — player-counted (+2 stat overflow, +10 level choices).
