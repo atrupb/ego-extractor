@@ -6,12 +6,12 @@ let gAdjust = false, gSel = null;   // dot-adjustment mode
 /* default anchors, aimed at waylon-body.png (placed at 115,4 130×260).
    The player can override any dot from the ADJUST DOTS mode; overrides live in storage. */
 const SLOT_POS = {
-  hat:   {side:"L", y:14,  ax:178, ay:16},
-  eye:   {side:"L", y:74,  ax:161, ay:86},
-  mouth2:{side:"L", y:134, ax:174, ay:104},
-  cheek: {side:"R", y:14,  ax:198, ay:98},
-  brooch:{side:"R", y:74,  ax:176, ay:140},
-  hand2: {side:"R", y:134, ax:222, ay:234}
+  hat:   {side:"L", y:10,  ax:178, ay:16},
+  eye:   {side:"L", y:118, ax:161, ay:86},
+  mouth2:{side:"L", y:226, ax:174, ay:104},
+  cheek: {side:"R", y:10,  ax:198, ay:98},
+  brooch:{side:"R", y:118, ax:176, ay:140},
+  hand2: {side:"R", y:226, ax:222, ay:234}
 };
 function anchorOf(id){
   const o = (store.get("slotPos")||{})[id];
