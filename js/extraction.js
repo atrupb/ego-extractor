@@ -59,14 +59,9 @@ function resetExtractionScreen(){
   el("unit4").style.display = "none";
   el("unit20").style.display = "none";
 }
-function markArchiveUsed(){
-  const c = charS(); c.archiveUsed = true; saveChar(c);
-}
-
 /* ---------- EXTRACTION: d4 category, d20 risk class, hand of 3, recover one ---------- */
 async function beginExtraction(){
   resetExtractionScreen();
-  markArchiveUsed();
   show("E");
   logLine('<span class="d">// session terminated. drawing accumulated PE…</span>');
   await sleep(reduced?0:500);
@@ -122,7 +117,6 @@ async function beginSynthesis(){
   if(!confirm("Synthesize — "+t.label+" — for "+t.cost+" PE?")) return;
   addPE("SYNTHESIS: "+t.label, -t.cost, "synth");
   resetExtractionScreen();
-  markArchiveUsed();
   show("E");
   logLine('<span class="d">// synthesis protocol. '+t.cost+' PE committed.</span>');
   logLine('target :: <span class="a">'+esc(t.label)+'</span>');
@@ -242,9 +236,6 @@ function renderTerminal(){
   el("stG").textContent = r.filter(i=>i.type==="gift").length;
   el("stSync").textContent = store.get("syncAt")||"never";
   el("syncwarn").style.display = r.some(i=>i.type==="suit") ? "none" : "block";
-
-  // one archive action per session end — informational only, never a lock
-  el("usedNote").style.display = c.archiveUsed ? "block" : "none";
 
   // synthesis selects + cost line
   const isGift = el("synType").value === "gift";

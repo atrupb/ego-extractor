@@ -19,14 +19,6 @@ function renderSheet(){
   el("alephGate").textContent = prof() >= 4 ? "OPEN (prof +"+prof()+")" : "SEALED — needs prof +4 (lv 9+)";
   el("alephGate").style.color = prof() >= 4 ? "var(--zayin)" : "var(--red)";
 
-  // session panel
-  el("sessNum").textContent = c.sessionN;
-  el("workSummary").innerHTML = STATS.map(s=>
-    '<span style="color:'+(c.work[s.k]?'var(--teal)':'var(--dim)')+'">'+s.k+(c.work[s.k]?' ✓':' ·')+'</span>'
-  ).join(" ");
-  el("archUsedRow").innerHTML = c.archiveUsed
-    ? '<span style="color:var(--orange)">used</span>' : '<span style="color:var(--dim)">available</span>';
-
   // ASI-level choices: one feat OR +10 permanent PE cap (no ASIs, ever)
   const lvls = [4,8,12,16,19].filter(l=>l<=c.level);
   el("asiBody").innerHTML = !lvls.length
@@ -83,7 +75,7 @@ function renderStatCards(c){
         '<button class="microbtn accent" data-k="'+s.k+'" data-act="t+">T+</button>'+
       '</div>'+
       '<button class="workbtn" data-k="'+s.k+'" data-act="work">'+
-        (capped ? 'WORK → +2 PE CAP' : 'WORK +1')+(c.work[s.k] ? ' ✓' : '')+
+        (capped ? 'WORK → +2 PE CAP' : 'WORK +1')+
         '<small>'+esc(s.work)+'</small></button>'+
     '</div>';
   }).join("");
@@ -101,7 +93,6 @@ function initSheet(){
       case "t+": st.tmp = Math.min(15, (st.tmp|0)+1); break;
       case "t-": st.tmp = Math.max(-15, (st.tmp|0)-1); break;
       case "work":
-        c.work[k] = true;   // informational ✓ only — the 1/stat/session rule is the player's to keep
         if(st.base < statCapNow()) st.base++;
         else c.overflow.push({date:todayISO(), stat:k});  // capped: converts to +2 permanent PE cap
         break;
@@ -146,11 +137,4 @@ function initSheet(){
     if(!x) return;
     const c = charS(); c.feats.splice(+x.dataset.feat,1); saveChar(c); renderSheet();
   });
-
-  el("newSessBtn").onclick = ()=>{
-    if(!confirm("Start a new session? Clears the work-point and archive-action markers.")) return;
-    const c = charS();
-    c.sessionN++; c.work = {}; c.archiveUsed = false;
-    saveChar(c); refreshAll();
-  };
 }

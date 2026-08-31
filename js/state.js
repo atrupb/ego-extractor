@@ -9,13 +9,11 @@ function saveCol(c){ store.set("col", c); }
 /* --- character --- */
 function defaultChar(){
   return {
-    level:1, hitDie:8, sessionN:1,
+    level:1, hitDie:8,
     stats:{FOR:{base:10,tmp:0}, JUS:{base:10,tmp:0}, PRU:{base:10,tmp:0}, TEM:{base:10,tmp:0}},
     feats:[], asi:{},            // asi: {4:"feat"|"cap", 8:..., 12, 16, 19}
-    work:{},                     // per-session work-type points already earned {FOR:true,...}
     overflow:[],                 // [{date, stat}] — each is +2 permanent PE cap
     acMisc:0, hpCur:null,
-    archiveUsed:false,           // one archive action (extraction OR synthesis) per session end
     originalUsed:false           // fully original E.G.O. — once per campaign
   };
 }
