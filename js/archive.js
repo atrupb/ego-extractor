@@ -3,6 +3,7 @@
 let fCat = "all", fClass = "all", fShatter = false;
 
 function reqTagHTML(it){
+  if(it.type === "gift") return '';
   const reqs = it.reqs || {};
   const bits = [];
   for(const s of STATS){
@@ -13,6 +14,8 @@ function reqTagHTML(it){
   }
   if(it.grade === "ALEPH")
     bits.push('<span class="'+(prof()>=4?'ok':'no')+'">PROF+4</span>');
+  else if(it.grade === "WAW" || it.grade === "HE")
+    bits.push('<span class="'+(prof()>=3?'ok':'no')+'">PROF+3</span>');
   return bits.length ? '<div class="reqtags">'+bits.join(' · ')+'</div>' : '';
 }
 
@@ -80,7 +83,17 @@ function openDetail(id){
   });
   const reqs = it.reqs || {};
   for(const s of STATS) el("mReq"+s.k).value = String(reqs[s.k]|0);
+  el("mReqWrap").style.display = it.type === "gift" ? "none" : "block";
   updateLockLine(it);
+  // the record's headline value: weapons carry damage, suits carry AC
+  if(it.type === "gift"){
+    el("mStatField").style.display = "none";
+  }else{
+    el("mStatField").style.display = "block";
+    el("mStatLabel").textContent = it.type === "weapon" ? "Damage (e.g. 2d6 + Justice)" : "AC";
+    el("mStat").value = (it.type === "weapon" ? it.dmg : it.ac) || "";
+    el("mStat").placeholder = it.type === "weapon" ? "3d4 slashing…" : "17…";
+  }
   el("mNote").value = it.note||"";
   el("mWiki").onclick = ()=>{ if(it.link) window.open(it.link,"_blank"); };
   el("modal").classList.add("on");
@@ -115,7 +128,13 @@ function initArchive(){
 
   el("mSave").onclick = ()=>{
     const c = collection(); const it = c.find(x=>x.id===detailId);
-    if(it){ it.note = el("mNote").value; it.reqs = readModalReqs(); saveCol(c); }
+    if(it){
+      it.note = el("mNote").value;
+      if(it.type !== "gift") it.reqs = readModalReqs();
+      if(it.type === "weapon") it.dmg = el("mStat").value.trim();
+      if(it.type === "suit")   it.ac  = el("mStat").value.trim();
+      saveCol(c);
+    }
     el("modal").classList.remove("on");
     refreshAll();
   };

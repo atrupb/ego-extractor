@@ -17,11 +17,13 @@ function renderLoadout(){
   body.innerHTML = l.map((e,i)=>{
     const it = col.find(x=>x.id===e.id);
     if(!it) return "";
+    // headline shorthand: weapon damage / suit AC, as filled in on the archive record
+    const stat = it.type === "weapon" ? (it.dmg || "") : it.type === "suit" ? (it.ac ? "AC "+it.ac : "") : "";
     return '<div class="printrow">'+
       '<div class="cimg">'+(it.img?'<img loading="lazy" src="'+esc(it.img)+'" alt="">':'<span class="noimg">—</span>')+'</div>'+
       '<span class="pn">'+esc(it.name)+
-        '<span class="pclass" style="color:'+GHEX[it.grade]+';display:block;font-weight:400">'+it.grade+' '+it.type.toUpperCase()+'</span></span>'+
-      '<span class="pcost">'+e.cost+' PE</span>'+
+        '<span class="pclass" style="color:'+GHEX[it.grade]+';display:block;font-weight:400">'+it.grade+' '+it.type.toUpperCase()+' · '+e.cost+' PE</span></span>'+
+      (stat ? '<span class="pcost">'+esc(stat)+'</span>' : '')+
       '<button class="prx" data-rm="'+i+'">×</button>'+
     '</div>';
   }).join("");

@@ -95,8 +95,10 @@ function peCap(){
 /* print cost for one item of a risk class (Temperance INT-mod discount, floored at 0) */
 function printCost(grade){ return Math.max(0, PRINT_BASE[grade] - statMod("TEM")); }
 
-/* ============ equip gate: numeral grades (primary) + Aleph prof floor (secondary) ============ */
+/* ============ equip gate: numeral grades (primary) + proficiency floors (secondary).
+   Gifts have neither — you just put them on. ============ */
 function unlockState(it){
+  if(it.type === "gift") return {ok:true, reasons:[]};
   const reasons = [];
   const reqs = it.reqs || {};
   for(const s of STATS){
@@ -105,6 +107,7 @@ function unlockState(it){
       reasons.push(s.name + " " + GRADE_NAMES[need]);
   }
   if(it.grade === "ALEPH" && prof() < 4) reasons.push("PROF +4 (LV 9+)");
+  if((it.grade === "WAW" || it.grade === "HE") && prof() < 3) reasons.push("PROF +3 (LV 5+)");
   return {ok: !reasons.length, reasons};
 }
 
