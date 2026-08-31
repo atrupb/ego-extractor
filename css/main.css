@@ -21,6 +21,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
+:root{color-scheme:dark}   /* the page IS dark — stops Samsung Internet's forced-dark desaturation */
 html{background:#141412}
 body{background:transparent;color:var(--white);font-family:var(--disp);font-weight:500;
   max-width:520px;margin:0 auto;display:flex;flex-direction:column;
@@ -184,17 +185,17 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .capnote{font-family:var(--mono);font-size:9.5px;color:var(--dim);margin-top:4px;letter-spacing:.04em}
 .capnote .warn{color:var(--orange)}
 /* saves + skills: tappable proficiency rows, packed into columns */
-#saveList{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 14px}
-#skillList{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
-.profrow{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12.5px;
-  padding:7px 2px;border-bottom:1px solid #1c1c1a;cursor:pointer;user-select:none}
+#saveList{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 12px}
+#skillList{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.profrow{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:12.5px;
+  padding:7px 2px;border-bottom:1px solid #1c1c1a;cursor:pointer;user-select:none;min-width:0}
 .profrow:active{background:var(--panel2)}
 .profrow .pdot{color:#4a4842;font-size:14px;flex:none;width:16px;text-align:center}
 .profrow .pdot.on{color:var(--orange)}
 .profrow .pdot.ex{color:var(--teal)}
 .profrow .pname{flex:1;min-width:0;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .profrow .psrc{color:var(--dim);font-size:9px;letter-spacing:.05em;text-transform:uppercase;flex:none}
-.profrow .pmod{color:var(--white);flex:none;width:30px;text-align:right}
+.profrow .pmod{color:var(--white);flex:none;width:26px;text-align:right}
 .featrow{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:12.5px;
   border-bottom:1px solid #1c1c1a;padding:6px 0}
 .featrow .x{color:var(--red);cursor:pointer;padding:2px 8px;font-size:14px}
@@ -441,11 +442,12 @@ body.alert main{animation:alertfx 1s 3}
   max-height:90vh;overflow-y:auto;padding-bottom:26px}
 .sheet .pstripe{height:8px;background:repeating-linear-gradient(-45deg,var(--orange) 0 9px,#000 9px 18px)}
 .sheet .inner{padding:16px}
-.sheet .cimg{width:200px;margin:0 auto 12px}
+.sheet .cimg{width:150px;margin:0 auto 10px}
 .sheet h3{text-align:center;font-size:19px;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
 .sheet .ctag{text-align:center;margin-bottom:10px}
-.flavbox{font-size:13px;font-style:italic;color:#c9c6bc;line-height:1.55;text-align:center;
-  border-top:1px solid #2c2c28;border-bottom:1px solid #2c2c28;padding:10px 4px;margin-bottom:12px;min-height:20px}
+.flavbox{font-size:12.5px;font-style:italic;color:#c9c6bc;line-height:1.5;text-align:center;
+  border-top:1px solid #2c2c28;border-bottom:1px solid #2c2c28;padding:8px 4px;margin-bottom:10px;
+  min-height:20px;max-height:96px;overflow-y:auto}
 .flavbox .d{color:var(--dim);font-family:var(--mono);font-size:11px;font-style:normal}
 .sheet textarea{width:100%;min-height:88px;background:#000;border:1px solid #3a3a36;color:var(--white);
   font-family:var(--mono);font-size:12px;line-height:1.6;padding:10px;resize:vertical}
