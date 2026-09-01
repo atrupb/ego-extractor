@@ -145,8 +145,9 @@ function diceCount(dice){
   for(const t of (String(dice).match(/(\d*)\s*d\d+/gi) || [])) n += parseInt(t, 10) || 1;
   return n;
 }
-/* weapon headline: to-hit = stat mod + prof + RC · damage = dice + flat (flat = stat mod + RC,
-   ×dice when Rapid). Only the dice string comes from the record */
+/* weapon headline: to-hit = stat mod + prof + RC · damage = dice + flat.
+   Flat = stat mod + RC — except Rapid, where the mod lands on every die and the RC
+   once at the end: mod × dice count + RC. Only the dice string comes from the record */
 function weaponStat(it){
   const st = weaponAtkStat(it), bits = [];
   if(st){
@@ -156,8 +157,8 @@ function weaponStat(it){
   if(it.dmg){
     let d = it.dmg;
     if(st){
-      const flat = statMod(st) + RCLVL(it.grade);
-      const tot = isRapid(it) ? flat * Math.max(1, diceCount(it.dmg)) : flat;
+      const mod = statMod(st), rc = RCLVL(it.grade);
+      const tot = isRapid(it) ? mod * Math.max(1, diceCount(it.dmg)) + rc : mod + rc;
       if(tot) d += (tot > 0 ? "+" : "") + tot;
     }
     bits.push(d);
