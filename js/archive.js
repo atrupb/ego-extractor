@@ -104,7 +104,7 @@ function openDetail(id){
     el("mStat").value = (it.type === "weapon" ? it.dmg : it.ac) || "";
   }
   el("mAtkField").style.display = it.type === "weapon" ? "block" : "none";
-  el("mAtk").value = it.atk || "";
+  el("mAtk").value = STAT_NAME[it.atk] ? it.atk : "";
   el("mNote").value = it.note||"";
   el("mWiki").onclick = ()=>{ if(it.link) window.open(it.link,"_blank"); };
   el("modal").classList.add("on");
@@ -116,10 +116,11 @@ function persistDetail(){
   if(!it) return;
   it.note = el("mNote").value;
   if(it.type !== "gift") it.reqs = readModalReqs();
-  if(it.type === "weapon"){ it.dmg = el("mStat").value.trim(); it.atk = el("mAtk").value.trim(); }
+  if(it.type === "weapon"){ it.dmg = el("mStat").value.trim(); it.atk = el("mAtk").value; }
   if(it.type === "suit")   it.ac  = el("mStat").value.trim();
   if(it.type === "gift")   it.bonus = readModalBonuses();
   saveCol(c);
+  el("mTag").innerHTML = esc(typeTag(it))+statTag(it)+(it.src?' // from '+esc(it.src):'');
 }
 function closeDetail(){
   el("modal").classList.remove("on");
@@ -156,7 +157,7 @@ function initArchive(){
   // autosave wiring — any edit persists on the spot
   el("mNote").addEventListener("input", persistDetail);
   el("mStat").addEventListener("input", persistDetail);
-  el("mAtk").addEventListener("input", persistDetail);
+  el("mAtk").addEventListener("change", persistDetail);
   for(const s of STATS) el("mReq"+s.k).addEventListener("change", persistDetail);
   el("mBonusList").addEventListener("change", persistDetail);
   el("mBonusAdd").onclick = ()=>{

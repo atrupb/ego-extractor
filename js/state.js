@@ -125,11 +125,14 @@ function hdLeft(){
   const c = charS();
   return c.hdLeft === null ? c.level : Math.min(c.hdLeft, c.level);
 }
-/* weapon headline: attack roll bonus + damage, whichever the record carries */
+/* weapon headline: to-hit (the record's chosen stat mod + prof) + damage.
+   atk holds a stat key — the number tracks levels and stat changes on its own */
 function weaponStat(it){
-  const atk = (it.atk || "").trim();
   const bits = [];
-  if(atk) bits.push((/^\d/.test(atk) ? "+" : "") + atk + " to hit");
+  if(it.atk && STAT_NAME[it.atk]){
+    const m = statMod(it.atk) + prof();
+    bits.push((m >= 0 ? "+" : "") + m + " to hit");
+  }
   if(it.dmg) bits.push(it.dmg);
   return bits.join(" · ");
 }
