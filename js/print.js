@@ -31,11 +31,36 @@ function renderPrintModal(){
   }
 
   const it = pPick && collection().find(x=>x.id===pPick);
+  // full spec for the selected record only — the list rows stay slim
+  el("pSpec").style.display = it ? "block" : "none";
+  if(it) el("pSpec").innerHTML = printSpecHTML(it);
   const cost = it ? printCost(it.grade) : 0;
   el("pTotal").innerHTML = it
     ? esc(it.name)+': <b class="'+(cost<=p.cur?'':'bad')+'">'+cost+' PE</b> (have '+p.cur+')'
     : '<span style="color:var(--dim)">select a record</span><b>'+p.cur+' PE held</b>';
   el("pConfirm").disabled = !it || cost > p.cur;
+}
+
+/* the spec card: identity, resolved numbers in the type's color, and the
+   record's written mechanics note */
+function printSpecHTML(it){
+  const dt = itemDType(it), dc = dt && DTYPE_COLOR[dt];
+  const s = egoStats(it);
+  let h = '<div class="pshead">';
+  h += dt
+    ? '<img src="'+DTYPE_ICON(dt)+'" alt=""><span style="color:'+dc+'">'+dt.toUpperCase()+'</span>'
+    : '<span class="psdim">type unknown</span>';
+  if(it.type === "weapon"){
+    if(s && s.speed) h += '<span class="psdim">'+esc(s.speed)+'</span>';
+    const rg = weaponRange(it);
+    if(rg) h += '<span class="psdim">'+RANGE_LABEL[rg]+'</span>';
+    if(isRapid(it)) h += '<span class="rapidtag">RAPID</span>';
+  }
+  h += '</div>';
+  const num = it.type === "weapon" ? weaponStat(it) : (suitAC(it) !== null ? "AC "+suitAC(it) : "");
+  if(num) h += '<div class="psnum"'+(dc ? ' style="color:'+dc+'"' : '')+'>'+esc(num)+'</div>';
+  if(it.note) h += '<div class="psnote">'+esc(it.note)+'</div>';
+  return h;
 }
 
 function initPrint(){
