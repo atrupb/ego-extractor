@@ -1,4 +1,4 @@
-const CACHE = "ego-terminal-auto-v35";
+const CACHE = "ego-terminal-auto-v36";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./snap.mp3",
   "./assets/gillsans.ttf", "./assets/ebox.png", "./assets/logo.png",
   "./assets/stat-for.png", "./assets/stat-jus.png", "./assets/stat-pru.png", "./assets/stat-tem.png",
