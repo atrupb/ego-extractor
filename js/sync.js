@@ -98,17 +98,31 @@ function pageOf(it){
   try{ return decodeURIComponent((it.link||"").split("/wiki/")[1].split("#")[0]); }
   catch(e){ return null; }
 }
+/* "Requirements: [icon] Justice 3 …" — the four gauge stats only; Agent Level
+   is plain text with no stat name, so the regex walks right past it */
+function parseReqs(box){
+  const NAME2K = {fortitude:"FOR", justice:"JUS", temperance:"TEM", prudence:"PRU"};
+  const im = box.querySelector('img[src*="FortitudeIcon"],img[src*="JusticeIcon"],img[src*="TemperanceIcon"],img[src*="PrudenceIcon"]');
+  if(!im || !im.parentElement) return null;
+  const reqs = {};
+  const re = /\b(Fortitude|Justice|Temperance|Prudence)\s*(\d)/gi;
+  let m;
+  while((m = re.exec(im.parentElement.textContent)))
+    reqs[NAME2K[m[1].toLowerCase()]] = Math.min(6, +m[2]);
+  return Object.keys(reqs).length ? reqs : null;
+}
 function parseStats(doc, type){
   const sec = type === "weapon" ? "Weapon" : "Suit";
   const anchor = doc.getElementById("E.G.O_"+sec) || doc.getElementById("E.G.O "+sec);
   const box = anchor && anchor.closest('[id^="abno-box-ego"]');
   if(!box) return null;
+  const reqs = parseReqs(box);
   if(type === "weapon"){
     // "Damage: [icon] RED 12-18" + "Speed: 3 (Slow)"
     const icon = box.querySelector('img[src*="DamageTypeIcon"]');
     const dm = icon && (icon.getAttribute("src")||"").match(/(Red|White|Black|Pale)DamageTypeIcon/i);
     const sm = box.textContent.match(/Speed:[\s\S]{0,24}?\(\s*(Very Fast|Fast|Normal|Slow|Very Slow)\s*\)/i);
-    return dm || sm ? {dtype: dm ? tcase(dm[1]) : null, speed: sm ? tcase(sm[1]) : null} : null;
+    return dm || sm || reqs ? {dtype: dm ? tcase(dm[1]) : null, speed: sm ? tcase(sm[1]) : null, reqs} : null;
   }
   // "Resistances: [icon] 0.7 (Endured) …" one line per damage type
   const guards = {};
@@ -117,7 +131,7 @@ function parseStats(doc, type){
     const v = im.parentElement && im.parentElement.textContent.match(/(\d+(?:\.\d+)?)/);
     if(m && v) guards[tcase(m[1])] = parseFloat(v[1]);
   });
-  return Object.keys(guards).length ? {guards} : null;
+  return Object.keys(guards).length || reqs ? {guards, reqs} : null;
 }
 /* one fetch per abnormality page (a page carries both the weapon and the suit);
    already-cached pages are skipped, so re-runs only pick up what's missing */

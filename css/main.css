@@ -490,9 +490,13 @@ body.alert main{animation:alertfx 1s 3}
 .ct-black{color:#a85fc2}
 .ct-pale{color:#3fd8e0}
 
-/* the record's identity strip: type icon + governing stat + speed, big and bright */
-.typerow{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-.typecell{flex:1;min-width:132px;border:1px solid var(--line);background:rgba(255,255,255,.03);padding:8px 11px}
+/* requirements and the identity strip share one row */
+.reqtyperow{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+.reqtyperow #mReqWrap{flex:1.4;min-width:220px}
+/* the record's identity strip: type icon + speed, big and bright — a column beside the reqs */
+.typerow{display:flex;flex-direction:column;gap:8px;flex:1;min-width:140px;margin-top:6px}
+.typecell{flex:1;display:flex;flex-direction:column;justify-content:center;
+  border:1px solid var(--line);background:rgba(255,255,255,.03);padding:8px 11px}
 .tclabel{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--dim);margin-bottom:6px}
 .tcval{display:flex;align-items:center;gap:8px;font-size:15.5px;font-weight:700;color:var(--white);line-height:1}
 .tcval img{width:26px;height:26px;object-fit:contain;flex:none}
@@ -504,6 +508,9 @@ body.alert main{animation:alertfx 1s 3}
 .sheet .row{display:flex;gap:10px;margin-top:12px}
 .sheet .row .smallbtn{flex:1}
 .reqgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+/* requirement labels wear their stat's icon and color */
+.field label.reqlab{display:flex;align-items:center;gap:6px;color:var(--sc,var(--dim))}
+.reqlab img{width:15px;height:15px;object-fit:contain;flex:none}
 .lockline{font-family:var(--mono);font-size:11px;text-align:center;letter-spacing:.14em;margin-bottom:10px}
 .lockline.ok{color:var(--zayin)} .lockline.no{color:var(--red)}
 @media (prefers-reduced-motion:reduce){

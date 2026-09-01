@@ -14,7 +14,7 @@ function statTag(it){
 
 function reqTagHTML(it){
   if(it.type === "gift") return '';
-  const reqs = it.reqs || {};
+  const reqs = effReqs(it);
   const bits = [];
   for(const s of STATS){
     const need = reqs[s.k] | 0;
@@ -94,7 +94,7 @@ function openDetail(id){
   getFlavor(it).then(f=>{
     el("mFlav").innerHTML = f ? '“'+esc(f)+'”' : '<span class="d">// no description recovered — open the full record.</span>';
   });
-  const reqs = it.reqs || {};
+  const reqs = effReqs(it);
   for(const s of STATS) el("mReq"+s.k).value = String(reqs[s.k]|0);
   el("mReqWrap").style.display = it.type === "gift" ? "none" : "block";
   // the record's headline value: weapons carry damage, suits carry AC;
@@ -130,8 +130,7 @@ function renderTypeRow(it){
   let h = '<div class="typecell"><span class="tclabel">'+
     (it.type === "weapon" ? "MAIN DAMAGE TYPE" : "MAIN DEFENSE TYPE")+'</span><div class="tcval">';
   h += dt
-    ? '<img src="'+DTYPE_ICON(dt)+'" alt=""><span class="ct-'+dt.toLowerCase()+'">'+dt.toUpperCase()+'</span>'+
-      (st ? '<span class="tcsub">'+STAT_NAME[st]+'</span>' : '')
+    ? '<img src="'+DTYPE_ICON(dt)+'" alt=""><span class="ct-'+dt.toLowerCase()+'">'+dt.toUpperCase()+'</span>'
     : '<span class="tcsub">—</span>';
   h += '</div></div>';
   if(it.type === "weapon"){

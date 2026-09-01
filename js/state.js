@@ -211,10 +211,17 @@ function printCost(grade){ return Math.max(0, PRINT_BASE[grade] - statMod("TEM")
 
 /* ============ equip gate: numeral grades (primary) + proficiency floors (secondary).
    Gifts have neither — you just put them on. ============ */
+/* equip requirements: hand-set values win; otherwise the wiki's (Agent Level ignored) */
+function effReqs(it){
+  const r = it.reqs || {};
+  if(Object.values(r).some(v => v|0)) return r;
+  const s = egoStats(it);
+  return (s && s.reqs) || r;
+}
 function unlockState(it){
   if(it.type === "gift") return {ok:true, reasons:[]};
   const reasons = [];
-  const reqs = it.reqs || {};
+  const reqs = effReqs(it);
   for(const s of STATS){
     const need = reqs[s.k] | 0;
     if(need > 0 && gradeRank(statCur(s.k)) < need)
