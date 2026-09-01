@@ -195,24 +195,32 @@
   <div class="panel" id="calcPanel" style="display:none">
     <span class="ptitle">Calculations</span>
     <div class="pbody" id="calcBody">
-      <p>How a Lobotomy Corporation record becomes the numbers on this sheet. Every E.G.O deals — or guards against — one of four damage types, and each type is governed by a stat:</p>
+      <p>How a Lobotomy Corporation record becomes the numbers on this sheet. Every E.G.O deals or guards against one of four damage types, and each type is governed by a stat:</p>
       <div class="calcgrid">
         <div><img class="dticon" src="assets/RedDamageTypeIcon.png" alt=""><b class="ct-red">RED</b> physical</div><div>→ Fortitude</div>
         <div><img class="dticon" src="assets/WhiteDamageTypeIcon.png" alt=""><b class="ct-white">WHITE</b> psychological</div><div>→ Prudence</div>
         <div><img class="dticon" src="assets/BlackDamageTypeIcon.png" alt=""><b class="ct-black">BLACK</b> both at once</div><div>→ Temperance</div>
         <div><img class="dticon" src="assets/PaleDamageTypeIcon.png" alt=""><b class="ct-pale">PALE</b> % of max HP</div><div>→ Justice</div>
       </div>
-      <p>A <b>weapon</b> uses the stat of the damage type it <b>deals</b>. A <b>suit</b> uses the stat of the damage type it <b>guards against best</b> — its lowest resistance multiplier on the record.</p>
-      <p><b>Risk class bonus (RC)</b> — the E.G.O's risk classification as a flat number:<br>
+      <p>A <b>weapon</b> uses the stat of the damage type it <b>deals</b>. A <b>suit</b> uses the stat of the damage type it <b>guards against best</b>, meaning its lowest resistance multiplier on the record.</p>
+      <p><b>Risk class bonus (RC)</b>: the E.G.O's risk classification as a flat number.<br>
       ZAYIN +1 · TETH +2 · HE +3 · WAW +4 · ALEPH +5</p>
       <p><b>Weapons.</b><br>
       <b>To hit</b> = d20 + stat mod + proficiency + RC.<br>
-      <b>Damage</b> = the weapon's dice + a flat, where <b>flat = stat mod + RC</b>. The dice are hand-built from the record (dice count follows attack speed, die size fits the record's damage range); the flat is derived.</p>
-      <p><b>Rapid</b> — weapons with Fast or Very Fast attack speed. One attack roll resolving as multiple impacts: the <b>stat mod is added to every damage die</b>, and the RC lands once at the end — damage = dice + (stat mod × dice count) + RC. Lower ceiling, very consistent. Crits double dice only, never flats.</p>
-      <p><b>Range</b> — flat, no scaling. A record marked Very Short, Short, or Medium is a <b>melee</b> weapon: 5 ft reach. Long or Very Long is <b>ranged</b>: 90 ft.</p>
+      <b>Damage</b> = the weapon's dice + a flat, where <b>flat = stat mod + RC</b>. The flat is derived. The dice are hand-built from the record: the die size is chosen so the roll fits the record's LC damage range, and the dice count follows attack speed:</p>
+      <table class="calctable">
+        <tr><th>LC Speed</th><th>Dice</th></tr>
+        <tr><td>Very Fast</td><td>×4–5</td></tr>
+        <tr><td>Fast</td><td>×3</td></tr>
+        <tr><td>Normal</td><td>×2</td></tr>
+        <tr><td>Slow</td><td>×1.5</td></tr>
+        <tr><td>Very Slow</td><td>×1</td></tr>
+      </table>
+      <p><b>Rapid</b>: weapons with Fast or Very Fast attack speed. One attack roll resolving as multiple impacts. The <b>stat mod is added to every damage die</b> and the RC lands once at the end, so damage = dice + (stat mod × dice count) + RC. Lower ceiling, very consistent. Crits double dice only, never flats.</p>
+      <p><b>Range</b>: flat, no scaling. A record marked Very Short, Short, or Medium is a <b>melee</b> weapon with 5 ft reach. Long or Very Long is <b>ranged</b>, 90 ft.</p>
       <p><b>Suits.</b><br>
       <b>AC</b> = 10 + guard stat mod + RC + 1.<br>
-      A printed suit <b>replaces</b> naked AC (10 + Justice mod) — it does not stack with it. If the suit computes lower than naked AC, the better of the two applies; the suit's resistances still count either way.</p>
+      A printed suit <b>replaces</b> naked AC (10 + Justice mod); it does not stack with it. If the suit computes lower than naked AC, use the better of the two. The suit's resistances still count either way.</p>
     </div>
   </div>
 </section>

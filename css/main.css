@@ -484,6 +484,9 @@ body.alert main{animation:alertfx 1s 3}
 .calcgrid{display:grid;grid-template-columns:auto auto;gap:5px 16px;justify-content:start;align-items:center;
   font-family:var(--mono);font-size:13px;margin:10px 0}
 .calcgrid>div{display:flex;align-items:center;gap:7px}
+.calctable{border-collapse:collapse;margin:10px 0;font-family:var(--mono);font-size:12.5px}
+.calctable th,.calctable td{border:1px solid var(--line);padding:4px 14px;text-align:left}
+.calctable th{color:var(--dim);font-weight:400;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
 .dticon{width:18px;height:18px;object-fit:contain}
 .ct-red{color:#e8433f}
 .ct-white{color:#efe9d8}
