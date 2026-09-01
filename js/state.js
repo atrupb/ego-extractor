@@ -125,36 +125,82 @@ function hdLeft(){
   const c = charS();
   return c.hdLeft === null ? c.level : Math.min(c.hdLeft, c.level);
 }
-/* weapon headline: to-hit (the record's chosen stat mod + prof) + damage.
-   atk holds a stat key — the number tracks levels and stat changes on its own */
+/* ============ E.G.O conversion formulas — the dice and passives are written,
+   every number is derived ============ */
+const RCLVL = g => CLASSES.indexOf(g) + 1;   // risk class bonus: ZAYIN 1 … ALEPH 5
+
+/* weapon attack stat: a manual pick wins; else derived from the wiki damage type */
+function weaponAtkStat(it){
+  if(STAT_NAME[it.atk]) return it.atk;
+  const s = egoStats(it);
+  return (s && s.dtype && DTYPE2STAT[s.dtype]) || null;
+}
+/* Fast / Very Fast weapons are Rapid: the flat lands on every damage die */
+function isRapid(it){
+  const s = egoStats(it);
+  return !!(s && /fast/i.test(s.speed || ""));
+}
+function diceCount(dice){
+  let n = 0;
+  for(const t of (String(dice).match(/(\d*)\s*d\d+/gi) || [])) n += parseInt(t, 10) || 1;
+  return n;
+}
+/* weapon headline: to-hit = stat mod + prof + RC · damage = dice + flat (flat = stat mod + RC,
+   ×dice when Rapid). Only the dice string comes from the record */
 function weaponStat(it){
-  const bits = [];
-  if(it.atk && STAT_NAME[it.atk]){
-    const m = statMod(it.atk) + prof();
-    bits.push((m >= 0 ? "+" : "") + m + " to hit");
+  const st = weaponAtkStat(it), bits = [];
+  if(st){
+    const hit = statMod(st) + prof() + RCLVL(it.grade);
+    bits.push((hit >= 0 ? "+" : "") + hit + " to hit");
   }
-  if(it.dmg) bits.push(it.dmg);
+  if(it.dmg){
+    let d = it.dmg;
+    if(st){
+      const flat = statMod(st) + RCLVL(it.grade);
+      const tot = isRapid(it) ? flat * Math.max(1, diceCount(it.dmg)) : flat;
+      if(tot) d += (tot > 0 ? "+" : "") + tot;
+    }
+    bits.push(d);
+  }
+  if(isRapid(it)) bits.push("RAPID");
   return bits.join(" · ");
 }
 
-/* suit AC bonus: chosen stat mod + risk class level (ZAYIN 1 … ALEPH 5) + 1.
-   Records without a chosen stat fall back to their written ac number; null = nothing to show */
+/* suit guard stat: a manual pick wins; else the resistance it guards best —
+   a tie among the best leaves it to the operator */
+function bestGuards(g){
+  const min = Math.min(...Object.values(g));
+  return Object.keys(g).filter(k => g[k] === min);
+}
+function suitGuardStat(it){
+  if(STAT_NAME[it.acStat]) return it.acStat;
+  const s = egoStats(it);
+  if(!s || !s.guards || !Object.keys(s.guards).length) return null;
+  const best = bestGuards(s.guards);
+  return best.length === 1 ? DTYPE2STAT[best[0]] : null;
+}
+/* a printed suit REPLACES naked AC: 10 + guard stat mod + RC + 1 */
 function suitAC(it){
-  if(it.acStat && STAT_NAME[it.acStat])
-    return statMod(it.acStat) + (CLASSES.indexOf(it.grade) + 1) + 1;
-  const n = parseInt(it.ac, 10);
-  return isFinite(n) ? n : null;
+  const st = suitGuardStat(it);
+  return st ? 10 + statMod(st) + RCLVL(it.grade) + 1 : null;
 }
-
-/* AC = 10 + Justice, plus the AC bonus of any actively printed suit */
-function printedAcBonus(){
+function printedSuitAC(){
   const col = collection();
-  return loadoutS().reduce((a,e)=>{
+  let best = null;
+  for(const e of loadoutS()){
     const it = col.find(x=>x.id===e.id);
-    return a + ((it && it.type === "suit" && suitAC(it)) || 0);
-  }, 0);
+    if(!it || it.type !== "suit") continue;
+    const v = suitAC(it);
+    if(v !== null && (best === null || v > best)) best = v;
+  }
+  return best;
 }
-function acVal(){ return 10 + statMod("JUS") + printedAcBonus() + bonusFor("AC") + (charS().acMisc|0); }
+/* the better of naked (10 + Justice) and the printed suit — a bad suit simply isn't worn */
+function acVal(){
+  const naked = 10 + statMod("JUS");
+  const suit = printedSuitAC();
+  return Math.max(naked, suit === null ? naked : suit) + bonusFor("AC") + (charS().acMisc|0);
+}
 
 /* PE cap: 100 base + player-managed adjustment + equipped gifts */
 function peCap(){

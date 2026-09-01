@@ -85,6 +85,51 @@ async function sync(){
 
 /* ============ flavor text: fetched on demand from each item's wiki page, cached ============ */
 function flavKey(it){ return it.type+"::"+it.name; }
+
+/* ============ combat stats off the same wiki pages, same on-demand cache pattern:
+   weapons — damage type + attack speed; suits — the four resistance multipliers ============ */
+function tcase(s){ return s.toLowerCase().replace(/(^|\s)\w/g, c=>c.toUpperCase()); }
+function egoStats(it){ return (store.get("egoStats") || {})[flavKey(it)] || null; }
+const statsPending = {};
+async function getStats(it){
+  if(it.type === "gift") return null;
+  const key = flavKey(it);
+  const hit = egoStats(it);
+  if(hit) return hit;                    // failures aren't cached — retried next time
+  if(statsPending[key]) return statsPending[key];
+  statsPending[key] = (async ()=>{
+    let out = null;
+    try{
+      const page = decodeURIComponent((it.link||"").split("/wiki/")[1].split("#")[0]);
+      const r = await fetch(API+"?action=parse&page="+encodeURIComponent(page)+"&prop=text&format=json&origin=*");
+      const j = await r.json();
+      const doc = new DOMParser().parseFromString(j.parse.text["*"],"text/html");
+      const sec = it.type === "weapon" ? "Weapon" : "Suit";
+      const anchor = doc.getElementById("E.G.O_"+sec) || doc.getElementById("E.G.O "+sec);
+      const box = anchor && anchor.closest('[id^="abno-box-ego"]');
+      if(box && it.type === "weapon"){
+        // "Damage: [icon] RED 12-18" + "Speed: 3 (Slow)"
+        const icon = box.querySelector('img[src*="DamageTypeIcon"]');
+        const dm = icon && (icon.getAttribute("src")||"").match(/(Red|White|Black|Pale)DamageTypeIcon/i);
+        const sm = box.textContent.match(/Speed:[\s\S]{0,24}?\(\s*(Very Fast|Fast|Normal|Slow|Very Slow)\s*\)/i);
+        if(dm || sm) out = {dtype: dm ? tcase(dm[1]) : null, speed: sm ? tcase(sm[1]) : null};
+      }else if(box){
+        // "Resistances: [icon] 0.7 (Endured) …" one line per damage type
+        const guards = {};
+        box.querySelectorAll('img[src*="DamageTypeIcon"]').forEach(im=>{
+          const m = (im.getAttribute("src")||"").match(/(Red|White|Black|Pale)DamageTypeIcon/i);
+          const v = im.parentElement && im.parentElement.textContent.match(/(\d+(?:\.\d+)?)/);
+          if(m && v) guards[tcase(m[1])] = parseFloat(v[1]);
+        });
+        if(Object.keys(guards).length) out = {guards};
+      }
+    }catch(e){ /* offline or layout change: leave null */ }
+    if(out){ const c = store.get("egoStats") || {}; c[key] = out; store.set("egoStats", c); }
+    delete statsPending[key];
+    return out;
+  })();
+  return statsPending[key];
+}
 function flavCache(){ return store.get("flav") || {}; }
 const flavPending = {};
 async function getFlavor(it){

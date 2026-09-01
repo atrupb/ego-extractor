@@ -7,7 +7,7 @@ function statTag(it){
   if(it.type === "weapon" && weaponStat(it)) return ' // <b style="color:var(--teal)">'+esc(weaponStat(it))+'</b>';
   if(it.type === "suit"){
     const n = suitAC(it);
-    if(n !== null) return ' // <b style="color:var(--teal)">'+(n>=0?"+":"")+n+' AC</b>';
+    if(n !== null) return ' // <b style="color:var(--teal)">AC '+n+'</b>';
   }
   return '';
 }
@@ -103,20 +103,58 @@ function openDetail(id){
     el("mBonusList").innerHTML = (it.bonus||[]).map(bonusRowHTML).join("");
   }else if(it.type === "weapon"){
     el("mStatField").style.display = "block";
-    el("mStatLabel").textContent = "Damage";
+    el("mStatLabel").textContent = "Damage dice";
+    el("mStat").placeholder = "2d6 · 1d8+1d12 · 4d4 …";
     el("mStat").value = it.dmg || "";
   }else{
-    el("mStatField").style.display = "none";   // suit AC is computed from its stat pick
+    el("mStatField").style.display = "none";   // suit AC is fully computed
   }
   el("mAtkField").style.display = it.type === "gift" ? "none" : "block";
   el("mAtkLabel").textContent = it.type === "weapon"
-    ? "Attack roll stat (its mod + prof = to-hit)"
-    : "AC stat (its mod + class level + 1 = AC bonus)";
+    ? "Attack stat — blank = auto from damage type"
+    : "Guard stat — blank = auto from best resistance; pick on ties";
   const pickedStat = it.type === "weapon" ? it.atk : it.acStat;
   el("mAtk").value = STAT_NAME[pickedStat] ? pickedStat : "";
+  renderDetailAuto(it);
+  if(it.type !== "gift") getStats(it).then(s=>{
+    if(!s || detailId !== id) return;   // fetch failed, or another record took the modal
+    const cur = collection().find(x=>x.id===id);
+    if(!cur) return;
+    renderDetailAuto(cur);
+    el("mTag").innerHTML = esc(typeTag(cur))+statTag(cur)+(cur.src?' // from '+esc(cur.src):'');
+  });
   el("mNote").value = it.note||"";
   el("mWiki").onclick = ()=>{ if(it.link) window.open(it.link,"_blank"); };
   el("modal").classList.add("on");
+}
+
+/* the derived line under the fields: what the wiki said, which stat governs,
+   and the resolved numbers — including the auto Rapid passive on Fast weapons */
+function renderDetailAuto(it){
+  const box = el("mAuto");
+  if(it.type === "gift"){ box.style.display = "none"; return; }
+  box.style.display = "block";
+  const s = egoStats(it);
+  let h = "";
+  if(it.type === "weapon"){
+    const st = weaponAtkStat(it);
+    h += '// '+(s && s.dtype ? s.dtype.toUpperCase()+' damage' : 'damage type not read yet')+
+      (s && s.speed ? ' · '+esc(s.speed) : '')+' · RC +'+RCLVL(it.grade)+
+      (st ? ' → '+STAT_NAME[st] : ' → pick a stat');
+    const line = weaponStat(it);
+    if(line) h += '<br>// '+esc(line);
+    if(isRapid(it)) h += '<br>// <b>RAPID</b> — one attack resolving as multiple impacts: the flat is added to every damage die. Crits double dice only, never flats.';
+  }else{
+    if(s && s.guards){
+      const best = bestGuards(s.guards);
+      h += '// guards: '+["Red","White","Black","Pale"].filter(k=>k in s.guards)
+        .map(k=>k+' '+s.guards[k]+(best.includes(k)?' ★':'')).join(' · ');
+      if(!STAT_NAME[it.acStat] && best.length > 1) h += '<br>// tie — pick the guard stat above';
+    }else h += '// resistances not read yet';
+    const v = suitAC(it);
+    if(v !== null) h += '<br>// AC '+v+' while printed — replaces naked AC; the better of the two applies';
+  }
+  box.innerHTML = h;
 }
 
 /* every edit lands immediately — there is no save button */
@@ -126,10 +164,11 @@ function persistDetail(){
   it.note = el("mNote").value;
   if(it.type !== "gift") it.reqs = readModalReqs();
   if(it.type === "weapon"){ it.dmg = el("mStat").value.trim(); it.atk = el("mAtk").value; }
-  if(it.type === "suit")   it.acStat = el("mAtk").value;   // legacy it.ac stays as the no-pick fallback
+  if(it.type === "suit")   it.acStat = el("mAtk").value;   // "" = auto from resistances
   if(it.type === "gift")   it.bonus = readModalBonuses();
   saveCol(c);
   el("mTag").innerHTML = esc(typeTag(it))+statTag(it)+(it.src?' // from '+esc(it.src):'');
+  renderDetailAuto(it);
 }
 function closeDetail(){
   el("modal").classList.remove("on");

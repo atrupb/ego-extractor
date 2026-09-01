@@ -69,7 +69,7 @@ function renderInternals(c){
   if(!dbg) return;
   const gb = giftBonuses(), fm = statMod("FOR"), jm = statMod("JUS");
   const rows = [
-    ["AC", "10 + "+fmtMod(jm)+" Justice + "+(printedAcBonus())+" print + "+(gb.AC|0)+" gift + "+(c.acMisc|0)+" misc = "+acVal()],
+    ["AC", "max(naked "+(10+jm)+", suit "+(printedSuitAC()===null?"—":printedSuitAC())+") + "+(gb.AC|0)+" gift + "+(c.acMisc|0)+" misc = "+acVal()],
     ["Max HP", "8 "+fmtMod(fm)+" + (lvl-1) x (5 "+fmtMod(fm)+") + "+(gb.HP|0)+" gift = "+maxHP()],
     ["Initiative", fmtMod(jm)+" Justice + "+(c.initMisc|0)+" misc + "+(gb.INIT|0)+" gift = "+fmtMod(jm+(c.initMisc|0)+(gb.INIT|0))],
     ["Proficiency", "2 + (lvl-1)/4 + "+(c.profMisc|0)+" misc = "+fmtMod(prof())],

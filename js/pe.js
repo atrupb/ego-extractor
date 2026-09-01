@@ -17,9 +17,9 @@ function renderLoadout(){
   body.innerHTML = l.map((e,i)=>{
     const it = col.find(x=>x.id===e.id);
     if(!it) return "";
-    // headline shorthand: weapon to-hit + damage / suit AC, computed off the archive record
+    // headline shorthand: weapon to-hit + damage / suit AC, all derived
     const acN = it.type === "suit" ? suitAC(it) : null;
-    const stat = it.type === "weapon" ? weaponStat(it) : acN !== null ? (acN>=0?"+":"")+acN+" AC" : "";
+    const stat = it.type === "weapon" ? weaponStat(it) : acN !== null ? "AC "+acN : "";
     return '<div class="printrow">'+
       riskBadge(it.grade)+
       '<div class="cimg">'+(it.img?'<img loading="lazy" src="'+esc(it.img)+'" alt="">':'<span class="noimg">—</span>')+'</div>'+
@@ -29,6 +29,13 @@ function renderLoadout(){
       '<button class="prx" data-rm="'+i+'">×</button>'+
     '</div>';
   }).join("");
+  // printed gear drives live numbers (AC, damage) — read any record the wiki
+  // hasn't answered for yet, then fold the result into every view
+  l.forEach(e=>{
+    const it = col.find(x=>x.id===e.id);
+    if(it && it.type !== "gift" && !egoStats(it))
+      getStats(it).then(s=>{ if(s) refreshAll(); });
+  });
 }
 
 function peStep(){

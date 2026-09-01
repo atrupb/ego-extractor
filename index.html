@@ -345,12 +345,13 @@
           <select id="mReqTEM"><option value="0">—</option><option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option><option value="5">V</option><option value="6">EX</option></select></div>
       </div>
       </div>
-      <div class="field" id="mAtkField"><label id="mAtkLabel">Attack roll stat (its mod + prof = to-hit)</label>
-        <select id="mAtk"><option value="">—</option>
+      <div class="field" id="mAtkField"><label id="mAtkLabel">Attack stat — blank = auto from damage type</label>
+        <select id="mAtk"><option value="">— auto —</option>
           <option value="FOR">Fortitude</option><option value="JUS">Justice</option>
           <option value="TEM">Temperance</option><option value="PRU">Prudence</option></select></div>
-      <div class="field" id="mStatField"><label id="mStatLabel">Damage</label>
+      <div class="field" id="mStatField"><label id="mStatLabel">Damage dice</label>
         <input type="text" id="mStat"></div>
+      <div id="mAuto" style="display:none"></div>
       <div id="mBonusWrap" style="display:none">
         <div class="picklabel">Bonuses (apply while equipped)</div>
         <div id="mBonusList"></div>
