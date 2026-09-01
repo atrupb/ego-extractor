@@ -2,9 +2,9 @@
 /* ============ archive — every recovered record, lock states, shattered records ============ */
 let fCat = "all", fClass = "all", fShatter = false;
 
-/* the record's written headline value, for tag lines: weapon damage / suit AC bonus */
+/* the record's written headline value, for tag lines: weapon to-hit + damage / suit AC bonus */
 function statTag(it){
-  if(it.type === "weapon" && it.dmg) return ' // <b style="color:var(--teal)">'+esc(it.dmg)+'</b>';
+  if(it.type === "weapon" && weaponStat(it)) return ' // <b style="color:var(--teal)">'+esc(weaponStat(it))+'</b>';
   if(it.type === "suit" && it.ac)    return ' // <b style="color:var(--teal)">+'+esc(it.ac)+' AC</b>';
   return '';
 }
@@ -103,6 +103,8 @@ function openDetail(id){
     el("mStatLabel").textContent = it.type === "weapon" ? "Damage" : "AC bonus";
     el("mStat").value = (it.type === "weapon" ? it.dmg : it.ac) || "";
   }
+  el("mAtkField").style.display = it.type === "weapon" ? "block" : "none";
+  el("mAtk").value = it.atk || "";
   el("mNote").value = it.note||"";
   el("mWiki").onclick = ()=>{ if(it.link) window.open(it.link,"_blank"); };
   el("modal").classList.add("on");
@@ -114,7 +116,7 @@ function persistDetail(){
   if(!it) return;
   it.note = el("mNote").value;
   if(it.type !== "gift") it.reqs = readModalReqs();
-  if(it.type === "weapon") it.dmg = el("mStat").value.trim();
+  if(it.type === "weapon"){ it.dmg = el("mStat").value.trim(); it.atk = el("mAtk").value.trim(); }
   if(it.type === "suit")   it.ac  = el("mStat").value.trim();
   if(it.type === "gift")   it.bonus = readModalBonuses();
   saveCol(c);
@@ -154,6 +156,7 @@ function initArchive(){
   // autosave wiring — any edit persists on the spot
   el("mNote").addEventListener("input", persistDetail);
   el("mStat").addEventListener("input", persistDetail);
+  el("mAtk").addEventListener("input", persistDetail);
   for(const s of STATS) el("mReq"+s.k).addEventListener("change", persistDetail);
   el("mBonusList").addEventListener("change", persistDetail);
   el("mBonusAdd").onclick = ()=>{

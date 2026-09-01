@@ -125,6 +125,15 @@ function hdLeft(){
   const c = charS();
   return c.hdLeft === null ? c.level : Math.min(c.hdLeft, c.level);
 }
+/* weapon headline: attack roll bonus + damage, whichever the record carries */
+function weaponStat(it){
+  const atk = (it.atk || "").trim();
+  const bits = [];
+  if(atk) bits.push((/^\d/.test(atk) ? "+" : "") + atk + " to hit");
+  if(it.dmg) bits.push(it.dmg);
+  return bits.join(" · ");
+}
+
 /* AC = 10 + Justice, plus the AC bonus of any actively printed suit */
 function printedAcBonus(){
   const col = collection();
