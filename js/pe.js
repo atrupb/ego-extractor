@@ -17,15 +17,17 @@ function renderLoadout(){
   body.innerHTML = l.map((e,i)=>{
     const it = col.find(x=>x.id===e.id);
     if(!it) return "";
-    // headline shorthand: weapon to-hit + damage / suit AC, all derived
+    // headline shorthand: weapon to-hit + damage / suit AC, all derived,
+    // colored by the damage type dealt or guarded
     const acN = it.type === "suit" ? suitAC(it) : null;
     const stat = it.type === "weapon" ? weaponStat(it) : acN !== null ? "AC "+acN : "";
+    const dc = DTYPE_COLOR[itemDType(it)];
     return '<div class="printrow">'+
       riskBadge(it.grade)+
       '<div class="cimg">'+(it.img?'<img loading="lazy" src="'+esc(it.img)+'" alt="">':'<span class="noimg">—</span>')+'</div>'+
       '<span class="pn">'+esc(it.name)+
         '<span class="pclass" style="display:block;font-weight:400;color:var(--dim)">'+it.type.toUpperCase()+' · '+e.cost+' PE</span></span>'+
-      (stat ? '<span class="pcost">'+esc(stat)+'</span>' : '')+
+      (stat ? '<span class="pcost"'+(dc?' style="color:'+dc+'"':'')+'>'+esc(stat)+'</span>' : '')+
       '<button class="prx" data-rm="'+i+'">×</button>'+
     '</div>';
   }).join("");

@@ -29,6 +29,7 @@ const STAT_NAME = Object.fromEntries(STATS.map(s=>[s.k,s.name]));
 const DTYPE2STAT = {Red:"FOR", White:"PRU", Black:"TEM", Pale:"JUS"};
 const STAT2DTYPE = {FOR:"Red", PRU:"White", TEM:"Black", JUS:"Pale"};
 const DTYPE_ICON = t => "assets/"+t+"DamageTypeIcon.png";
+const DTYPE_COLOR = {Red:"#e8433f", White:"#efe9d8", Black:"#a85fc2", Pale:"#3fd8e0"};
 
 /* numeral grades: I 8–9 · II 10–12 · III 13–15 · IV 16–17 · V 18–20 · EX 21+ */
 const GRADE_NAMES = ["—","I","II","III","IV","V","EX"];

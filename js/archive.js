@@ -2,12 +2,14 @@
 /* ============ archive — every recovered record, lock states, shattered records ============ */
 let fCat = "all", fClass = "all", fShatter = false;
 
-/* the record's computed headline value, for tag lines: weapon to-hit + damage / suit AC bonus */
+/* the record's computed headline value, for tag lines: weapon to-hit + damage / suit AC —
+   worn in the color of the damage type it deals or guards */
 function statTag(it){
-  if(it.type === "weapon" && weaponStat(it)) return ' // <b style="color:var(--teal)">'+esc(weaponStat(it))+'</b>';
+  const c = DTYPE_COLOR[itemDType(it)] || "var(--teal)";
+  if(it.type === "weapon" && weaponStat(it)) return ' // <b style="color:'+c+'">'+esc(weaponStat(it))+'</b>';
   if(it.type === "suit"){
     const n = suitAC(it);
-    if(n !== null) return ' // <b style="color:var(--teal)">AC '+n+'</b>';
+    if(n !== null) return ' // <b style="color:'+c+'">AC '+n+'</b>';
   }
   return '';
 }
@@ -96,7 +98,7 @@ function openDetail(id){
   });
   const reqs = effReqs(it);
   for(const s of STATS) el("mReq"+s.k).value = String(reqs[s.k]|0);
-  el("mReqWrap").style.display = it.type === "gift" ? "none" : "block";
+  el("mReqWrap").style.display = it.type === "gift" ? "none" : "flex";
   // the record's headline value: weapons carry damage, suits carry AC;
   // gifts instead carry small structured bonuses
   el("mBonusWrap").style.display = it.type === "gift" ? "block" : "none";
@@ -123,21 +125,19 @@ function renderTypeRow(it){
   if(it.type === "gift"){ box.style.display = "none"; return; }
   box.style.display = "flex";
   const s = egoStats(it);
-  const st = it.type === "weapon" ? weaponAtkStat(it) : suitGuardStat(it);
-  const dt = it.type === "weapon"
-    ? ((s && s.dtype) || (st && STAT2DTYPE[st]))
-    : (st && STAT2DTYPE[st]);
+  const dt = itemDType(it);
   let h = '<div class="typecell"><span class="tclabel">'+
     (it.type === "weapon" ? "MAIN DAMAGE TYPE" : "MAIN DEFENSE TYPE")+'</span><div class="tcval">';
   h += dt
     ? '<img src="'+DTYPE_ICON(dt)+'" alt=""><span class="ct-'+dt.toLowerCase()+'">'+dt.toUpperCase()+'</span>'
     : '<span class="tcsub">—</span>';
-  h += '</div></div>';
+  h += '</div>';
   if(it.type === "weapon"){
-    h += '<div class="typecell"><span class="tclabel">SPEED</span><div class="tcval">'+
+    h += '<span class="tclabel tcgap">SPEED</span><div class="tcval">'+
       (s && s.speed ? esc(s.speed) : '<span class="tcsub">—</span>')+
-      (isRapid(it) ? '<span class="rapidtag">RAPID</span>' : '')+'</div></div>';
+      (isRapid(it) ? '<span class="rapidtag">RAPID</span>' : '')+'</div>';
   }
+  h += '</div>';
   box.innerHTML = h;
 }
 

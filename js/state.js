@@ -183,6 +183,14 @@ function suitAC(it){
   const st = suitGuardStat(it);
   return st ? 10 + statMod(st) + RCLVL(it.grade) + 1 : null;
 }
+/* the damage type an item fights with (weapons) or guards against (suits) —
+   follows a manual stat override, since the stat IS the type */
+function itemDType(it){
+  const st = it.type === "weapon" ? weaponAtkStat(it)
+           : it.type === "suit"   ? suitGuardStat(it) : null;
+  return st ? STAT2DTYPE[st] : null;
+}
+
 function printedSuitAC(){
   const col = collection();
   let best = null;
