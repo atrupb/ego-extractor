@@ -374,6 +374,10 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .csrc{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:2px;overflow-wrap:anywhere}
 .cflav{font-size:11.5px;color:#b9b6ad;font-style:italic;margin-top:5px;line-height:1.45;
   display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+/* wiki peek during the roll — read the record before you commit to it */
+.cwiki{align-self:flex-start;margin-top:6px;padding:3px 8px;font-family:var(--mono);font-size:10px;
+  letter-spacing:.06em;color:var(--teal);background:none;border:1px solid var(--line);cursor:pointer}
+.cwiki:hover{border-color:var(--teal)}
 .actions{display:flex;gap:10px;margin-top:14px;align-items:stretch}
 .actions .bigbtn{font-size:14px;padding:12px 10px}
 /* aleph alert */

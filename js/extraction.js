@@ -184,7 +184,8 @@ function renderCards(){
           '<div class="cmeta"><div class="cname">'+esc(it.name)+'</div>'+
           '<div class="ctag">'+esc(typeTag(it))+'</div>'+
           (it.src?'<div class="csrc">ex. '+esc(it.src)+'</div>':'')+
-          '<div class="cflav" data-f="'+i+'"></div></div>'+
+          '<div class="cflav" data-f="'+i+'"></div>'+
+          (it.link?'<button class="cwiki">FULL RECORD ↗</button>':'')+'</div>'+
         '</div>'+
         '<div class="cface cback">'+
           '<span class="cbdot"></span>'+
@@ -192,7 +193,9 @@ function renderCards(){
         '</div>'+
       '</div>';
     // no auto-reveal — the operator opens each unit by hand
-    c.addEventListener("click",()=>{
+    c.addEventListener("click",e=>{
+      // the wiki peek is a side glance, not a pick — it must not flip or select
+      if(e.target.closest(".cwiki")){ window.open(it.link,"_blank"); return; }
       if(!c.classList.contains("flip")){ c.classList.add("flip"); return; }
       document.querySelectorAll(".card").forEach(x=>x.classList.remove("sel"));
       c.classList.add("sel"); picked = i;
