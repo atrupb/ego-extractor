@@ -477,11 +477,16 @@ body.alert main{animation:alertfx 1s 3}
   border-top:1px solid #2c2c28;border-bottom:1px solid #2c2c28;padding:8px 4px;margin-bottom:10px;
   min-height:20px;max-height:96px;overflow-y:auto}
 .flavbox .d{color:var(--dim);font-family:var(--mono);font-size:11px;font-style:normal}
-/* Calculations (debug-only): how a record's numbers are put together */
-#mCalcWrap{border-top:1px solid #2c2c28;margin-top:12px;padding-top:10px}
-#mCalcBody{font-family:var(--mono);font-size:13px;color:var(--white);line-height:1.7;margin-top:10px}
-#mCalcBody div{margin-top:4px}
-#mCalcBody b{color:var(--teal);font-weight:700}
+/* Calculations (debug-only): the conversion rules, spelled out for a table guest */
+#calcBody{font-size:13.5px;line-height:1.65}
+#calcBody p{margin:10px 0 0}
+#calcBody p:first-child{margin-top:0}
+.calcgrid{display:grid;grid-template-columns:auto auto;gap:3px 16px;justify-content:start;
+  font-family:var(--mono);font-size:13px;margin:10px 0}
+#calcBody .ct-red{color:#e8433f}
+#calcBody .ct-white{color:#efe9d8}
+#calcBody .ct-black{color:#a85fc2}
+#calcBody .ct-pale{color:#3fd8e0}
 .sheet textarea{width:100%;min-height:88px;background:#000;border:1px solid #3a3a36;color:var(--white);
   font-family:var(--mono);font-size:12px;line-height:1.6;padding:10px;resize:vertical}
 .sheet .row{display:flex;gap:10px;margin-top:12px}

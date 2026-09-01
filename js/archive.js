@@ -30,6 +30,8 @@ function reqTagHTML(it){
 }
 
 function renderArchive(){
+  // the rules explainer at the bottom rides the terminal's debug option
+  el("calcPanel").style.display = store.get("debug") ? "" : "none";
   // chips reflect filter state
   document.querySelectorAll("#fCatRow .chip").forEach(ch=>ch.classList.toggle("on", ch.dataset.v===fCat));
   document.querySelectorAll("#fClassRow .chip").forEach(ch=>ch.classList.toggle("on", ch.dataset.v===fClass));
@@ -99,48 +101,18 @@ function openDetail(id){
   // gifts instead carry small structured bonuses
   el("mBonusWrap").style.display = it.type === "gift" ? "block" : "none";
   if(it.type === "gift") el("mBonusList").innerHTML = (it.bonus||[]).map(bonusRowHTML).join("");
-  // the tag line up top carries the resolved numbers; the machinery behind them
-  // lives in Calculations, shown only with the terminal's debug option on
-  el("mCalcWrap").style.display = it.type !== "gift" && store.get("debug") ? "block" : "none";
   el("mStatField").style.display = it.type === "weapon" ? "block" : "none";
-  el("mStat").placeholder = "2d6 · 1d8+1d12 · 4d4 …";
   el("mStat").value = it.dmg || "";
+  // the stat override is derivation machinery — it hides behind the debug option
+  el("mCalcWrap").style.display = it.type !== "gift" && store.get("debug") ? "block" : "none";
   el("mAtkLabel").textContent = it.type === "weapon"
     ? "Attack stat — blank = auto from damage type"
     : "Guard stat — blank = auto from best resistance; pick on ties";
   const pickedStat = it.type === "weapon" ? it.atk : it.acStat;
   el("mAtk").value = STAT_NAME[pickedStat] ? pickedStat : "";
-  renderCalc(it);
   el("mNote").value = it.note||"";
   el("mWiki").onclick = ()=>{ if(it.link) window.open(it.link,"_blank"); };
   el("modal").classList.add("on");
-}
-
-/* the Calculations breakdown: what the wiki said, which stat governs, and the
-   resolved numbers — including the auto Rapid passive on Fast weapons */
-function renderCalc(it){
-  if(it.type === "gift") return;
-  const s = egoStats(it);
-  let h = "";
-  if(it.type === "weapon"){
-    const st = weaponAtkStat(it);
-    h += '<div>'+(s && s.dtype ? s.dtype.toUpperCase()+' damage' : 'damage type not read — run recovery on the terminal')+
-      (s && s.speed ? ' · '+esc(s.speed) : '')+' · RC +'+RCLVL(it.grade)+
-      (st ? ' → '+STAT_NAME[st] : ' → pick a stat')+'</div>';
-    const line = weaponStat(it);
-    if(line) h += '<div><b>'+esc(line)+'</b></div>';
-    if(isRapid(it)) h += '<div><b>RAPID</b> — one attack resolving as multiple impacts: the flat is added to every damage die. Crits double dice only, never flats.</div>';
-  }else{
-    if(s && s.guards){
-      const best = bestGuards(s.guards);
-      h += '<div>guards: '+["Red","White","Black","Pale"].filter(k=>k in s.guards)
-        .map(k=>k+' '+s.guards[k]+(best.includes(k)?' ★':'')).join(' · ')+'</div>';
-      if(!STAT_NAME[it.acStat] && best.length > 1) h += '<div>tie — pick the guard stat above</div>';
-    }else h += '<div>resistances not read — run recovery on the terminal</div>';
-    const v = suitAC(it);
-    if(v !== null) h += '<div><b>AC '+v+'</b> while printed — replaces naked AC; the better of the two applies.</div>';
-  }
-  el("mCalcBody").innerHTML = h;
 }
 
 /* every edit lands immediately — there is no save button */
@@ -154,7 +126,6 @@ function persistDetail(){
   if(it.type === "gift")   it.bonus = readModalBonuses();
   saveCol(c);
   el("mTag").innerHTML = esc(typeTag(it))+statTag(it)+(it.src?' // from '+esc(it.src):'');
-  renderCalc(it);
 }
 function closeDetail(){
   el("modal").classList.remove("on");

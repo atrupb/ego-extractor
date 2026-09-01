@@ -191,6 +191,29 @@
     <span class="chip" id="fShatter">+ shattered</span>
   </div>
   <div id="alist"></div>
+
+  <div class="panel" id="calcPanel" style="display:none">
+    <span class="ptitle">Calculations</span>
+    <div class="pbody" id="calcBody">
+      <p>How a Lobotomy Corporation record becomes the numbers on this sheet. Every E.G.O deals — or guards against — one of four damage types, and each type is governed by a stat:</p>
+      <div class="calcgrid">
+        <div><b class="ct-red">RED</b> physical</div><div>→ Fortitude</div>
+        <div><b class="ct-white">WHITE</b> psychological</div><div>→ Prudence</div>
+        <div><b class="ct-black">BLACK</b> both at once</div><div>→ Temperance</div>
+        <div><b class="ct-pale">PALE</b> % of max HP</div><div>→ Justice</div>
+      </div>
+      <p>A <b>weapon</b> uses the stat of the damage type it <b>deals</b>. A <b>suit</b> uses the stat of the damage type it <b>guards against best</b> — its lowest resistance multiplier on the record.</p>
+      <p><b>Risk class bonus (RC)</b> — the E.G.O's risk classification as a flat number:<br>
+      ZAYIN +1 · TETH +2 · HE +3 · WAW +4 · ALEPH +5</p>
+      <p><b>Weapons.</b><br>
+      <b>To hit</b> = d20 + stat mod + proficiency + RC.<br>
+      <b>Damage</b> = the weapon's dice + a flat, where <b>flat = stat mod + RC</b>. The dice are hand-built from the record (dice count follows attack speed, die size fits the record's damage range); the flat is derived.</p>
+      <p><b>Rapid</b> — weapons with Fast or Very Fast attack speed. One attack roll resolving as multiple impacts: the flat is added to <b>every damage die</b> instead of once at the end. Lower ceiling, very consistent. Crits double dice only, never flats.</p>
+      <p><b>Suits.</b><br>
+      <b>AC</b> = 10 + guard stat mod + RC + 1.<br>
+      A printed suit <b>replaces</b> naked AC (10 + Justice mod) — it does not stack with it. If the suit computes lower than naked AC, the better of the two applies; the suit's resistances still count either way.</p>
+    </div>
+  </div>
 </section>
 
 <!-- ══════════ GIFT LOADOUT ══════════ -->
@@ -345,15 +368,13 @@
           <select id="mReqTEM"><option value="0">—</option><option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option><option value="5">V</option><option value="6">EX</option></select></div>
       </div>
       </div>
+      <div class="field" id="mStatField"><label id="mStatLabel">Damage dice</label>
+        <input type="text" id="mStat"></div>
       <div id="mCalcWrap" style="display:none">
-        <div class="picklabel">Calculations</div>
-        <div class="field" id="mStatField"><label id="mStatLabel">Damage dice</label>
-          <input type="text" id="mStat"></div>
         <div class="field" id="mAtkField"><label id="mAtkLabel">Attack stat — blank = auto from damage type</label>
           <select id="mAtk"><option value="">— auto —</option>
             <option value="FOR">Fortitude</option><option value="JUS">Justice</option>
             <option value="TEM">Temperance</option><option value="PRU">Prudence</option></select></div>
-        <div id="mCalcBody"></div>
       </div>
       <div id="mBonusWrap" style="display:none">
         <div class="picklabel">Bonuses (apply while equipped)</div>
