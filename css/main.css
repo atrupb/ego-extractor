@@ -477,9 +477,11 @@ body.alert main{animation:alertfx 1s 3}
   border-top:1px solid #2c2c28;border-bottom:1px solid #2c2c28;padding:8px 4px;margin-bottom:10px;
   min-height:20px;max-height:96px;overflow-y:auto}
 .flavbox .d{color:var(--dim);font-family:var(--mono);font-size:11px;font-style:normal}
-/* the derived-numbers readout under a record's fields */
-#mAuto{font-family:var(--mono);font-size:10.5px;color:var(--dim);line-height:1.7;margin-top:8px}
-#mAuto b{color:var(--teal);font-weight:700}
+/* Calculations (debug-only): how a record's numbers are put together */
+#mCalcWrap{border-top:1px solid #2c2c28;margin-top:12px;padding-top:10px}
+#mCalcBody{font-family:var(--mono);font-size:13px;color:var(--white);line-height:1.7;margin-top:10px}
+#mCalcBody div{margin-top:4px}
+#mCalcBody b{color:var(--teal);font-weight:700}
 .sheet textarea{width:100%;min-height:88px;background:#000;border:1px solid #3a3a36;color:var(--white);
   font-family:var(--mono);font-size:12px;line-height:1.6;padding:10px;resize:vertical}
 .sheet .row{display:flex;gap:10px;margin-top:12px}

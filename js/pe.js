@@ -29,13 +29,6 @@ function renderLoadout(){
       '<button class="prx" data-rm="'+i+'">×</button>'+
     '</div>';
   }).join("");
-  // printed gear drives live numbers (AC, damage) — read any record the wiki
-  // hasn't answered for yet, then fold the result into every view
-  l.forEach(e=>{
-    const it = col.find(x=>x.id===e.id);
-    if(it && it.type !== "gift" && !egoStats(it))
-      getStats(it).then(s=>{ if(s) refreshAll(); });
-  });
 }
 
 function peStep(){
