@@ -119,7 +119,11 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .adjrow input{flex:1;min-width:0;text-align:center;padding:8px}
 .adjrow .microbtn{flex:none;width:52px}
 .rules{font-family:var(--disp);font-size:13.5px;line-height:1.7;color:var(--egreen)}
-.rules div{display:flex;justify-content:space-between;gap:12px;padding:3px 0;border-bottom:1px solid #1c1c1a}
+.rules div{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:3px 0;border-bottom:1px solid #1c1c1a}
+.rules b{flex:none;text-align:right}
+/* a value that covers several triggers: they stack, the value sits centered beside them */
+.rules .rtrig{display:flex;flex-direction:column}
+.rules .rtrig i{font-style:normal}
 .rules div:last-child{border-bottom:none}
 .rules b{color:var(--white);font-weight:400}
 .rules .rulesplit{display:block}
