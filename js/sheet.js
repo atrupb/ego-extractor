@@ -137,8 +137,13 @@ function renderSkills(c){
       '<span class="psrc">'+s.abil+'</span>'+
       '<span class="pmod">'+fmtMod(mod)+'</span></div>';
   }).join("");
-  const pp = 10 + statMod("PRU") + (c.skills.perception|0) * prof() + bonusFor("perception");
+  // both passives take a misc adjustment — feats like Observant land there
+  const pp = 10 + statMod("PRU") + (c.skills.perception|0) * prof() + bonusFor("perception") + (c.ppMisc|0);
   el("passPerc").textContent = pp;
+  el("passPerc").classList.toggle("ovr", (c.ppMisc|0) !== 0);
+  const pi = 10 + statMod("TEM") + (c.skills.investigation|0) * prof() + bonusFor("investigation") + (c.piMisc|0);
+  el("passInv").textContent = pi;
+  el("passInv").classList.toggle("ovr", (c.piMisc|0) !== 0);
 }
 
 function initSheet(){
@@ -175,6 +180,10 @@ function initSheet(){
   el("acPlus").onclick    = ()=>{ const c=charS(); c.acMisc=(c.acMisc|0)+1; saveChar(c); refreshAll(); };
   el("profMinus").onclick = ()=>{ const c=charS(); c.profMisc=(c.profMisc|0)-1; saveChar(c); refreshAll(); };
   el("profPlus").onclick  = ()=>{ const c=charS(); c.profMisc=(c.profMisc|0)+1; saveChar(c); refreshAll(); };
+  el("ppMinus").onclick = ()=>{ const c=charS(); c.ppMisc=(c.ppMisc|0)-1; saveChar(c); renderSheet(); };
+  el("ppPlus").onclick  = ()=>{ const c=charS(); c.ppMisc=(c.ppMisc|0)+1; saveChar(c); renderSheet(); };
+  el("piMinus").onclick = ()=>{ const c=charS(); c.piMisc=(c.piMisc|0)-1; saveChar(c); renderSheet(); };
+  el("piPlus").onclick  = ()=>{ const c=charS(); c.piMisc=(c.piMisc|0)+1; saveChar(c); renderSheet(); };
 
   // HP is derived (never hand-entered); current HP is just table damage tracking.
   // type the amount, then − / +

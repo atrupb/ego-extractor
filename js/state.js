@@ -31,7 +31,7 @@ function defaultChar(){
     saveProf:{CON:true, INT:true}, // artificer chassis defaults; tap to change
     skills:{},                   // {perception:0|1|2} — none / proficient / expertise
     capAdj:0,                    // player-managed permanent PE cap adjustment
-    initMisc:0, acMisc:0, profMisc:0, hpCur:null, hpTemp:0,
+    initMisc:0, acMisc:0, profMisc:0, ppMisc:0, piMisc:0, hpCur:null, hpTemp:0,
     hdLeft:null                  // hit dice remaining; null = full (= level)
   };
 }

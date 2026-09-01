@@ -70,8 +70,8 @@
   <div class="panel">
     <span class="ptitle">PE rules</span>
     <div class="pbody rules">
-      <div><b>Combat start</b> + highest enemy CR present</div>
-      <div><b>Combat end</b> + highest enemy CR present</div>
+      <div><b>Combat start</b> +10</div>
+      <div><b>Combat end</b> +5</div>
       <div><b>Enemy misses you / you make a save</b> +5</div>
       <div><b>Enemy misses an ally / ally makes a save</b> +3</div>
       <div><b>You or an ally land an attack</b> +1 + damage dice rolled</div>
@@ -157,7 +157,11 @@
     <div class="pbody">
       <div id="skillList"></div>
       <div class="statrow" style="margin-top:8px;border-top:1px solid #2c2c28;padding-top:8px">
-        <span>Passive Perception</span><b class="t" id="passPerc">10</b></div>
+        <span>Passive Perception</span>
+        <span class="passctl"><button class="microbtn" id="ppMinus">−</button><b class="t" id="passPerc">10</b><button class="microbtn" id="ppPlus">+</button></span></div>
+      <div class="statrow">
+        <span>Passive Investigation</span>
+        <span class="passctl"><button class="microbtn" id="piMinus">−</button><b class="t" id="passInv">10</b><button class="microbtn" id="piPlus">+</button></span></div>
     </div>
   </div>
 
