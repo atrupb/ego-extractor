@@ -112,6 +112,8 @@ function openDetail(id){
     : "Guard stat — blank = auto from best resistance; pick on ties";
   const pickedStat = it.type === "weapon" ? it.atk : it.acStat;
   el("mAtk").value = STAT_NAME[pickedStat] ? pickedStat : "";
+  el("mRangeField").style.display = it.type === "weapon" ? "block" : "none";
+  el("mRange").value = it.range === "melee" || it.range === "ranged" ? it.range : "";
   renderTypeRow(it);
   el("mNote").value = it.note||"";
   el("mWiki").onclick = ()=>{ if(it.link) window.open(it.link,"_blank"); };
@@ -136,6 +138,9 @@ function renderTypeRow(it){
     h += '<span class="tclabel tcgap">SPEED</span><div class="tcval">'+
       (s && s.speed ? esc(s.speed) : '<span class="tcsub">—</span>')+
       (isRapid(it) ? '<span class="rapidtag">RAPID</span>' : '')+'</div>';
+    const rg = weaponRange(it);
+    h += '<span class="tclabel tcgap">RANGE</span><div class="tcval">'+
+      (rg ? RANGE_LABEL[rg] : '<span class="tcsub">—</span>')+'</div>';
   }
   h += '</div>';
   box.innerHTML = h;
@@ -147,7 +152,7 @@ function persistDetail(){
   if(!it) return;
   it.note = el("mNote").value;
   if(it.type !== "gift") it.reqs = readModalReqs();
-  if(it.type === "weapon"){ it.dmg = el("mStat").value.trim(); it.atk = el("mAtk").value; }
+  if(it.type === "weapon"){ it.dmg = el("mStat").value.trim(); it.atk = el("mAtk").value; it.range = el("mRange").value; }
   if(it.type === "suit")   it.acStat = el("mAtk").value;   // "" = auto from resistances
   if(it.type === "gift")   it.bonus = readModalBonuses();
   saveCol(c);
@@ -190,6 +195,7 @@ function initArchive(){
   el("mNote").addEventListener("input", persistDetail);
   el("mStat").addEventListener("input", persistDetail);
   el("mAtk").addEventListener("change", persistDetail);
+  el("mRange").addEventListener("change", persistDetail);
   for(const s of STATS) el("mReq"+s.k).addEventListener("change", persistDetail);
   el("mBonusList").addEventListener("change", persistDetail);
   el("mBonusAdd").onclick = ()=>{

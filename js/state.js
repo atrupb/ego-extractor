@@ -183,6 +183,17 @@ function suitAC(it){
   const st = suitGuardStat(it);
   return st ? 10 + statMod(st) + RCLVL(it.grade) + 1 : null;
 }
+/* flat 5e ranges — no scaling: Short / Very Short / Medium → melee 5 ft,
+   Long / Very Long → ranged 90 ft. A record's manual pick beats the wiki word */
+const RANGE_LABEL = {melee:"Melee · 5 ft", ranged:"Ranged · 90 ft"};
+function weaponRange(it){
+  if(it.range === "melee" || it.range === "ranged") return it.range;
+  const s = egoStats(it);
+  const r = s && s.range;
+  if(!r) return null;
+  return /short|medium/i.test(r) ? "melee" : /long/i.test(r) ? "ranged" : null;
+}
+
 /* the damage type an item fights with (weapons) or guards against (suits) —
    follows a manual stat override, since the stat IS the type */
 function itemDType(it){

@@ -209,6 +209,7 @@
       <b>To hit</b> = d20 + stat mod + proficiency + RC.<br>
       <b>Damage</b> = the weapon's dice + a flat, where <b>flat = stat mod + RC</b>. The dice are hand-built from the record (dice count follows attack speed, die size fits the record's damage range); the flat is derived.</p>
       <p><b>Rapid</b> — weapons with Fast or Very Fast attack speed. One attack roll resolving as multiple impacts: the flat is added to <b>every damage die</b> instead of once at the end. Lower ceiling, very consistent. Crits double dice only, never flats.</p>
+      <p><b>Range</b> — flat, no scaling. A record marked Very Short, Short, or Medium is a <b>melee</b> weapon: 5 ft reach. Long or Very Long is <b>ranged</b>: 90 ft.</p>
       <p><b>Suits.</b><br>
       <b>AC</b> = 10 + guard stat mod + RC + 1.<br>
       A printed suit <b>replaces</b> naked AC (10 + Justice mod) — it does not stack with it. If the suit computes lower than naked AC, the better of the two applies; the suit's resistances still count either way.</p>
@@ -379,6 +380,10 @@
           <select id="mAtk"><option value="">— auto —</option>
             <option value="FOR">Fortitude</option><option value="JUS">Justice</option>
             <option value="TEM">Temperance</option><option value="PRU">Prudence</option></select></div>
+        <div class="field" id="mRangeField"><label>Range — blank = auto from the record</label>
+          <select id="mRange"><option value="">— auto —</option>
+            <option value="melee">Melee · 5 ft</option>
+            <option value="ranged">Ranged · 90 ft</option></select></div>
       </div>
       <div id="mBonusWrap" style="display:none">
         <div class="picklabel">Bonuses (apply while equipped)</div>

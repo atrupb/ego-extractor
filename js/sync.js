@@ -118,11 +118,14 @@ function parseStats(doc, type){
   if(!box) return null;
   const reqs = parseReqs(box);
   if(type === "weapon"){
-    // "Damage: [icon] RED 12-18" + "Speed: 3 (Slow)"
+    // "Damage: [icon] RED 12-18" + "Speed: 3 (Slow)" + "Range: 5 (Medium)"
     const icon = box.querySelector('img[src*="DamageTypeIcon"]');
     const dm = icon && (icon.getAttribute("src")||"").match(/(Red|White|Black|Pale)DamageTypeIcon/i);
     const sm = box.textContent.match(/Speed:[\s\S]{0,24}?\(\s*(Very Fast|Fast|Normal|Slow|Very Slow)\s*\)/i);
-    return dm || sm || reqs ? {dtype: dm ? tcase(dm[1]) : null, speed: sm ? tcase(sm[1]) : null, reqs} : null;
+    const rm = box.textContent.match(/Range:[\s\S]{0,24}?\(\s*(Very Short|Short|Medium|Long|Very Long)\s*\)/i);
+    return dm || sm || rm || reqs
+      ? {dtype: dm ? tcase(dm[1]) : null, speed: sm ? tcase(sm[1]) : null, range: rm ? tcase(rm[1]) : null, reqs}
+      : null;
   }
   // "Resistances: [icon] 0.7 (Endured) …" one line per damage type
   const guards = {};
@@ -139,7 +142,10 @@ async function syncStats(items, msg){
   const cache = store.get("egoStats") || {};
   const byPage = new Map();
   for(const it of items){
-    if(it.type === "gift" || cache[flavKey(it)]) continue;
+    if(it.type === "gift") continue;
+    const have = cache[flavKey(it)];
+    // a cached weapon from before range existed gets one re-read to learn it
+    if(have && !(it.type === "weapon" && have.range === undefined)) continue;
     const page = pageOf(it); if(!page) continue;
     if(!byPage.has(page)) byPage.set(page, []);
     byPage.get(page).push(it);
