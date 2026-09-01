@@ -110,9 +110,36 @@ function openDetail(id){
     : "Guard stat — blank = auto from best resistance; pick on ties";
   const pickedStat = it.type === "weapon" ? it.atk : it.acStat;
   el("mAtk").value = STAT_NAME[pickedStat] ? pickedStat : "";
+  renderTypeRow(it);
   el("mNote").value = it.note||"";
   el("mWiki").onclick = ()=>{ if(it.link) window.open(it.link,"_blank"); };
   el("modal").classList.add("on");
+}
+
+/* the record's identity strip: main damage / defense type with its icon,
+   the governing stat, and — for weapons — attack speed with the Rapid marker */
+function renderTypeRow(it){
+  const box = el("mTypeRow");
+  if(it.type === "gift"){ box.style.display = "none"; return; }
+  box.style.display = "flex";
+  const s = egoStats(it);
+  const st = it.type === "weapon" ? weaponAtkStat(it) : suitGuardStat(it);
+  const dt = it.type === "weapon"
+    ? ((s && s.dtype) || (st && STAT2DTYPE[st]))
+    : (st && STAT2DTYPE[st]);
+  let h = '<div class="typecell"><span class="tclabel">'+
+    (it.type === "weapon" ? "MAIN DAMAGE TYPE" : "MAIN DEFENSE TYPE")+'</span><div class="tcval">';
+  h += dt
+    ? '<img src="'+DTYPE_ICON(dt)+'" alt=""><span class="ct-'+dt.toLowerCase()+'">'+dt.toUpperCase()+'</span>'+
+      (st ? '<span class="tcsub">'+STAT_NAME[st]+'</span>' : '')
+    : '<span class="tcsub">—</span>';
+  h += '</div></div>';
+  if(it.type === "weapon"){
+    h += '<div class="typecell"><span class="tclabel">SPEED</span><div class="tcval">'+
+      (s && s.speed ? esc(s.speed) : '<span class="tcsub">—</span>')+
+      (isRapid(it) ? '<span class="rapidtag">RAPID</span>' : '')+'</div></div>';
+  }
+  box.innerHTML = h;
 }
 
 /* every edit lands immediately — there is no save button */
@@ -126,6 +153,7 @@ function persistDetail(){
   if(it.type === "gift")   it.bonus = readModalBonuses();
   saveCol(c);
   el("mTag").innerHTML = esc(typeTag(it))+statTag(it)+(it.src?' // from '+esc(it.src):'');
+  renderTypeRow(it);
 }
 function closeDetail(){
   el("modal").classList.remove("on");

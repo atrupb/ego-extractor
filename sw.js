@@ -1,8 +1,9 @@
-const CACHE = "ego-terminal-auto-v22";
+const CACHE = "ego-terminal-auto-v23";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./snap.mp3",
   "./assets/gillsans.ttf", "./assets/ebox.png", "./assets/logo.png",
   "./assets/stat-for.png", "./assets/stat-jus.png", "./assets/stat-pru.png", "./assets/stat-tem.png",
   "./assets/risk-zayin.png", "./assets/risk-teth.png", "./assets/risk-he.png", "./assets/risk-waw.png", "./assets/risk-aleph.png",
+  "./assets/RedDamageTypeIcon.png", "./assets/WhiteDamageTypeIcon.png", "./assets/BlackDamageTypeIcon.png", "./assets/PaleDamageTypeIcon.png",
   "./assets/waylon-body.png",
   "./css/main.css",
   "./js/util.js", "./js/data.js", "./js/state.js", "./js/sync.js", "./js/cloud.js", "./js/extraction.js",

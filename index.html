@@ -197,10 +197,10 @@
     <div class="pbody" id="calcBody">
       <p>How a Lobotomy Corporation record becomes the numbers on this sheet. Every E.G.O deals — or guards against — one of four damage types, and each type is governed by a stat:</p>
       <div class="calcgrid">
-        <div><b class="ct-red">RED</b> physical</div><div>→ Fortitude</div>
-        <div><b class="ct-white">WHITE</b> psychological</div><div>→ Prudence</div>
-        <div><b class="ct-black">BLACK</b> both at once</div><div>→ Temperance</div>
-        <div><b class="ct-pale">PALE</b> % of max HP</div><div>→ Justice</div>
+        <div><img class="dticon" src="assets/RedDamageTypeIcon.png" alt=""><b class="ct-red">RED</b> physical</div><div>→ Fortitude</div>
+        <div><img class="dticon" src="assets/WhiteDamageTypeIcon.png" alt=""><b class="ct-white">WHITE</b> psychological</div><div>→ Prudence</div>
+        <div><img class="dticon" src="assets/BlackDamageTypeIcon.png" alt=""><b class="ct-black">BLACK</b> both at once</div><div>→ Temperance</div>
+        <div><img class="dticon" src="assets/PaleDamageTypeIcon.png" alt=""><b class="ct-pale">PALE</b> % of max HP</div><div>→ Justice</div>
       </div>
       <p>A <b>weapon</b> uses the stat of the damage type it <b>deals</b>. A <b>suit</b> uses the stat of the damage type it <b>guards against best</b> — its lowest resistance multiplier on the record.</p>
       <p><b>Risk class bonus (RC)</b> — the E.G.O's risk classification as a flat number:<br>
@@ -368,6 +368,7 @@
           <select id="mReqTEM"><option value="0">—</option><option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option><option value="5">V</option><option value="6">EX</option></select></div>
       </div>
       </div>
+      <div class="typerow" id="mTypeRow" style="display:none"></div>
       <div class="field" id="mStatField"><label id="mStatLabel">Damage dice</label>
         <input type="text" id="mStat"></div>
       <div id="mCalcWrap" style="display:none">

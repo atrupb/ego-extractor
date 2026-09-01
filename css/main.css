@@ -481,12 +481,24 @@ body.alert main{animation:alertfx 1s 3}
 #calcBody{font-size:13.5px;line-height:1.65}
 #calcBody p{margin:10px 0 0}
 #calcBody p:first-child{margin-top:0}
-.calcgrid{display:grid;grid-template-columns:auto auto;gap:3px 16px;justify-content:start;
+.calcgrid{display:grid;grid-template-columns:auto auto;gap:5px 16px;justify-content:start;align-items:center;
   font-family:var(--mono);font-size:13px;margin:10px 0}
-#calcBody .ct-red{color:#e8433f}
-#calcBody .ct-white{color:#efe9d8}
-#calcBody .ct-black{color:#a85fc2}
-#calcBody .ct-pale{color:#3fd8e0}
+.calcgrid>div{display:flex;align-items:center;gap:7px}
+.dticon{width:18px;height:18px;object-fit:contain}
+.ct-red{color:#e8433f}
+.ct-white{color:#efe9d8}
+.ct-black{color:#a85fc2}
+.ct-pale{color:#3fd8e0}
+
+/* the record's identity strip: type icon + governing stat + speed, big and bright */
+.typerow{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.typecell{flex:1;min-width:132px;border:1px solid var(--line);background:rgba(255,255,255,.03);padding:8px 11px}
+.tclabel{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--dim);margin-bottom:6px}
+.tcval{display:flex;align-items:center;gap:8px;font-size:15.5px;font-weight:700;color:var(--white);line-height:1}
+.tcval img{width:26px;height:26px;object-fit:contain;flex:none}
+.tcsub{font-weight:400;font-size:13px;color:var(--white)}
+.rapidtag{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;
+  color:var(--orange);border:1px solid var(--orange);padding:2px 7px;margin-left:auto}
 .sheet textarea{width:100%;min-height:88px;background:#000;border:1px solid #3a3a36;color:var(--white);
   font-family:var(--mono);font-size:12px;line-height:1.6;padding:10px;resize:vertical}
 .sheet .row{display:flex;gap:10px;margin-top:12px}

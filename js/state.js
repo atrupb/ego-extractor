@@ -162,7 +162,6 @@ function weaponStat(it){
     }
     bits.push(d);
   }
-  if(isRapid(it)) bits.push("RAPID");
   return bits.join(" · ");
 }
 

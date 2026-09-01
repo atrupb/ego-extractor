@@ -27,6 +27,8 @@ const STAT_NAME = Object.fromEntries(STATS.map(s=>[s.k,s.name]));
 /* damage type → governing stat: weapons use the type they deal,
    suits use the type they guard against best */
 const DTYPE2STAT = {Red:"FOR", White:"PRU", Black:"TEM", Pale:"JUS"};
+const STAT2DTYPE = {FOR:"Red", PRU:"White", TEM:"Black", JUS:"Pale"};
+const DTYPE_ICON = t => "assets/"+t+"DamageTypeIcon.png";
 
 /* numeral grades: I 8–9 · II 10–12 · III 13–15 · IV 16–17 · V 18–20 · EX 21+ */
 const GRADE_NAMES = ["—","I","II","III","IV","V","EX"];
