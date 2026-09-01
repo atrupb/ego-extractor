@@ -17,8 +17,9 @@ function renderLoadout(){
   body.innerHTML = l.map((e,i)=>{
     const it = col.find(x=>x.id===e.id);
     if(!it) return "";
-    // headline shorthand: weapon to-hit + damage / suit AC, as filled in on the archive record
-    const stat = it.type === "weapon" ? weaponStat(it) : it.type === "suit" ? (it.ac ? "+"+parseInt(it.ac,10)+" AC" : "") : "";
+    // headline shorthand: weapon to-hit + damage / suit AC, computed off the archive record
+    const acN = it.type === "suit" ? suitAC(it) : null;
+    const stat = it.type === "weapon" ? weaponStat(it) : acN !== null ? (acN>=0?"+":"")+acN+" AC" : "";
     return '<div class="printrow">'+
       riskBadge(it.grade)+
       '<div class="cimg">'+(it.img?'<img loading="lazy" src="'+esc(it.img)+'" alt="">':'<span class="noimg">—</span>')+'</div>'+

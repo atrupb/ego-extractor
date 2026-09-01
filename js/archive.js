@@ -2,10 +2,13 @@
 /* ============ archive — every recovered record, lock states, shattered records ============ */
 let fCat = "all", fClass = "all", fShatter = false;
 
-/* the record's written headline value, for tag lines: weapon to-hit + damage / suit AC bonus */
+/* the record's computed headline value, for tag lines: weapon to-hit + damage / suit AC bonus */
 function statTag(it){
   if(it.type === "weapon" && weaponStat(it)) return ' // <b style="color:var(--teal)">'+esc(weaponStat(it))+'</b>';
-  if(it.type === "suit" && it.ac)    return ' // <b style="color:var(--teal)">+'+esc(it.ac)+' AC</b>';
+  if(it.type === "suit"){
+    const n = suitAC(it);
+    if(n !== null) return ' // <b style="color:var(--teal)">'+(n>=0?"+":"")+n+' AC</b>';
+  }
   return '';
 }
 
@@ -98,13 +101,19 @@ function openDetail(id){
   if(it.type === "gift"){
     el("mStatField").style.display = "none";
     el("mBonusList").innerHTML = (it.bonus||[]).map(bonusRowHTML).join("");
-  }else{
+  }else if(it.type === "weapon"){
     el("mStatField").style.display = "block";
-    el("mStatLabel").textContent = it.type === "weapon" ? "Damage" : "AC bonus";
-    el("mStat").value = (it.type === "weapon" ? it.dmg : it.ac) || "";
+    el("mStatLabel").textContent = "Damage";
+    el("mStat").value = it.dmg || "";
+  }else{
+    el("mStatField").style.display = "none";   // suit AC is computed from its stat pick
   }
-  el("mAtkField").style.display = it.type === "weapon" ? "block" : "none";
-  el("mAtk").value = STAT_NAME[it.atk] ? it.atk : "";
+  el("mAtkField").style.display = it.type === "gift" ? "none" : "block";
+  el("mAtkLabel").textContent = it.type === "weapon"
+    ? "Attack roll stat (its mod + prof = to-hit)"
+    : "AC stat (its mod + class level + 1 = AC bonus)";
+  const pickedStat = it.type === "weapon" ? it.atk : it.acStat;
+  el("mAtk").value = STAT_NAME[pickedStat] ? pickedStat : "";
   el("mNote").value = it.note||"";
   el("mWiki").onclick = ()=>{ if(it.link) window.open(it.link,"_blank"); };
   el("modal").classList.add("on");
@@ -117,7 +126,7 @@ function persistDetail(){
   it.note = el("mNote").value;
   if(it.type !== "gift") it.reqs = readModalReqs();
   if(it.type === "weapon"){ it.dmg = el("mStat").value.trim(); it.atk = el("mAtk").value; }
-  if(it.type === "suit")   it.ac  = el("mStat").value.trim();
+  if(it.type === "suit")   it.acStat = el("mAtk").value;   // legacy it.ac stays as the no-pick fallback
   if(it.type === "gift")   it.bonus = readModalBonuses();
   saveCol(c);
   el("mTag").innerHTML = esc(typeTag(it))+statTag(it)+(it.src?' // from '+esc(it.src):'');

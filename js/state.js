@@ -137,13 +137,21 @@ function weaponStat(it){
   return bits.join(" · ");
 }
 
+/* suit AC bonus: chosen stat mod + risk class level (ZAYIN 1 … ALEPH 5) + 1.
+   Records without a chosen stat fall back to their written ac number; null = nothing to show */
+function suitAC(it){
+  if(it.acStat && STAT_NAME[it.acStat])
+    return statMod(it.acStat) + (CLASSES.indexOf(it.grade) + 1) + 1;
+  const n = parseInt(it.ac, 10);
+  return isFinite(n) ? n : null;
+}
+
 /* AC = 10 + Justice, plus the AC bonus of any actively printed suit */
 function printedAcBonus(){
   const col = collection();
   return loadoutS().reduce((a,e)=>{
     const it = col.find(x=>x.id===e.id);
-    const n = it && it.type === "suit" ? parseInt(it.ac, 10) : 0;
-    return a + (isFinite(n) ? n : 0);
+    return a + ((it && it.type === "suit" && suitAC(it)) || 0);
   }, 0);
 }
 function acVal(){ return 10 + statMod("JUS") + printedAcBonus() + bonusFor("AC") + (charS().acMisc|0); }
