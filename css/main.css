@@ -486,6 +486,7 @@ body.alert main{animation:alertfx 1s 3}
 .calcgrid>div{display:flex;align-items:center;gap:7px}
 .calcsub{font-size:11px;color:var(--dim)}
 .passctl{display:flex;align-items:center;gap:8px}
+.passctl .microbtn{flex:none;width:34px;padding:2px 0;font-size:13px;line-height:1.3}
 .calctable{border-collapse:collapse;margin:10px 0;font-family:var(--mono);font-size:12.5px}
 .calctable th,.calctable td{border:1px solid var(--line);padding:4px 14px;text-align:left}
 .calctable th{color:var(--dim);font-weight:400;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
