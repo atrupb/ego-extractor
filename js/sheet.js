@@ -239,6 +239,6 @@ function initSheet(){
     addPE(d);
     refreshAll();
   };
-  el("capM10").onclick = capAdj(-10); el("capMinus").onclick = capAdj(-2);
-  el("capPlus").onclick = capAdj(+2); el("capP10").onclick = capAdj(+10);
+  el("capM10").onclick = capAdj(-10); el("capMinus").onclick = capAdj(-5);
+  el("capPlus").onclick = capAdj(+5); el("capP10").onclick = capAdj(+10);
 }
