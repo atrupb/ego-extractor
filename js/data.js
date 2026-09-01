@@ -75,7 +75,7 @@ const BONUS_TARGETS = [
 const BONUS_LABEL = Object.fromEntries(BONUS_TARGETS.map(b=>[b.v, b.label]));
 
 /* print cost per single item: base − Temperance INT-mod */
-const PRINT_BASE = {ZAYIN:5, TETH:10, HE:17, WAW:30, ALEPH:40};
+const PRINT_BASE = {ZAYIN:5, TETH:12, HE:20, WAW:30, ALEPH:40};
 
 /* synthesis price menu (spent from the shared PE pool) */
 const SYNTH_COST = {GIFT:60, ZAYIN:60, TETH:80, HE:120, WAW:150, ALEPH:170};
