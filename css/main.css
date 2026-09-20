@@ -163,6 +163,11 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .hdctl{display:flex;align-items:center;gap:10px}
 .hdctl b{color:var(--white);font-weight:700;font-size:16px}
 .hdctl .microbtn{width:36px;padding:4px 0}
+/* heroic inspiration: an unlit ring you tap to fill */
+.inspbtn{background:#000;border:1px solid var(--line);color:#4a4842;font-family:var(--mono);
+  font-size:15px;line-height:1;padding:5px 16px;cursor:pointer;flex:none}
+.inspbtn.on{border-color:var(--gift);color:var(--gift);box-shadow:0 0 8px rgba(242,193,78,.35)}
+.statrow b.gold{color:var(--gift);font-weight:700;font-size:15px}
 /* ---------- character sheet : horizontal color-coded stat rows ---------- */
 .statgrid{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
 .statcard{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-left:4px solid var(--sc,#888);
@@ -202,6 +207,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .profrow .pname{flex:1;min-width:0;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .profrow .psrc{color:var(--dim);font-size:9px;letter-spacing:.05em;text-transform:uppercase;flex:none}
 .profrow .pmod{color:var(--white);flex:none;width:26px;text-align:right}
+/* teal = a gift is propping this number up */
+.profrow .pmod.ovr{color:var(--teal)}
 /* ---------- progression track : one row per level ---------- */
 .lvlrow{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #26261f;cursor:pointer}
 .lvlrow:last-child{border-bottom:none;padding-bottom:0}

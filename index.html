@@ -136,6 +136,14 @@
       <div class="statrow" style="margin-top:10px;align-items:center"><span>Hit dice (d8)</span>
         <span class="hdctl"><button class="microbtn" id="hdMinus">−</button><b id="hdVal">—</b><button class="microbtn" id="hdPlus">+</button></span>
       </div>
+      <div class="statrow" style="align-items:center"><span>Heroic Inspiration</span>
+        <button class="inspbtn" id="inspBtn">○</button>
+      </div>
+      <div class="statrow" style="align-items:center"><span>Gold</span><b class="t gold" id="goldVal">0</b></div>
+      <div class="adjrow">
+        <input type="number" id="gpAmt" min="1" value="1" inputmode="numeric">
+        <button class="microbtn" id="gpM">−</button><button class="microbtn" id="gpP">+</button>
+      </div>
     </div>
   </div>
 
@@ -208,7 +216,7 @@
       </div>
       <p>A <b>weapon</b> uses the stat of the damage type it <b>deals</b>. A <b>suit</b> uses the stat of the damage type it <b>guards against best</b>, meaning its lowest resistance multiplier on the record.</p>
       <p><b>Risk class bonus (RC)</b>: the E.G.O's risk classification as a flat number.<br>
-      ZAYIN +1 · TETH +2 · HE +3 · WAW +4 · ALEPH +5</p>
+      ZAYIN +0 · TETH +1 · HE +2 · WAW +3 · ALEPH +4</p>
       <p><b>Weapons.</b><br>
       <b>To hit</b> = d20 + stat mod + proficiency + RC.<br>
       <b>Damage</b> = the weapon's dice + a flat, where <b>flat = stat mod + RC</b>. The flat is derived. The dice are hand-built from the record: the die size is chosen so the roll fits the record's LC damage range, and the dice count follows attack speed:</p>

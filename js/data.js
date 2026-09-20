@@ -65,10 +65,14 @@ const SKILLS = [
   {id:"persuasion",     name:"Persuasion",      abil:"CHA"}
 ];
 
-/* what a gift's small boost can point at: AC, initiative, a stat score, or a single skill */
+/* what a gift's small boost can point at: AC, initiative, saving throws,
+   a stat score, or a single skill. Save targets are "SV_" + the ability;
+   SV_ALL lands on every save at once. */
 const BONUS_TARGETS = [
   {v:"AC", label:"AC"}, {v:"HP", label:"Max HP"}, {v:"INIT", label:"Initiative"},
   {v:"PECAP", label:"PE cap"},
+  {v:"SV_ALL", label:"All saving throws"},
+  ...SAVES.map(a=>({v:"SV_"+a, label:a+" save"})),
   ...STATS.map(s=>({v:s.k, label:s.name+" score"})),
   ...SKILLS.map(s=>({v:s.id, label:s.name}))
 ];

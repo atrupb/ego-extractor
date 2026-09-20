@@ -32,6 +32,7 @@ function defaultChar(){
     skills:{},                   // {perception:0|1|2} — none / proficient / expertise
     capAdj:0,                    // player-managed permanent PE cap adjustment
     initMisc:0, acMisc:0, profMisc:0, ppMisc:0, piMisc:0, hpCur:null, hpTemp:0,
+    insp:false, gold:0,           // heroic inspiration held; coin purse
     hdLeft:null                  // hit dice remaining; null = full (= level)
   };
 }
@@ -110,6 +111,8 @@ function giftBonuses(){
   return out;
 }
 function bonusFor(t){ return giftBonuses()[t] | 0; }
+/* a save's gift bonus: one aimed at that save, plus anything aimed at every save */
+function saveBonusFor(a){ return bonusFor("SV_" + a) + bonusFor("SV_ALL"); }
 
 function statCur(k){ const s = charS().stats[k]; return s.base + (s.tmp|0) + bonusFor(k); }
 function statMod(k){ return Math.floor((statCur(k) - 10) / 2); }
@@ -127,7 +130,7 @@ function hdLeft(){
 }
 /* ============ E.G.O conversion formulas — the dice and passives are written,
    every number is derived ============ */
-const RCLVL = g => CLASSES.indexOf(g) + 1;   // risk class bonus: ZAYIN 1 … ALEPH 5
+const RCLVL = g => CLASSES.indexOf(g);   // risk class bonus: ZAYIN 0 … ALEPH 4
 
 /* weapon attack stat: a manual pick wins; else derived from the wiki damage type */
 function weaponAtkStat(it){

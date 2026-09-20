@@ -19,6 +19,9 @@ function renderSheet(){
   el("hpTempVal").textContent = c.hpTemp | 0;
   el("hpTempWrap").style.display = (c.hpTemp|0) ? "" : "none";
   el("hdVal").textContent = hdLeft() + " / " + c.level;
+  el("inspBtn").textContent = c.insp ? "●" : "○";
+  el("inspBtn").classList.toggle("on", !!c.insp);
+  el("goldVal").textContent = (c.gold|0).toLocaleString();
 
   renderStatCards(c);
   renderSaves(c);
@@ -73,7 +76,8 @@ function renderInternals(c){
     ["Max HP", "8 "+fmtMod(fm)+" + (lvl-1) x (5 "+fmtMod(fm)+") + "+(gb.HP|0)+" gift = "+maxHP()],
     ["Initiative", fmtMod(jm)+" Justice + "+(c.initMisc|0)+" misc + "+(gb.INIT|0)+" gift = "+fmtMod(jm+(c.initMisc|0)+(gb.INIT|0))],
     ["Proficiency", "2 + (lvl-1)/4 + "+(c.profMisc|0)+" misc = "+fmtMod(prof())],
-    ["PE cap", "100 + "+(c.capAdj|0)+" adj + "+(gb.PECAP|0)+" gift = "+peCap()]
+    ["PE cap", "100 + "+(c.capAdj|0)+" adj + "+(gb.PECAP|0)+" gift = "+peCap()],
+    ["Saves", SAVES.map(a=>a+" "+fmtMod(statMod(ABIL2MERGED[a])+(c.saveProf[a]?prof():0)+saveBonusFor(a))).join(" · ")]
   ];
   for(const s of STATS){
     const b = gb[s.k]|0;
@@ -114,15 +118,17 @@ function renderStatCards(c){
   }).join("");
 }
 
-/* saving throws — standard 5e rolls; the merged stat IS the ability (STR & CON both read Fortitude) */
+/* saving throws — standard 5e rolls; the merged stat IS the ability (STR & CON both read Fortitude).
+   An equipped gift can bolster one save or all of them — the number goes teal when it does. */
 function renderSaves(c){
   el("saveList").innerHTML = SAVES.map(a=>{
-    const on = !!c.saveProf[a];
-    const mod = statMod(ABIL2MERGED[a]) + (on ? prof() : 0);
+    const on = !!c.saveProf[a], gb = saveBonusFor(a);
+    const mod = statMod(ABIL2MERGED[a]) + (on ? prof() : 0) + gb;
     return '<div class="profrow" data-save="'+a+'">'+
       '<span class="pdot'+(on?' on':'')+'">'+PROF_DOT[on?1:0]+'</span>'+
       '<span class="pname">'+a+'</span>'+
-      '<span class="pmod">'+fmtMod(mod)+'</span></div>';
+      (gb ? '<span class="psrc">'+fmtMod(gb)+' gift</span>' : '')+
+      '<span class="pmod'+(gb?' ovr':'')+'">'+fmtMod(mod)+'</span></div>';
   }).join("");
 }
 
@@ -209,6 +215,17 @@ function initSheet(){
   // hit dice remaining — pool size scales with level
   el("hdMinus").onclick = ()=>{ const c=charS(); c.hdLeft=Math.max(0, hdLeft()-1); saveChar(c); renderSheet(); };
   el("hdPlus").onclick  = ()=>{ const c=charS(); c.hdLeft=Math.min(c.level, hdLeft()+1); saveChar(c); renderSheet(); };
+
+  // heroic inspiration — you either hold one or you don't
+  el("inspBtn").onclick = ()=>{ const c=charS(); c.insp = !c.insp; saveChar(c); renderSheet(); };
+
+  // coin purse — same type-the-amount, then − / + as HP
+  const gpAdj = sign => ()=>{
+    const c = charS();
+    c.gold = Math.max(0, (c.gold|0) + sign*amt("gpAmt"));
+    saveChar(c); renderSheet();
+  };
+  el("gpM").onclick = gpAdj(-1); el("gpP").onclick = gpAdj(+1);
 
   // progression track: tap a level to open its editor, tap it again to fold it away.
   // typing autosaves without a rerender so the keyboard keeps focus.
