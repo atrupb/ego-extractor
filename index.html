@@ -133,16 +133,26 @@
         <button class="microbtn" id="htM">−</button><button class="microbtn" id="htP">+</button>
         <button class="microbtn" id="htZero">0</button>
       </div>
-      <div class="statrow" style="margin-top:10px;align-items:center"><span>Hit dice (d8)</span>
-        <span class="hdctl"><button class="microbtn" id="hdMinus">−</button><b id="hdVal">—</b><button class="microbtn" id="hdPlus">+</button></span>
+      <button class="inspcard" id="inspBtn">
+        <svg class="inspmark" viewBox="0 0 24 24" aria-hidden="true">
+          <polygon points="12,1.6 14.7,8.9 22,11.6 14.7,14.3 12,21.6 9.3,14.3 2,11.6 9.3,8.9"/>
+        </svg>
+        <span class="ilabel">Heroic Inspiration</span>
+        <span class="istate" id="inspState">none</span>
+      </button>
+      <div class="goldrow">
+        <svg class="gcoin" viewBox="0 0 16 16" aria-hidden="true">
+          <circle cx="8" cy="8" r="6.6"/><circle cx="8" cy="8" r="2.9"/>
+        </svg>
+        <span class="glabel">Gold</span>
+        <b class="gval" id="goldVal">0</b>
       </div>
-      <div class="statrow" style="align-items:center"><span>Heroic Inspiration</span>
-        <button class="inspbtn" id="inspBtn">○</button>
-      </div>
-      <div class="statrow" style="align-items:center"><span>Gold</span><b class="t gold" id="goldVal">0</b></div>
       <div class="adjrow">
         <input type="number" id="gpAmt" min="1" value="1" inputmode="numeric">
         <button class="microbtn" id="gpM">−</button><button class="microbtn" id="gpP">+</button>
+      </div>
+      <div class="statrow" style="margin-top:10px;align-items:center"><span>Hit dice (d8)</span>
+        <span class="hdctl"><button class="microbtn" id="hdMinus">−</button><b id="hdVal">—</b><button class="microbtn" id="hdPlus">+</button></span>
       </div>
     </div>
   </div>

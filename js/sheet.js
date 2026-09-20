@@ -19,8 +19,8 @@ function renderSheet(){
   el("hpTempVal").textContent = c.hpTemp | 0;
   el("hpTempWrap").style.display = (c.hpTemp|0) ? "" : "none";
   el("hdVal").textContent = hdLeft() + " / " + c.level;
-  el("inspBtn").textContent = c.insp ? "●" : "○";
   el("inspBtn").classList.toggle("on", !!c.insp);
+  el("inspState").textContent = c.insp ? "held" : "none";
   el("goldVal").textContent = (c.gold|0).toLocaleString();
 
   renderStatCards(c);
@@ -44,11 +44,9 @@ function renderProgression(c){
   let h = "";
   for(let lv = 1; lv <= 20; lv++){
     const t = notes[lv] || "";
-    // ASI milestones live on the track itself, not in the PE rules card
-    const mile = lv % 4 === 0 ? '<div class="lvlmile">choose: a feat or +10 max PE</div>' : "";
     h += '<div class="lvlrow'+(lv===c.level?" cur":"")+(lv>c.level?" future":"")+(lvlOpen===lv?" open":"")+'" data-lv="'+lv+'">'+
       '<span class="lvlnum">'+lv+'</span>'+
-      '<div class="lvlbody">'+mile+
+      '<div class="lvlbody">'+
       (lvlOpen === lv
         ? '<textarea class="lvledit" data-lvedit="'+lv+'" placeholder="what level '+lv+' grants… markdown ok: **bold**, *italic*, `code`, - list, # header">'+esc(t)+'</textarea>'
         : '<div class="lvltext'+(t?'':' empty')+'">'+(t?mdLite(t):"—")+'</div>')+
