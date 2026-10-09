@@ -19,19 +19,32 @@ function anchorOf(id){
   return o ? {side:d.side, y:d.y, ax:o.ax, ay:o.ay} : d;
 }
 
-/* 「Your Eyes」 is drawn, not photographed — flat wayfarers in the same line
-   language as the circuit traces, so they sit on the silhouette instead of on it.
-   Art box is 48x18; everything scales off the width asked for. */
+/* 「Your Eyes」 is drawn, not photographed, but it follows the real pair:
+   black wayfarer frames, smoked glass, the glare bar high on the left of each lens.
+   Art box is 48x18 and everything scales off the width asked for. */
 function eyeArt(ax, ay, w){
   const h = w * 18 / 48, s = w / 48;
   const lens = "M2 3 H21 L19.6 12.4 C19.1 15.4 16.6 16.8 13 16.8 C8.2 16.8 4.6 14.8 3.6 10.8 Z";
-  const pen = ' fill="#0d0d0c" stroke="#f2c14e" stroke-width="1.4" stroke-linejoin="round"';
-  return '<g transform="translate('+(ax - w/2)+' '+(ay - h/2)+') scale('+s+')" filter="url(#gshadow)">'+
-    '<path d="'+lens+'"'+pen+'/>'+
-    '<g transform="translate(46 0) scale(-1 1)"><path d="'+lens+'"'+pen+'/></g>'+
-    '<path d="M21 4.2 Q24 2.4 27 4.2" fill="none" stroke="#f2c14e" stroke-width="1.4" stroke-linecap="round"/>'+
-    '<path d="M2 3.4 L-1.5 1.6 M46 3.4 L49.5 1.6" fill="none" stroke="#f2c14e" stroke-width="1.4" stroke-linecap="round"/>'+
-  '</g>';
+  const flip = 'transform="translate(46 0) scale(-1 1)"';
+  // the shine sits top-left on BOTH lenses, as it does on the real pair,
+  // so it is drawn in flat coordinates and clipped to each lens rather than mirrored
+  const shine = (clip, dx) =>
+    '<g clip-path="url(#'+clip+')">'+
+      '<path d="M'+(13.4+dx)+' 1 L'+(16+dx)+' 1 L'+(8.8+dx)+' 18 L'+(6.2+dx)+' 18 Z" fill="#fff" opacity=".13"/>'+
+      '<path d="M'+(17.2+dx)+' 1 L'+(18.4+dx)+' 1 L'+(11.2+dx)+' 18 L'+(10+dx)+' 18 Z" fill="#fff" opacity=".09"/>'+
+      '<rect x="'+(4.8+dx)+'" y="5" width="5" height="1.5" rx=".75" fill="#f4f2ec" opacity=".9"/>'+
+    '</g>';
+  return '<defs>'+
+      '<clipPath id="eyeL"><path d="'+lens+'"/></clipPath>'+
+      '<clipPath id="eyeR"><path '+flip+' d="'+lens+'"/></clipPath>'+
+    '</defs>'+
+    '<g transform="translate('+(ax - w/2)+' '+(ay - h/2)+') scale('+s+')" filter="url(#gshadow)">'+
+      '<path d="'+lens+'" fill="#4a444e" stroke="#0b0b0b" stroke-width="2.4" stroke-linejoin="round"/>'+
+      '<path '+flip+' d="'+lens+'" fill="#4a444e" stroke="#0b0b0b" stroke-width="2.4" stroke-linejoin="round"/>'+
+      shine("eyeL", 0) + shine("eyeR", 23)+
+      '<path d="M20.6 4 Q23 6 25.4 4" fill="none" stroke="#0b0b0b" stroke-width="2.2" stroke-linecap="round"/>'+
+      '<path d="M2 3.4 L-1 2 M46 3.4 L49 2" fill="none" stroke="#0b0b0b" stroke-width="2.2" stroke-linecap="round"/>'+
+    '</g>';
 }
 
 function renderGifts(){
