@@ -19,11 +19,28 @@ function anchorOf(id){
   return o ? {side:d.side, y:d.y, ax:o.ax, ay:o.ay} : d;
 }
 
+/* what rides on the body at a slot's dot: the equipped gift's own art,
+   and for the sealed eye the glasses themselves */
+const EYE_ART = "assets/your-eyes.png";
+function slotArt(slotId, it){
+  if(slotId === "eye") return EYE_ART;
+  return (it && it.img) || null;
+}
+
 function renderGifts(){
   const eq = giftEq(), col = collection();
   let svg = '<svg viewBox="0 0 360 270" preserveAspectRatio="none">'+
+    '<defs>'+
+      '<filter id="gshadow" x="-40%" y="-40%" width="180%" height="180%">'+
+        '<feDropShadow dx="0" dy="1" stdDeviation="1.3" flood-color="#000" flood-opacity=".9"/>'+
+      '</filter>'+
+      // the glasses are black on a dark silhouette — a gold halo lifts them off it
+      '<filter id="geye" x="-60%" y="-60%" width="220%" height="220%">'+
+        '<feDropShadow dx="0" dy="0" stdDeviation="1.8" flood-color="#f2c14e" flood-opacity=".95"/>'+
+      '</filter>'+
+    '</defs>'+
     '<image href="assets/waylon-body.png" x="115" y="4" width="130" height="260"/>';
-  const chips = [];
+  const chips = [], art = [];   // art paints last so no trace line crosses a gift
   for(const s of SLOTS){
     const pos = anchorOf(s.id); if(!pos) continue;
     const sealed = s.id === "eye";
@@ -34,8 +51,17 @@ function renderGifts(){
     const ex = left ? 103 : 257;
     const cy = pos.y + 14;
     const lane = left ? pos.ax - 8 : pos.ax + 8;   // right-angle circuit-trace routing
-    svg += '<path d="M'+ex+' '+cy+' H'+lane+' V'+pos.ay+' H'+pos.ax+'" fill="none" stroke="'+colr+'" stroke-width="1.2" opacity=".7"/>'+
-           '<circle cx="'+pos.ax+'" cy="'+pos.ay+'" r="'+(gAdjust && gSel===s.id ? 5 : 3.4)+'" fill="'+colr+'"/>';
+    const src = slotArt(s.id, it);
+    svg += '<path d="M'+ex+' '+cy+' H'+lane+' V'+pos.ay+' H'+pos.ax+'" fill="none" stroke="'+colr+'" stroke-width="1.2" opacity=".7"/>';
+    // worn art replaces the dot; while adjusting, the dot comes back on top of it
+    if(!src || gAdjust)
+      svg += '<circle cx="'+pos.ax+'" cy="'+pos.ay+'" r="'+(gAdjust && gSel===s.id ? 5 : 3.4)+'" fill="'+colr+'"/>';
+    if(src){
+      const sz = sealed ? 44 : 30;   // the glasses are wide and flat; meet-fits inside the box
+      art.push('<image class="gart" href="'+esc(src)+'" preserveAspectRatio="xMidYMid meet"'+
+        ' x="'+(pos.ax - sz/2)+'" y="'+(pos.ay - sz/2)+'" width="'+sz+'" height="'+sz+'"'+
+        ' filter="url(#'+(sealed ? "geye" : "gshadow")+')"/>');
+    }
     const style = (left ? 'left:1%;' : 'right:1%;')+'top:'+(pos.y/270*100).toFixed(2)+'%';
     const bonus = it && (it.bonus||[]).length
       ? (it.bonus||[]).map(b=>(b.n>0?"+":"")+b.n+" "+(BONUS_LABEL[b.t]||b.t)).join(", ") : "";
@@ -45,7 +71,7 @@ function renderGifts(){
       '<div class="slabel">'+s.label+'</div>'+
       '<div class="sitem">'+(sealed?'「Your Eyes」':it?esc(it.name):'—')+'</div></div>');
   }
-  svg += '</svg>';
+  svg += art.join("") + '</svg>';
   const debug = !!store.get("debug");
   if(!debug) gAdjust = false;
   el("slotgrid").innerHTML =
