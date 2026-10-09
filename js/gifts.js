@@ -21,9 +21,13 @@ function anchorOf(id){
 
 /* 「Your Eyes」 is drawn, not photographed, but it follows the real pair:
    black wayfarer frames, smoked glass, the glare bar high on the left of each lens.
-   Art box is 48x18 and everything scales off the width asked for. */
+   Art box is 48x18 and everything scales off the width asked for.
+   The pair hangs off its slot dot by the LEFT LENS, not by its middle, and carries a
+   few degrees of counter-clockwise tilt so it reads as a face turned slightly away. */
+const EYE_PIVOT = {x:11.5, y:9.9};   // left lens centre, in art-box units
+const EYE_TILT = -7;
 function eyeArt(ax, ay, w){
-  const h = w * 18 / 48, s = w / 48;
+  const s = w / 48;
   const lens = "M2 3 H21 L19.6 12.4 C19.1 15.4 16.6 16.8 13 16.8 C8.2 16.8 4.6 14.8 3.6 10.8 Z";
   const flip = 'transform="translate(46 0) scale(-1 1)"';
   // the shine sits top-left on BOTH lenses, as it does on the real pair,
@@ -38,7 +42,8 @@ function eyeArt(ax, ay, w){
       '<clipPath id="eyeL"><path d="'+lens+'"/></clipPath>'+
       '<clipPath id="eyeR"><path '+flip+' d="'+lens+'"/></clipPath>'+
     '</defs>'+
-    '<g transform="translate('+(ax - w/2)+' '+(ay - h/2)+') scale('+s+')" filter="url(#gshadow)">'+
+    '<g transform="translate('+(ax - EYE_PIVOT.x*s)+' '+(ay - EYE_PIVOT.y*s)+') scale('+s+')'+
+      ' rotate('+EYE_TILT+' '+EYE_PIVOT.x+' '+EYE_PIVOT.y+')" filter="url(#gshadow)">'+
       '<path d="'+lens+'" fill="#4a444e" stroke="#0b0b0b" stroke-width="2.4" stroke-linejoin="round"/>'+
       '<path '+flip+' d="'+lens+'" fill="#4a444e" stroke="#0b0b0b" stroke-width="2.4" stroke-linejoin="round"/>'+
       shine("eyeL", 0) + shine("eyeR", 23)+
@@ -56,7 +61,7 @@ function renderGifts(){
       '</filter>'+
     '</defs>'+
     '<image href="assets/waylon-body.png" x="115" y="4" width="130" height="260"/>';
-  const chips = [], art = [];   // art paints last so no trace line crosses a gift
+  const chips = [], art = [], dots = [];   // traces, then worn art, then the dots on top
   for(const s of SLOTS){
     const pos = anchorOf(s.id); if(!pos) continue;
     const sealed = s.id === "eye";
@@ -68,12 +73,9 @@ function renderGifts(){
     const cy = pos.y + 14;
     const lane = left ? pos.ax - 8 : pos.ax + 8;   // right-angle circuit-trace routing
     const src = sealed ? null : (it && it.img) || null;
-    const worn = sealed || !!src;
     svg += '<path d="M'+ex+' '+cy+' H'+lane+' V'+pos.ay+' H'+pos.ax+'" fill="none" stroke="'+colr+'" stroke-width="1.2" opacity=".7"/>';
-    // worn art replaces the dot; while adjusting, the dot comes back on top of it
-    if(!worn || gAdjust)
-      svg += '<circle cx="'+pos.ax+'" cy="'+pos.ay+'" r="'+(gAdjust && gSel===s.id ? 5 : 3.4)+'" fill="'+colr+'"/>';
-    if(sealed) art.push(eyeArt(pos.ax, pos.ay, 32));
+    dots.push('<circle cx="'+pos.ax+'" cy="'+pos.ay+'" r="'+(gAdjust && gSel===s.id ? 3.6 : 2.2)+'" fill="'+colr+'"/>');
+    if(sealed) art.push(eyeArt(pos.ax, pos.ay, 46));
     else if(src){
       const sz = 20;   // worn art reads as jewellery, not as a billboard
       art.push('<image class="gart" href="'+esc(src)+'" preserveAspectRatio="xMidYMid meet"'+
@@ -89,7 +91,7 @@ function renderGifts(){
       '<div class="slabel">'+s.label+'</div>'+
       '<div class="sitem">'+(sealed?'「Your Eyes」':it?esc(it.name):'—')+'</div></div>');
   }
-  svg += art.join("") + '</svg>';
+  svg += art.join("") + dots.join("") + '</svg>';
   const debug = !!store.get("debug");
   if(!debug) gAdjust = false;
   el("slotgrid").innerHTML =
