@@ -19,17 +19,11 @@ function anchorOf(id){
   return o ? {side:d.side, y:d.y, ax:o.ax, ay:o.ay} : d;
 }
 
-
 function renderGifts(){
   const eq = giftEq(), col = collection();
   let svg = '<svg viewBox="0 0 360 270" preserveAspectRatio="none">'+
-    '<defs>'+
-      '<filter id="gshadow" x="-40%" y="-40%" width="180%" height="180%">'+
-        '<feDropShadow dx="0" dy="1" stdDeviation=".9" flood-color="#000" flood-opacity=".9"/>'+
-      '</filter>'+
-    '</defs>'+
     '<image href="assets/waylon-body.png" x="115" y="4" width="130" height="260"/>';
-  const chips = [], art = [], lines = [], dots = [];   // worn art first, then the traces over it, then the dots
+  const chips = [];
   for(const s of SLOTS){
     const pos = anchorOf(s.id); if(!pos) continue;
     const sealed = s.id === "eye";
@@ -40,15 +34,8 @@ function renderGifts(){
     const ex = left ? 103 : 257;
     const cy = pos.y + 14;
     const lane = left ? pos.ax - 8 : pos.ax + 8;   // right-angle circuit-trace routing
-    const src = sealed ? null : (it && it.img) || null;
-    lines.push('<path d="M'+ex+' '+cy+' H'+lane+' V'+pos.ay+' H'+pos.ax+'" fill="none" stroke="'+colr+'" stroke-width="1.2" opacity=".7"/>');
-    dots.push('<circle cx="'+pos.ax+'" cy="'+pos.ay+'" r="'+(gAdjust && gSel===s.id ? 3.6 : 2.2)+'" fill="'+colr+'"/>');
-    if(src){
-      const sz = 20;   // worn art reads as jewellery, not as a billboard
-      art.push('<image class="gart" href="'+esc(src)+'" preserveAspectRatio="xMidYMid meet"'+
-        ' x="'+(pos.ax - sz/2)+'" y="'+(pos.ay - sz/2)+'" width="'+sz+'" height="'+sz+'"'+
-        ' filter="url(#gshadow)"/>');
-    }
+    svg += '<path d="M'+ex+' '+cy+' H'+lane+' V'+pos.ay+' H'+pos.ax+'" fill="none" stroke="'+colr+'" stroke-width="1.2" opacity=".7"/>'+
+           '<circle cx="'+pos.ax+'" cy="'+pos.ay+'" r="'+(gAdjust && gSel===s.id ? 5 : 3.4)+'" fill="'+colr+'"/>';
     const style = (left ? 'left:1%;' : 'right:1%;')+'top:'+(pos.y/270*100).toFixed(2)+'%';
     const bonus = it && (it.bonus||[]).length
       ? (it.bonus||[]).map(b=>(b.n>0?"+":"")+b.n+" "+(BONUS_LABEL[b.t]||b.t)).join(", ") : "";
@@ -58,7 +45,7 @@ function renderGifts(){
       '<div class="slabel">'+s.label+'</div>'+
       '<div class="sitem">'+(sealed?'「Your Eyes」':it?esc(it.name):'—')+'</div></div>');
   }
-  svg += art.join("") + lines.join("") + dots.join("") + '</svg>';
+  svg += '</svg>';
   const debug = !!store.get("debug");
   if(!debug) gAdjust = false;
   el("slotgrid").innerHTML =
