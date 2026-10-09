@@ -19,12 +19,19 @@ function anchorOf(id){
   return o ? {side:d.side, y:d.y, ax:o.ax, ay:o.ay} : d;
 }
 
-/* what rides on the body at a slot's dot: the equipped gift's own art,
-   and for the sealed eye the glasses themselves */
-const EYE_ART = "assets/your-eyes.png";
-function slotArt(slotId, it){
-  if(slotId === "eye") return EYE_ART;
-  return (it && it.img) || null;
+/* 「Your Eyes」 is drawn, not photographed — flat wayfarers in the same line
+   language as the circuit traces, so they sit on the silhouette instead of on it.
+   Art box is 48x18; everything scales off the width asked for. */
+function eyeArt(ax, ay, w){
+  const h = w * 18 / 48, s = w / 48;
+  const lens = "M2 3 H21 L19.6 12.4 C19.1 15.4 16.6 16.8 13 16.8 C8.2 16.8 4.6 14.8 3.6 10.8 Z";
+  const pen = ' fill="#0d0d0c" stroke="#f2c14e" stroke-width="1.4" stroke-linejoin="round"';
+  return '<g transform="translate('+(ax - w/2)+' '+(ay - h/2)+') scale('+s+')" filter="url(#gshadow)">'+
+    '<path d="'+lens+'"'+pen+'/>'+
+    '<g transform="translate(46 0) scale(-1 1)"><path d="'+lens+'"'+pen+'/></g>'+
+    '<path d="M21 4.2 Q24 2.4 27 4.2" fill="none" stroke="#f2c14e" stroke-width="1.4" stroke-linecap="round"/>'+
+    '<path d="M2 3.4 L-1.5 1.6 M46 3.4 L49.5 1.6" fill="none" stroke="#f2c14e" stroke-width="1.4" stroke-linecap="round"/>'+
+  '</g>';
 }
 
 function renderGifts(){
@@ -47,13 +54,15 @@ function renderGifts(){
     const ex = left ? 103 : 257;
     const cy = pos.y + 14;
     const lane = left ? pos.ax - 8 : pos.ax + 8;   // right-angle circuit-trace routing
-    const src = slotArt(s.id, it);
+    const src = sealed ? null : (it && it.img) || null;
+    const worn = sealed || !!src;
     svg += '<path d="M'+ex+' '+cy+' H'+lane+' V'+pos.ay+' H'+pos.ax+'" fill="none" stroke="'+colr+'" stroke-width="1.2" opacity=".7"/>';
     // worn art replaces the dot; while adjusting, the dot comes back on top of it
-    if(!src || gAdjust)
+    if(!worn || gAdjust)
       svg += '<circle cx="'+pos.ax+'" cy="'+pos.ay+'" r="'+(gAdjust && gSel===s.id ? 5 : 3.4)+'" fill="'+colr+'"/>';
-    if(src){
-      const sz = sealed ? 30 : 20;   // worn art reads as jewellery, not as a billboard
+    if(sealed) art.push(eyeArt(pos.ax, pos.ay, 32));
+    else if(src){
+      const sz = 20;   // worn art reads as jewellery, not as a billboard
       art.push('<image class="gart" href="'+esc(src)+'" preserveAspectRatio="xMidYMid meet"'+
         ' x="'+(pos.ax - sz/2)+'" y="'+(pos.ay - sz/2)+'" width="'+sz+'" height="'+sz+'"'+
         ' filter="url(#gshadow)"/>');
