@@ -19,36 +19,38 @@ function anchorOf(id){
   return o ? {side:d.side, y:d.y, ax:o.ax, ay:o.ay} : d;
 }
 
-/* 「Your Eyes」 is drawn, not photographed, but it follows the real pair:
-   black wayfarer frames, smoked glass, the glare bar high on the left of each lens.
-   Art box is 48x18 and everything scales off the width asked for.
-   The pair hangs off its slot dot by the LEFT LENS, not by its middle, and carries a
-   few degrees of counter-clockwise tilt so it reads as a face turned slightly away. */
-const EYE_PIVOT = {x:11.5, y:9.9};   // left lens centre, in art-box units
-const EYE_TILT = -7;
+/* 「Your Eyes」 is drawn, not photographed: black wayfarer frames, smoked glass,
+   the glare bar high on the left of each lens.
+   The body is drawn turned about 30 degrees to its left, so the pair is drawn in that
+   same three-quarter view instead of flat on. The far lens (screen left) is squeezed
+   and rides a little high, the near lens (screen right) is wider and taller, the bridge
+   runs downhill between them, and only the near temple arm is visible, heading back to
+   the ear. Nothing here is a 2D rotation — the foreshortening does the work.
+   One lens path is drawn twice under different scales; the art box is 48x18. */
+const EYE_LENS = "M0 0 H19 L17.6 9.4 C17.1 12.4 14.6 13.8 11 13.8 C6.2 13.8 2.6 11.8 1.6 7.8 Z";
+const EYE_FAR  = {x:2,    y:3.6, sx:.56,  sy:.94};    // screen-left, turning away
+const EYE_NEAR = {x:16.2, y:2.4, sx:1.12, sy:1.06};   // screen-right, toward the viewer
+const EYE_PIVOT = {x:7.3, y:10.1};   // far lens centre: the slot dot hangs there
 function eyeArt(ax, ay, w){
   const s = w / 48;
-  const lens = "M2 3 H21 L19.6 12.4 C19.1 15.4 16.6 16.8 13 16.8 C8.2 16.8 4.6 14.8 3.6 10.8 Z";
-  const flip = 'transform="translate(46 0) scale(-1 1)"';
-  // the shine sits top-left on BOTH lenses, as it does on the real pair,
-  // so it is drawn in flat coordinates and clipped to each lens rather than mirrored
-  const shine = (clip, dx) =>
-    '<g clip-path="url(#'+clip+')">'+
-      '<path d="M'+(13.4+dx)+' 1 L'+(16+dx)+' 1 L'+(8.8+dx)+' 18 L'+(6.2+dx)+' 18 Z" fill="#fff" opacity=".13"/>'+
-      '<path d="M'+(17.2+dx)+' 1 L'+(18.4+dx)+' 1 L'+(11.2+dx)+' 18 L'+(10+dx)+' 18 Z" fill="#fff" opacity=".09"/>'+
-      '<rect x="'+(4.8+dx)+'" y="5" width="5" height="1.5" rx=".75" fill="#f4f2ec" opacity=".9"/>'+
+  const frame = ' fill="#4a444e" stroke="#0b0b0b" stroke-width="2.4" stroke-linejoin="round"';
+  // the glare sits top-left inside both lenses and foreshortens with them
+  const shine =
+    '<g clip-path="url(#eyeLens)">'+
+      '<path d="M11 -1 L13.6 -1 L6.4 15 L3.8 15 Z" fill="#fff" opacity=".13"/>'+
+      '<path d="M14.8 -1 L16 -1 L8.8 15 L7.6 15 Z" fill="#fff" opacity=".09"/>'+
+      '<rect x="2.4" y="1.8" width="5" height="1.5" rx=".75" fill="#f4f2ec" opacity=".9"/>'+
     '</g>';
-  return '<defs>'+
-      '<clipPath id="eyeL"><path d="'+lens+'"/></clipPath>'+
-      '<clipPath id="eyeR"><path '+flip+' d="'+lens+'"/></clipPath>'+
-    '</defs>'+
-    '<g transform="translate('+(ax - EYE_PIVOT.x*s)+' '+(ay - EYE_PIVOT.y*s)+') scale('+s+')'+
-      ' rotate('+EYE_TILT+' '+EYE_PIVOT.x+' '+EYE_PIVOT.y+')" filter="url(#gshadow)">'+
-      '<path d="'+lens+'" fill="#4a444e" stroke="#0b0b0b" stroke-width="2.4" stroke-linejoin="round"/>'+
-      '<path '+flip+' d="'+lens+'" fill="#4a444e" stroke="#0b0b0b" stroke-width="2.4" stroke-linejoin="round"/>'+
-      shine("eyeL", 0) + shine("eyeR", 23)+
-      '<path d="M20.6 4 Q23 6 25.4 4" fill="none" stroke="#0b0b0b" stroke-width="2.2" stroke-linecap="round"/>'+
-      '<path d="M2 3.4 L-1 2 M46 3.4 L49 2" fill="none" stroke="#0b0b0b" stroke-width="2.2" stroke-linecap="round"/>'+
+  const lens = o => '<g transform="translate('+o.x+' '+o.y+') scale('+o.sx+' '+o.sy+')">'+
+      '<path d="'+EYE_LENS+'"'+frame+'/>'+ shine +'</g>';
+  return '<defs><clipPath id="eyeLens"><path d="'+EYE_LENS+'"/></clipPath></defs>'+
+    '<g transform="translate('+(ax - EYE_PIVOT.x*s)+' '+(ay - EYE_PIVOT.y*s)+') scale('+s+')"'+
+      ' filter="url(#gshadow)">'+
+      '<path d="M2.4 4.6 L.7 5.2" fill="none" stroke="#0b0b0b" stroke-width="1.6" stroke-linecap="round"/>'+
+      lens(EYE_FAR)+
+      '<path d="M12.3 5.3 Q14.4 4 16.7 4.6" fill="none" stroke="#0b0b0b" stroke-width="2.2" stroke-linecap="round"/>'+
+      lens(EYE_NEAR)+
+      '<path d="M37 3.6 L43.6 5.8" fill="none" stroke="#0b0b0b" stroke-width="2.4" stroke-linecap="round"/>'+
     '</g>';
 }
 
@@ -61,7 +63,7 @@ function renderGifts(){
       '</filter>'+
     '</defs>'+
     '<image href="assets/waylon-body.png" x="115" y="4" width="130" height="260"/>';
-  const chips = [], art = [], dots = [];   // traces, then worn art, then the dots on top
+  const chips = [], art = [], lines = [], dots = [];   // worn art first, then the traces over it, then the dots
   for(const s of SLOTS){
     const pos = anchorOf(s.id); if(!pos) continue;
     const sealed = s.id === "eye";
@@ -73,9 +75,9 @@ function renderGifts(){
     const cy = pos.y + 14;
     const lane = left ? pos.ax - 8 : pos.ax + 8;   // right-angle circuit-trace routing
     const src = sealed ? null : (it && it.img) || null;
-    svg += '<path d="M'+ex+' '+cy+' H'+lane+' V'+pos.ay+' H'+pos.ax+'" fill="none" stroke="'+colr+'" stroke-width="1.2" opacity=".7"/>';
+    lines.push('<path d="M'+ex+' '+cy+' H'+lane+' V'+pos.ay+' H'+pos.ax+'" fill="none" stroke="'+colr+'" stroke-width="1.2" opacity=".7"/>');
     dots.push('<circle cx="'+pos.ax+'" cy="'+pos.ay+'" r="'+(gAdjust && gSel===s.id ? 3.6 : 2.2)+'" fill="'+colr+'"/>');
-    if(sealed) art.push(eyeArt(pos.ax, pos.ay, 46));
+    if(sealed) art.push(eyeArt(pos.ax, pos.ay, 50));
     else if(src){
       const sz = 20;   // worn art reads as jewellery, not as a billboard
       art.push('<image class="gart" href="'+esc(src)+'" preserveAspectRatio="xMidYMid meet"'+
@@ -91,7 +93,7 @@ function renderGifts(){
       '<div class="slabel">'+s.label+'</div>'+
       '<div class="sitem">'+(sealed?'「Your Eyes」':it?esc(it.name):'—')+'</div></div>');
   }
-  svg += art.join("") + dots.join("") + '</svg>';
+  svg += art.join("") + lines.join("") + dots.join("") + '</svg>';
   const debug = !!store.get("debug");
   if(!debug) gAdjust = false;
   el("slotgrid").innerHTML =
