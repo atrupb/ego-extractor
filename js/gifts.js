@@ -32,11 +32,7 @@ function renderGifts(){
   let svg = '<svg viewBox="0 0 360 270" preserveAspectRatio="none">'+
     '<defs>'+
       '<filter id="gshadow" x="-40%" y="-40%" width="180%" height="180%">'+
-        '<feDropShadow dx="0" dy="1" stdDeviation="1.3" flood-color="#000" flood-opacity=".9"/>'+
-      '</filter>'+
-      // the glasses are black on a dark silhouette — a gold halo lifts them off it
-      '<filter id="geye" x="-60%" y="-60%" width="220%" height="220%">'+
-        '<feDropShadow dx="0" dy="0" stdDeviation="1.8" flood-color="#f2c14e" flood-opacity=".95"/>'+
+        '<feDropShadow dx="0" dy="1" stdDeviation=".9" flood-color="#000" flood-opacity=".9"/>'+
       '</filter>'+
     '</defs>'+
     '<image href="assets/waylon-body.png" x="115" y="4" width="130" height="260"/>';
@@ -57,10 +53,10 @@ function renderGifts(){
     if(!src || gAdjust)
       svg += '<circle cx="'+pos.ax+'" cy="'+pos.ay+'" r="'+(gAdjust && gSel===s.id ? 5 : 3.4)+'" fill="'+colr+'"/>';
     if(src){
-      const sz = sealed ? 44 : 30;   // the glasses are wide and flat; meet-fits inside the box
+      const sz = sealed ? 30 : 20;   // worn art reads as jewellery, not as a billboard
       art.push('<image class="gart" href="'+esc(src)+'" preserveAspectRatio="xMidYMid meet"'+
         ' x="'+(pos.ax - sz/2)+'" y="'+(pos.ay - sz/2)+'" width="'+sz+'" height="'+sz+'"'+
-        ' filter="url(#'+(sealed ? "geye" : "gshadow")+')"/>');
+        ' filter="url(#gshadow)"/>');
     }
     const style = (left ? 'left:1%;' : 'right:1%;')+'top:'+(pos.y/270*100).toFixed(2)+'%';
     const bonus = it && (it.bonus||[]).length
