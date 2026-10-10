@@ -121,12 +121,12 @@ function openDetail(id){
 }
 
 /* the record's identity strip: main damage / defense type with its icon,
-   the governing stat, and — for weapons — attack speed and range */
+   the governing stat, and — for weapons — attack speed, what that speed buys
+   per Attack action, and range */
 function renderTypeRow(it){
   const box = el("mTypeRow");
   if(it.type === "gift"){ box.style.display = "none"; return; }
   box.style.display = "flex";
-  const s = egoStats(it);
   const dt = itemDType(it);
   let h = '<div class="typecell"><span class="tclabel">'+
     (it.type === "weapon" ? "MAIN DAMAGE TYPE" : "MAIN DEFENSE TYPE")+'</span><div class="tcval">';
@@ -135,8 +135,11 @@ function renderTypeRow(it){
     : '<span class="tcsub">—</span>';
   h += '</div>';
   if(it.type === "weapon"){
+    const sp = weaponSpeed(it);
     h += '<span class="tclabel tcgap">SPEED</span><div class="tcval">'+
-      (s && s.speed ? esc(s.speed) : '<span class="tcsub">—</span>')+'</div>';
+      (sp ? esc(sp.label) : '<span class="tcsub">—</span>')+
+      (sp ? '<span class="psatk">'+sp.attacks+(sp.attacks === 1 ? " attack" : " attacks")+'</span>' : '')+'</div>'+
+      (sp && sp.penalty ? '<div class="tcpen">'+esc(sp.penalty)+'</div>' : '');
     const rg = weaponRange(it);
     h += '<span class="tclabel tcgap">RANGE</span><div class="tcval">'+
       (rg ? RANGE_LABEL[rg] : '<span class="tcsub">—</span>')+'</div>';
