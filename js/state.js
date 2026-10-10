@@ -150,8 +150,9 @@ function weaponAtkStat(it){
   return (s && s.dtype && DTYPE2STAT[s.dtype]) || null;
 }
 /* weapon headline: to-hit = stat mod + prof + RC · damage = dice + flat,
-   where flat = stat mod + RC. Everything is derived — the dice come from the
-   budget, the flat from the stat, and a weapon that swings more than once says so */
+   where flat = stat mod + RC. Everything is derived: the dice come from the budget,
+   the flat from the stat. The number shown is ONE attack's worth — how many attacks
+   the weapon buys is the speed readout's job, not this line's */
 function weaponStat(it){
   const st = weaponAtkStat(it), bits = [];
   if(st){
@@ -165,8 +166,7 @@ function weaponStat(it){
       const tot = statMod(st) + RCLVL(it.grade);
       if(tot) d += (tot > 0 ? "+" : "") + tot;
     }
-    const n = (weaponSpeed(it) || {}).attacks || 1;
-    bits.push(n > 1 ? n + " × " + d : d);
+    bits.push(d);
   }
   return bits.join(" · ");
 }
