@@ -229,7 +229,7 @@
       ZAYIN +0 · TETH +1 · HE +2 · WAW +3 · ALEPH +4</p>
       <p><b>Weapons.</b><br>
       <b>To hit</b> = d20 + stat mod + proficiency + RC.<br>
-      <b>Damage</b> = the weapon's dice + a flat, where <b>flat = stat mod + RC</b>. The flat is derived. The dice are hand-built from the record: the die size and count are chosen so the roll fits the record's LC damage range.</p>
+      <b>Damage</b> = the weapon's dice + a flat, where <b>flat = stat mod + RC</b>. The flat is derived; the dice come from the budget below, read off the record's risk class and attack speed.</p>
       <p><b>Attack speed</b> is how many attacks one Attack action buys. The slow end buys no extras and pays for the weight it swings instead; that penalty applies while the weapon is equipped:</p>
       <table class="calctable">
         <tr><th>LC Speed</th><th>Per Attack action</th></tr>
@@ -239,7 +239,23 @@
         <tr><td>Slow</td><td>1 attack, −2 initiative</td></tr>
         <tr><td>Very Slow</td><td>1 attack, −5 initiative, no opportunity attacks</td></tr>
       </table>
-      <p>A critical hit doubles the dice, never the flat.</p>
+      <p><b>Damage dice budget.</b> Speed splits the budget. Slow and Very Slow carry about 25% and 45% more dice, paying for their initiative penalty and for putting everything on one roll.</p>
+      <div class="calcwide">
+      <table class="calctable dicetable">
+        <tr><th></th>
+          <th>Very Fast<span>3 attacks</span></th>
+          <th>Fast<span>2 attacks</span></th>
+          <th>Normal<span>1 attack</span></th>
+          <th>Slow<span>1 attack</span></th>
+          <th>Very Slow<span>1 attack</span></th></tr>
+        <tr><th style="color:var(--zayin)">ZAYIN</th><td>3 × 1d2</td><td>2 × 1d4</td><td>1d10</td><td>1d12</td><td>2d6</td></tr>
+        <tr><th style="color:var(--teth)">TETH</th><td>3 × 1d4</td><td>2 × 1d6</td><td>2d6</td><td>2d8</td><td>3d6</td></tr>
+        <tr><th style="color:var(--he)">HE</th><td>3 × 1d6</td><td>2 × 1d8</td><td>3d6</td><td>2d12</td><td>3d8+1</td></tr>
+        <tr><th style="color:var(--waw)">WAW</th><td>3 × 1d8</td><td>2 × 1d12</td><td>4d6</td><td>3d10</td><td>3d12</td></tr>
+        <tr><th style="color:var(--aleph)">ALEPH</th><td>3 × 1d10</td><td>2 × 2d8</td><td>5d6</td><td>4d10</td><td>4d12</td></tr>
+      </table>
+      </div>
+      <p>A multi-attack entry such as 3 × 1d6 is that roll per attack, each with its own attack roll and its own flat. A critical hit doubles the dice, never the flat.</p>
       <p><b>Range</b>: flat, no scaling. A record marked Very Short, Short, or Medium is a <b>melee</b> weapon with 5 ft reach. Long or Very Long is <b>ranged</b>, 90 ft.</p>
       <p><b>Suits.</b><br>
       <b>AC</b> = 10 + guard stat mod + RC + 1.<br>
