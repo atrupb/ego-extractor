@@ -18,7 +18,18 @@ function rosterAllowed(it){
   return true;
 }
 function roster(){ return (store.get("roster") || SEED).filter(rosterAllowed); }
-function collection(){ return store.get("col") || []; }
+function collection(){
+  const c = store.get("col") || [];
+  // one-time: damage dice moved from hand-typed to the risk-class/speed budget.
+  // what was typed is parked in dmgPrev and never read again — the budget rules now.
+  if(!store.get("diceAuto")){
+    let moved = false;
+    for(const it of c) if(it.type === "weapon" && it.dmg){ it.dmgPrev = it.dmg; it.dmg = ""; moved = true; }
+    if(moved) store.set("col", c);
+    store.set("diceAuto", 1);
+  }
+  return c;
+}
 function saveCol(c){ store.set("col", c); }
 
 /* --- character --- */
@@ -139,21 +150,23 @@ function weaponAtkStat(it){
   return (s && s.dtype && DTYPE2STAT[s.dtype]) || null;
 }
 /* weapon headline: to-hit = stat mod + prof + RC · damage = dice + flat,
-   where flat = stat mod + RC, once, however many dice the weapon rolls.
-   Only the dice string comes from the record */
+   where flat = stat mod + RC. Everything is derived — the dice come from the
+   budget, the flat from the stat, and a weapon that swings more than once says so */
 function weaponStat(it){
   const st = weaponAtkStat(it), bits = [];
   if(st){
     const hit = statMod(st) + prof() + RCLVL(it.grade);
     bits.push((hit >= 0 ? "+" : "") + hit + " to hit");
   }
-  if(it.dmg){
-    let d = it.dmg;
+  const dice = weaponDice(it);
+  if(dice){
+    let d = dice;
     if(st){
       const tot = statMod(st) + RCLVL(it.grade);
       if(tot) d += (tot > 0 ? "+" : "") + tot;
     }
-    bits.push(d);
+    const n = (weaponSpeed(it) || {}).attacks || 1;
+    bits.push(n > 1 ? n + " × " + d : d);
   }
   return bits.join(" · ");
 }
@@ -191,18 +204,25 @@ function weaponRange(it){
    and carries a penalty while the weapon is equipped instead. Longest word first,
    so "Very Fast" never matches as "Fast". */
 const SPEED_TABLE = [
-  [/very\s*fast/i, {attacks:3, penalty:""}],
-  [/fast/i,        {attacks:2, penalty:""}],
-  [/very\s*slow/i, {attacks:1, penalty:"−5 initiative · no opportunity attacks"}],
-  [/slow/i,        {attacks:1, penalty:"−2 initiative"}],
-  [/normal/i,      {attacks:1, penalty:""}]
+  [/very\s*fast/i, {key:"vf", attacks:3, penalty:""}],
+  [/fast/i,        {key:"f",  attacks:2, penalty:""}],
+  [/very\s*slow/i, {key:"vs", attacks:1, penalty:"−5 initiative · no opportunity attacks"}],
+  [/slow/i,        {key:"s",  attacks:1, penalty:"−2 initiative"}],
+  [/normal/i,      {key:"n",  attacks:1, penalty:""}]
 ];
 function weaponSpeed(it){
   const s = egoStats(it), word = s && s.speed;
   if(!word) return null;
   for(const [re, rule] of SPEED_TABLE)
-    if(re.test(word)) return {label:word, attacks:rule.attacks, penalty:rule.penalty};
-  return {label:word, attacks:1, penalty:""};
+    if(re.test(word)) return Object.assign({label:word}, rule);
+  return {label:word, key:"n", attacks:1, penalty:""};
+}
+/* damage dice per attack: the budget decides, off risk class and speed.
+   A hand-written override still wins, but writing one is a debug-only move. */
+function weaponDice(it){
+  if(it.dmg) return it.dmg;
+  const sp = weaponSpeed(it), row = DICE_BUDGET[it.grade];
+  return sp && row ? row[sp.key] || null : null;
 }
 
 /* the damage type an item fights with (weapons) or guards against (suits) —

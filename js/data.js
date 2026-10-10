@@ -78,6 +78,18 @@ const BONUS_TARGETS = [
 ];
 const BONUS_LABEL = Object.fromEntries(BONUS_TARGETS.map(b=>[b.v, b.label]));
 
+/* damage dice PER ATTACK, by risk class and attack speed — the budget the
+   Calculations panel prints. Speed splits it: the fast end swings more often for
+   less, the slow end carries about 25% and 45% more dice to pay for its penalty
+   and for putting everything on one roll. */
+const DICE_BUDGET = {
+  ZAYIN:{vf:"1d2",  f:"1d4",  n:"1d10", s:"1d12", vs:"2d6"},
+  TETH: {vf:"1d4",  f:"1d6",  n:"2d6",  s:"2d8",  vs:"3d6"},
+  HE:   {vf:"1d6",  f:"1d8",  n:"3d6",  s:"2d12", vs:"3d8+1"},
+  WAW:  {vf:"1d8",  f:"1d12", n:"4d6",  s:"3d10", vs:"3d12"},
+  ALEPH:{vf:"1d10", f:"2d8",  n:"5d6",  s:"4d10", vs:"4d12"}
+};
+
 /* print cost per single item: base − Temperance INT-mod */
 const PRINT_BASE = {ZAYIN:5, TETH:12, HE:20, WAW:30, ALEPH:40};
 

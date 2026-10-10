@@ -103,10 +103,13 @@ function openDetail(id){
   // gifts instead carry small structured bonuses
   el("mBonusWrap").style.display = it.type === "gift" ? "block" : "none";
   if(it.type === "gift") el("mBonusList").innerHTML = (it.bonus||[]).map(bonusRowHTML).join("");
-  el("mStatField").style.display = it.type === "weapon" ? "block" : "none";
+  // the dice are derived from the budget; hand-writing them is a debug-only override
+  const dbg = !!store.get("debug");
+  el("mStatField").style.display = it.type === "weapon" && dbg ? "block" : "none";
   el("mStat").value = it.dmg || "";
-  // the stat override is derivation machinery — it hides behind the debug option
-  el("mCalcWrap").style.display = it.type !== "gift" && store.get("debug") ? "block" : "none";
+  el("mStat").placeholder = weaponDice(Object.assign({}, it, {dmg:""})) || "no speed recovered yet";
+  // the stat override is derivation machinery too
+  el("mCalcWrap").style.display = it.type !== "gift" && dbg ? "block" : "none";
   el("mAtkLabel").textContent = it.type === "weapon"
     ? "Attack stat — blank = auto from damage type"
     : "Guard stat — blank = auto from best resistance; pick on ties";
