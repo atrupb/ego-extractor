@@ -517,7 +517,6 @@ body.alert main{animation:alertfx 1s 3}
 #pSpec{border:1px solid var(--line);background:rgba(255,255,255,.03);padding:9px 11px;margin-top:8px}
 .pshead{display:flex;align-items:center;gap:9px;font-weight:700;font-size:13px;flex-wrap:wrap}
 .pshead img{width:20px;height:20px;object-fit:contain;flex:none}
-.pshead .rapidtag{margin-left:0}
 .psdim{color:var(--white);font-weight:400;font-family:var(--mono);font-size:12px}
 .psnum{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--teal);margin-top:6px}
 .psnote{font-size:12.5px;line-height:1.55;margin-top:6px;white-space:pre-wrap;color:var(--white)}
@@ -543,8 +542,6 @@ body.alert main{animation:alertfx 1s 3}
 .tcval{display:flex;align-items:center;gap:8px;font-size:15.5px;font-weight:700;color:var(--white);line-height:1}
 .tcval img{width:26px;height:26px;object-fit:contain;flex:none}
 .tcsub{font-weight:400;font-size:13px;color:var(--white)}
-.rapidtag{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;
-  color:var(--orange);border:1px solid var(--orange);padding:2px 7px;margin-left:auto}
 .sheet textarea{width:100%;min-height:88px;background:#000;border:1px solid #3a3a36;color:var(--white);
   font-family:var(--mono);font-size:12px;line-height:1.6;padding:10px;resize:vertical}
 .sheet .row{display:flex;gap:10px;margin-top:12px}

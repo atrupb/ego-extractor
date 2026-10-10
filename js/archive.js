@@ -121,7 +121,7 @@ function openDetail(id){
 }
 
 /* the record's identity strip: main damage / defense type with its icon,
-   the governing stat, and — for weapons — attack speed with the Rapid marker */
+   the governing stat, and — for weapons — attack speed and range */
 function renderTypeRow(it){
   const box = el("mTypeRow");
   if(it.type === "gift"){ box.style.display = "none"; return; }
@@ -136,8 +136,7 @@ function renderTypeRow(it){
   h += '</div>';
   if(it.type === "weapon"){
     h += '<span class="tclabel tcgap">SPEED</span><div class="tcval">'+
-      (s && s.speed ? esc(s.speed) : '<span class="tcsub">—</span>')+
-      (isRapid(it) ? '<span class="rapidtag">RAPID</span>' : '')+'</div>';
+      (s && s.speed ? esc(s.speed) : '<span class="tcsub">—</span>')+'</div>';
     const rg = weaponRange(it);
     h += '<span class="tclabel tcgap">RANGE</span><div class="tcval">'+
       (rg ? RANGE_LABEL[rg] : '<span class="tcsub">—</span>')+'</div>';

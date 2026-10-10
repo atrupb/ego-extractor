@@ -54,7 +54,6 @@ function printSpecHTML(it){
     if(s && s.speed) h += '<span class="psdim">'+esc(s.speed)+'</span>';
     const rg = weaponRange(it);
     if(rg) h += '<span class="psdim">'+RANGE_LABEL[rg]+'</span>';
-    if(isRapid(it)) h += '<span class="rapidtag">RAPID</span>';
   }
   h += '</div>';
   const num = it.type === "weapon" ? weaponStat(it) : (suitAC(it) !== null ? "AC "+suitAC(it) : "");
