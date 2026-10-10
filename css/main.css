@@ -533,10 +533,12 @@ body.alert main{animation:alertfx 1s 3}
 .calctable th{color:var(--dim);font-weight:400;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
 /* the dice budget is six columns wide — let it scroll rather than crush the type */
 .calcwide{overflow-x:auto;margin:10px 0}
+.calcfoot{color:var(--dim)}
 .calcwide .calctable{margin:0}
 .dicetable td,.dicetable th{padding:5px 10px;white-space:nowrap;text-align:center}
 .dicetable tr>th:first-child{text-align:left;font-weight:700;font-size:11px;letter-spacing:.1em}
-.dicetable th span{display:block;font-size:9px;color:var(--dim);letter-spacing:.06em;margin-top:2px}
+.dicetable tr>th:first-child i{font-style:normal;color:var(--dim);font-weight:400}
+.dicetable tr:first-child th span{display:block;font-size:9px;color:var(--dim);letter-spacing:.06em;margin-top:2px}
 .dticon{width:18px;height:18px;object-fit:contain}
 .ct-red{color:#e8433f}
 .ct-white{color:#efe9d8}
