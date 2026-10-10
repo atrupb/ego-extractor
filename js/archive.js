@@ -107,7 +107,7 @@ function openDetail(id){
   const dbg = !!store.get("debug");
   el("mStatField").style.display = it.type === "weapon" && dbg ? "block" : "none";
   el("mStat").value = it.dmg || "";
-  el("mStat").placeholder = weaponDice(Object.assign({}, it, {dmg:""})) || "no speed recovered yet";
+  el("mStat").placeholder = budgetText(it) || "no speed recovered yet";
   // the stat override is derivation machinery too
   el("mCalcWrap").style.display = it.type !== "gift" && dbg ? "block" : "none";
   el("mAtkLabel").textContent = it.type === "weapon"

@@ -229,7 +229,7 @@
       ZAYIN +0 · TETH +1 · HE +2 · WAW +3 · ALEPH +4</p>
       <p><b>Weapons.</b><br>
       <b>To hit</b> = d20 + stat mod + proficiency + RC + the speed’s to-hit modifier.<br>
-      <b>Damage</b> = the weapon's dice + <b>stat mod + RC</b>.</p>
+      <b>Damage</b> = the budget cell below + <b>stat mod + RC</b>. A cell's own flat just adds to that.</p>
       <p><b>Attack speed</b> sets the weapon's dice, and carries a buff or a debuff with it:</p>
       <table class="calctable">
         <tr><th>LC Speed</th><th>On the attack roll</th></tr>
@@ -239,21 +239,21 @@
         <tr><td>Slow</td><td>−1 to hit</td></tr>
         <tr><td>Very Slow</td><td>−2 to hit</td></tr>
       </table>
-      <p><b>Damage dice budget.</b> One roll, whatever the speed. A class that lands between two die sizes rolls the mixed handful.</p>
+      <p><b>Damage dice budget.</b> Every cell in a row averages the same. Speed buys the shape of the roll, not its size: Very Fast is a tight handful around a flat, Very Slow is one big die — the highest top end, and the lowest floor.</p>
       <div class="calcwide">
       <table class="calctable dicetable">
         <tr><th></th>
           <th>Very Fast</th><th>Fast</th><th>Normal</th><th>Slow</th><th>Very Slow</th></tr>
         <tr><th style="color:var(--zayin)">ZAYIN</th>
-          <td>3d2</td><td>2d4</td><td>1d8</td><td>1d10</td><td>1d12</td></tr>
+          <td>3d2+2</td><td>2d4+1</td><td>1d8+2</td><td>1d10+1</td><td>1d12</td></tr>
         <tr><th style="color:var(--teth)">TETH</th>
-          <td>2d2+1d4</td><td>1d4+1d6</td><td>1d10</td><td>1d12</td><td>1d6+1d8</td></tr>
+          <td>3d4+2</td><td>2d6+2</td><td>1d6+1d8+1</td><td>1d4+1d10+1</td><td>1d4+1d12</td></tr>
         <tr><th style="color:var(--he)">HE</th>
-          <td>3d4</td><td>2d6</td><td>1d12</td><td>2d8</td><td>2d10</td></tr>
+          <td>3d4+3</td><td>2d6+3</td><td>2d8+1</td><td>1d6+1d12</td><td>1d20</td></tr>
         <tr><th style="color:var(--waw)">WAW</th>
-          <td>2d4+1d6</td><td>1d6+1d8</td><td>2d8</td><td>2d10</td><td>2d12</td></tr>
+          <td>3d6+4</td><td>1d8+1d10+4</td><td>1d10+1d12+2</td><td>2d12+1</td><td>1d6+1d20</td></tr>
         <tr><th style="color:var(--aleph)">ALEPH</th>
-          <td>3d6</td><td>2d8</td><td>2d10</td><td>2d12</td><td>3d10</td></tr>
+          <td>3d6+6</td><td>2d10+6</td><td>2d12+4</td><td>1d10+1d20+1</td><td>1d12+1d20</td></tr>
       </table>
       </div>
       <p><b>Graze.</b> When a fast weapon misses, it still deals damage — no dice, just the flat part. A <b>Very Fast</b> weapon grazes for stat mod + RC; a <b>Fast</b> one for the stat mod alone.</p>

@@ -78,17 +78,17 @@ const BONUS_TARGETS = [
 ];
 const BONUS_LABEL = Object.fromEntries(BONUS_TARGETS.map(b=>[b.v, b.label]));
 
-/* damage dice by risk class and attack speed — the budget the Calculations
-   panel prints, and the whole of a weapon's damage roll. Speed trades die size
-   against die count: the fast end rolls many small dice, the slow end fewer
-   large ones for a little more on average, paying for its initiative penalty.
-   The odd classes land between two sizes and roll a mixed handful. */
+/* a weapon's damage roll, by risk class and attack speed. Every cell in a row
+   averages about the same — speed buys the shape, not the size: Very Fast is a
+   tight handful of small dice around a flat, Very Slow is one big die and all
+   the swing that comes with it. A cell's trailing flat joins the weapon's own
+   (stat mod + RC); the dice are everything before it. */
 const DICE_BUDGET = {
-  ZAYIN:{vf:"3d2",     f:"2d4",     n:"1d8",  s:"1d10", vs:"1d12"},
-  TETH: {vf:"2d2+1d4", f:"1d4+1d6", n:"1d10", s:"1d12", vs:"1d6+1d8"},
-  HE:   {vf:"3d4",     f:"2d6",     n:"1d12", s:"2d8",  vs:"2d10"},
-  WAW:  {vf:"2d4+1d6", f:"1d6+1d8", n:"2d8",  s:"2d10", vs:"2d12"},
-  ALEPH:{vf:"3d6",     f:"2d8",     n:"2d10", s:"2d12", vs:"3d10"}
+  ZAYIN:{vf:"3d2+2", f:"2d4+1",       n:"1d8+2",        s:"1d10+1",       vs:"1d12"},
+  TETH: {vf:"3d4+2", f:"2d6+2",       n:"1d6+1d8+1",    s:"1d4+1d10+1",   vs:"1d4+1d12"},
+  HE:   {vf:"3d4+3", f:"2d6+3",       n:"2d8+1",        s:"1d6+1d12",     vs:"1d20"},
+  WAW:  {vf:"3d6+4", f:"1d8+1d10+4",  n:"1d10+1d12+2",  s:"2d12+1",       vs:"1d6+1d20"},
+  ALEPH:{vf:"3d6+6", f:"2d10+6",      n:"2d12+4",       s:"1d10+1d20+1",  vs:"1d12+1d20"}
 };
 
 /* print cost per single item: base − Temperance INT-mod */

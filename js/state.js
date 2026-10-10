@@ -149,9 +149,9 @@ function weaponAtkStat(it){
   const s = egoStats(it);
   return (s && s.dtype && DTYPE2STAT[s.dtype]) || null;
 }
-/* weapon headline: to-hit = stat mod + prof + RC + speed · damage = dice + flat,
-   where flat = stat mod + RC. Everything is derived: the dice and the to-hit
-   swing come from the speed, the flat from the stat. One roll, one attack. */
+/* weapon headline: to-hit = stat mod + prof + RC + speed · damage = dice + flat.
+   Everything is derived: the dice and their flat come off the budget, the rest
+   from the stat. One roll, one attack. */
 function weaponStat(it){
   const st = weaponAtkStat(it), sp = weaponSpeed(it), bits = [];
   if(st){
@@ -161,10 +161,8 @@ function weaponStat(it){
   const dice = weaponDice(it);
   if(dice){
     let d = dice;
-    if(st){
-      const tot = statMod(st) + RCLVL(it.grade);
-      if(tot) d += (tot > 0 ? "+" : "") + tot;
-    }
+    const tot = weaponFlat(it);
+    if(tot) d += (tot > 0 ? "+" : "") + tot;
     bits.push(d);
   }
   return bits.join(" · ");
@@ -234,12 +232,31 @@ function speedNote(it){
   if(sp.penalty) bits.push(sp.penalty);
   return bits.join(" · ");
 }
+/* the budget cell for a record, split into the dice and the flat it carries —
+   a cell ends in a bare number only when that number is the flat */
+function budgetCell(it){
+  const sp = weaponSpeed(it), row = DICE_BUDGET[it.grade];
+  const cell = sp && row ? row[sp.key] : null;
+  if(!cell) return null;
+  const m = /^(.*?)\s*\+\s*(\d+)$/.exec(cell);
+  return m ? {dice:m[1], bonus:+m[2]} : {dice:cell, bonus:0};
+}
+function budgetText(it){
+  const c = budgetCell(it);
+  return c ? c.dice + (c.bonus ? "+" + c.bonus : "") : null;
+}
 /* damage dice: the budget decides, off risk class and speed.
    A hand-written override still wins, but writing one is a debug-only move. */
 function weaponDice(it){
   if(it.dmg) return it.dmg;
-  const sp = weaponSpeed(it), row = DICE_BUDGET[it.grade];
-  return sp && row ? row[sp.key] || null : null;
+  const c = budgetCell(it);
+  return c ? c.dice : null;
+}
+/* the whole non-dice part of a damage roll: the record's own stat mod + RC,
+   plus whatever flat the budget cell carries (an override replaces both) */
+function weaponFlat(it){
+  const st = weaponAtkStat(it), c = it.dmg ? null : budgetCell(it);
+  return (st ? statMod(st) + RCLVL(it.grade) : 0) + (c ? c.bonus : 0);
 }
 
 /* the damage type an item fights with (weapons) or guards against (suits) —
