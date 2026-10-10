@@ -82,7 +82,7 @@ const BONUS_LABEL = Object.fromEntries(BONUS_TARGETS.map(b=>[b.v, b.label]));
    averages about the same — speed buys the shape, not the size: Very Fast is a
    tight handful of small dice around a flat, Very Slow is one big die and all
    the swing that comes with it. A cell's trailing flat joins the weapon's own
-   (stat mod + RC); the dice are everything before it. */
+   (the attack stat's mod); the dice are everything before it. */
 const DICE_BUDGET = {
   ZAYIN:{vf:"3d2+2", f:"2d4+1",       n:"1d8+2",        s:"1d10+1",       vs:"1d12"},
   TETH: {vf:"3d4+2", f:"2d6+2",       n:"1d6+1d8+1",    s:"1d4+1d10+1",   vs:"1d4+1d12"},

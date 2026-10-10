@@ -234,11 +234,12 @@ function weaponDice(it){
   const c = budgetCell(it);
   return c ? c.dice : null;
 }
-/* the whole non-dice part of a damage roll: the record's own stat mod + RC,
-   plus whatever flat the budget cell carries (an override replaces both) */
+/* the whole non-dice part of a damage roll: the attack stat's mod plus
+   whatever flat the budget cell carries. Risk class stays out of damage — the
+   budget already prices it in. (An override replaces the cell, flat and all.) */
 function weaponFlat(it){
   const st = weaponAtkStat(it), c = it.dmg ? null : budgetCell(it);
-  return (st ? statMod(st) + RCLVL(it.grade) : 0) + (c ? c.bonus : 0);
+  return (st ? statMod(st) : 0) + (c ? c.bonus : 0);
 }
 
 /* the damage type an item fights with (weapons) or guards against (suits) —
