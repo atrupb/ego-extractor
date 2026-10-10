@@ -535,7 +535,6 @@ body.alert main{animation:alertfx 1s 3}
 .dicetable td,.dicetable th{padding:5px 10px;white-space:nowrap;text-align:center}
 .dicetable tr>th:first-child{text-align:left;font-weight:700;font-size:11px;letter-spacing:.1em}
 .dicetable tr>th:first-child i{font-style:normal;color:var(--dim);font-weight:400}
-.dicetable td i{font-style:normal;color:var(--dim);font-size:11px}
 .dticon{width:18px;height:18px;object-fit:contain}
 .ct-red{color:#e8433f}
 .ct-white{color:#efe9d8}

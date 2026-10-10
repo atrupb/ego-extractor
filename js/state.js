@@ -149,13 +149,13 @@ function weaponAtkStat(it){
   const s = egoStats(it);
   return (s && s.dtype && DTYPE2STAT[s.dtype]) || null;
 }
-/* weapon headline: to-hit = stat mod + prof + RC · damage = dice + flat,
-   where flat = stat mod + RC. Everything is derived: the dice come from the
-   budget, the flat from the stat. One roll, one attack. */
+/* weapon headline: to-hit = stat mod + prof + RC + speed · damage = dice + flat,
+   where flat = stat mod + RC. Everything is derived: the dice and the to-hit
+   swing come from the speed, the flat from the stat. One roll, one attack. */
 function weaponStat(it){
-  const st = weaponAtkStat(it), bits = [];
+  const st = weaponAtkStat(it), sp = weaponSpeed(it), bits = [];
   if(st){
-    const hit = statMod(st) + prof() + RCLVL(it.grade);
+    const hit = statMod(st) + prof() + RCLVL(it.grade) + (sp ? sp.hit | 0 : 0);
     bits.push((hit >= 0 ? "+" : "") + hit + " to hit");
   }
   const dice = weaponDice(it);
@@ -199,22 +199,23 @@ function weaponRange(it){
   return /short|medium/i.test(r) ? "melee" : /long/i.test(r) ? "ranged" : null;
 }
 
-/* attack speed picks the column of the dice budget — nothing else. The slow
-   end carries a penalty while the weapon is equipped. Longest word first,
-   so "Very Fast" never matches as "Fast". */
+/* attack speed picks the column of the dice budget and swings the to-hit:
+   the light end lands more often, the heavy end less, and the slow end carries
+   an initiative penalty on top while the weapon is equipped. Longest word
+   first, so "Very Fast" never matches as "Fast". */
 const SPEED_TABLE = [
-  [/very\s*fast/i, {key:"vf", penalty:""}],
-  [/fast/i,        {key:"f",  penalty:""}],
-  [/very\s*slow/i, {key:"vs", penalty:"−5 initiative · no opportunity attacks"}],
-  [/slow/i,        {key:"s",  penalty:"−2 initiative"}],
-  [/normal/i,      {key:"n",  penalty:""}]
+  [/very\s*fast/i, {key:"vf", hit: 2, penalty:""}],
+  [/fast/i,        {key:"f",  hit: 1, penalty:""}],
+  [/very\s*slow/i, {key:"vs", hit:-2, penalty:"−5 initiative · no opportunity attacks"}],
+  [/slow/i,        {key:"s",  hit:-1, penalty:"−2 initiative"}],
+  [/normal/i,      {key:"n",  hit: 0, penalty:""}]
 ];
 function weaponSpeed(it){
   const s = egoStats(it), word = s && s.speed;
   if(!word) return null;
   for(const [re, rule] of SPEED_TABLE)
     if(re.test(word)) return Object.assign({label:word}, rule);
-  return {label:word, key:"n", penalty:""};
+  return {label:word, key:"n", hit:0, penalty:""};
 }
 /* damage dice: the budget decides, off risk class and speed.
    A hand-written override still wins, but writing one is a debug-only move. */
