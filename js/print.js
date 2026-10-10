@@ -58,7 +58,7 @@ function printSpecHTML(it){
   h += '</div>';
   const num = it.type === "weapon" ? weaponStat(it) : (suitAC(it) !== null ? "AC "+suitAC(it) : "");
   if(num) h += '<div class="psnum"'+(dc ? ' style="color:'+dc+'"' : '')+'>'+esc(num)+'</div>';
-  if(sp && sp.penalty) h += '<div class="pspen">'+esc(sp.penalty)+'</div>';
+  if(speedNote(sp)) h += '<div class="pspen">'+esc(speedNote(sp))+'</div>';
   if(it.note) h += '<div class="psnote">'+esc(it.note)+'</div>';
   return h;
 }

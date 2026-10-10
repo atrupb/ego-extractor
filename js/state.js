@@ -199,23 +199,32 @@ function weaponRange(it){
   return /short|medium/i.test(r) ? "melee" : /long/i.test(r) ? "ranged" : null;
 }
 
-/* attack speed picks the column of the dice budget and swings the to-hit:
-   the light end lands more often, the heavy end less, and the slow end carries
-   an initiative penalty on top while the weapon is equipped. Longest word
+/* attack speed picks the column of the dice budget and rides on the attack
+   roll: the light end crits on a wider range, the heavy end takes a to-hit
+   malus and an initiative penalty while the weapon is equipped. Longest word
    first, so "Very Fast" never matches as "Fast". */
 const SPEED_TABLE = [
-  [/very\s*fast/i, {key:"vf", hit: 2, penalty:""}],
-  [/fast/i,        {key:"f",  hit: 1, penalty:""}],
-  [/very\s*slow/i, {key:"vs", hit:-2, penalty:"−5 initiative · no opportunity attacks"}],
-  [/slow/i,        {key:"s",  hit:-1, penalty:"−2 initiative"}],
-  [/normal/i,      {key:"n",  hit: 0, penalty:""}]
+  [/very\s*fast/i, {key:"vf", hit: 0, crit:18, penalty:""}],
+  [/fast/i,        {key:"f",  hit: 0, crit:19, penalty:""}],
+  [/very\s*slow/i, {key:"vs", hit:-2, crit:20, penalty:"−5 initiative · no opportunity attacks"}],
+  [/slow/i,        {key:"s",  hit:-1, crit:20, penalty:"−2 initiative"}],
+  [/normal/i,      {key:"n",  hit: 0, crit:20, penalty:""}]
 ];
 function weaponSpeed(it){
   const s = egoStats(it), word = s && s.speed;
   if(!word) return null;
   for(const [re, rule] of SPEED_TABLE)
     if(re.test(word)) return Object.assign({label:word}, rule);
-  return {label:word, key:"n", hit:0, penalty:""};
+  return {label:word, key:"n", hit:0, crit:20, penalty:""};
+}
+/* what the speed costs or buys, as one line under the numbers: the widened
+   crit range first, then anything it carries while equipped */
+function speedNote(sp){
+  if(!sp) return "";
+  const bits = [];
+  if((sp.crit | 0) && sp.crit < 20) bits.push("crit on " + sp.crit + "–20");
+  if(sp.penalty) bits.push(sp.penalty);
+  return bits.join(" · ");
 }
 /* damage dice: the budget decides, off risk class and speed.
    A hand-written override still wins, but writing one is a debug-only move. */
