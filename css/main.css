@@ -473,8 +473,6 @@ body.alert main{animation:alertfx 1s 3}
 .printrow.open{border-color:var(--orange);margin-bottom:0}
 /* the unfolded spec hangs off the row it belongs to */
 .printspec{border:1px solid var(--orange);border-top:none;background:#000;padding:10px 12px;margin:0 0 7px}
-.psatk{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--orange);
-  border:1px solid var(--orange);padding:1px 7px}
 .pspen{font-family:var(--mono);font-size:11.5px;color:var(--orange);margin-top:5px;letter-spacing:.03em}
 .pickrow:active{background:var(--panel2)}
 .pickrow.sel{border-color:var(--orange);background:var(--panel2)}
@@ -533,12 +531,11 @@ body.alert main{animation:alertfx 1s 3}
 .calctable th{color:var(--dim);font-weight:400;letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
 /* the dice budget is six columns wide — let it scroll rather than crush the type */
 .calcwide{overflow-x:auto;margin:10px 0}
-.calcfoot{color:var(--dim)}
 .calcwide .calctable{margin:0}
 .dicetable td,.dicetable th{padding:5px 10px;white-space:nowrap;text-align:center}
 .dicetable tr>th:first-child{text-align:left;font-weight:700;font-size:11px;letter-spacing:.1em}
 .dicetable tr>th:first-child i{font-style:normal;color:var(--dim);font-weight:400}
-.dicetable tr:first-child th span{display:block;font-size:9px;color:var(--dim);letter-spacing:.06em;margin-top:2px}
+.dicetable td i{font-style:normal;color:var(--dim);font-size:11px}
 .dticon{width:18px;height:18px;object-fit:contain}
 .ct-red{color:#e8433f}
 .ct-white{color:#efe9d8}

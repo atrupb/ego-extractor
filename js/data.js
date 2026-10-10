@@ -78,17 +78,17 @@ const BONUS_TARGETS = [
 ];
 const BONUS_LABEL = Object.fromEntries(BONUS_TARGETS.map(b=>[b.v, b.label]));
 
-/* damage dice PER ATTACK, by risk class and attack speed — the budget the
-   Calculations panel prints. Classes pair up: ZAYIN with TETH, HE with WAW.
-   Speed splits the budget: the fast end swings more often for less, the slow end
-   carries more dice to pay for its initiative penalty and for putting
-   everything on one roll. */
+/* damage dice by risk class and attack speed — the budget the Calculations
+   panel prints, and the whole of a weapon's damage roll. Classes pair up:
+   ZAYIN with TETH, HE with WAW. Speed trades die size against die count: the
+   fast end rolls many small dice, the slow end fewer large ones for a little
+   more on average, paying for its initiative penalty. */
 const DICE_BUDGET = {
-  ZAYIN:{vf:"1d2", f:"1d4",  n:"1d8",  s:"1d10", vs:"1d12"},
-  TETH: {vf:"1d2", f:"1d4",  n:"1d8",  s:"1d10", vs:"1d12"},
-  HE:   {vf:"1d4", f:"1d6",  n:"1d12", s:"2d8",  vs:"2d10"},
-  WAW:  {vf:"1d4", f:"1d6",  n:"1d12", s:"2d8",  vs:"2d10"},
-  ALEPH:{vf:"1d6", f:"1d10", n:"1d20", s:"2d10", vs:"2d12"}
+  ZAYIN:{vf:"3d2", f:"2d4", n:"1d8",  s:"1d10", vs:"1d12"},
+  TETH: {vf:"3d2", f:"2d4", n:"1d8",  s:"1d10", vs:"1d12"},
+  HE:   {vf:"3d4", f:"2d6", n:"1d12", s:"2d8",  vs:"2d10"},
+  WAW:  {vf:"3d4", f:"2d6", n:"1d12", s:"2d8",  vs:"2d10"},
+  ALEPH:{vf:"3d6", f:"2d8", n:"2d10", s:"2d12", vs:"3d10"}
 };
 
 /* print cost per single item: base − Temperance INT-mod */

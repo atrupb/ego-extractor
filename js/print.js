@@ -51,8 +51,7 @@ function printSpecHTML(it){
     ? '<img src="'+DTYPE_ICON(dt)+'" alt=""><span style="color:'+dc+'">'+dt.toUpperCase()+'</span>'
     : '<span class="psdim">type unknown</span>';
   if(it.type === "weapon"){
-    if(sp) h += '<span class="psdim">'+esc(sp.label)+'</span>'+
-      '<span class="psatk">'+sp.attacks+(sp.attacks === 1 ? " attack" : " attacks")+'</span>';
+    if(sp) h += '<span class="psdim">'+esc(sp.label)+'</span>';
     const rg = weaponRange(it);
     if(rg) h += '<span class="psdim">'+RANGE_LABEL[rg]+'</span>';
   }

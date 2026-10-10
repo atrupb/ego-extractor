@@ -124,8 +124,8 @@ function openDetail(id){
 }
 
 /* the record's identity strip: main damage / defense type with its icon,
-   the governing stat, and — for weapons — attack speed, what that speed buys
-   per Attack action, and range */
+   the governing stat, and — for weapons — attack speed with its penalty,
+   and range */
 function renderTypeRow(it){
   const box = el("mTypeRow");
   if(it.type === "gift"){ box.style.display = "none"; return; }
@@ -140,8 +140,7 @@ function renderTypeRow(it){
   if(it.type === "weapon"){
     const sp = weaponSpeed(it);
     h += '<span class="tclabel tcgap">SPEED</span><div class="tcval">'+
-      (sp ? esc(sp.label) : '<span class="tcsub">—</span>')+
-      (sp ? '<span class="psatk">'+sp.attacks+(sp.attacks === 1 ? " attack" : " attacks")+'</span>' : '')+'</div>'+
+      (sp ? esc(sp.label) : '<span class="tcsub">—</span>')+'</div>'+
       (sp && sp.penalty ? '<div class="tcpen">'+esc(sp.penalty)+'</div>' : '');
     const rg = weaponRange(it);
     h += '<span class="tclabel tcgap">RANGE</span><div class="tcval">'+

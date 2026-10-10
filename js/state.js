@@ -150,9 +150,8 @@ function weaponAtkStat(it){
   return (s && s.dtype && DTYPE2STAT[s.dtype]) || null;
 }
 /* weapon headline: to-hit = stat mod + prof + RC · damage = dice + flat,
-   where flat = stat mod + RC. Everything is derived: the dice come from the budget,
-   the flat from the stat. The number shown is ONE attack's worth — how many attacks
-   the weapon buys is the speed readout's job, not this line's */
+   where flat = stat mod + RC. Everything is derived: the dice come from the
+   budget, the flat from the stat. One roll, one attack. */
 function weaponStat(it){
   const st = weaponAtkStat(it), bits = [];
   if(st){
@@ -200,24 +199,24 @@ function weaponRange(it){
   return /short|medium/i.test(r) ? "melee" : /long/i.test(r) ? "ranged" : null;
 }
 
-/* attack speed converts to attacks per Attack action. The slow end buys no extras
-   and carries a penalty while the weapon is equipped instead. Longest word first,
+/* attack speed picks the column of the dice budget — nothing else. The slow
+   end carries a penalty while the weapon is equipped. Longest word first,
    so "Very Fast" never matches as "Fast". */
 const SPEED_TABLE = [
-  [/very\s*fast/i, {key:"vf", attacks:3, penalty:""}],
-  [/fast/i,        {key:"f",  attacks:2, penalty:""}],
-  [/very\s*slow/i, {key:"vs", attacks:1, penalty:"−5 initiative · no opportunity attacks"}],
-  [/slow/i,        {key:"s",  attacks:1, penalty:"−2 initiative"}],
-  [/normal/i,      {key:"n",  attacks:1, penalty:""}]
+  [/very\s*fast/i, {key:"vf", penalty:""}],
+  [/fast/i,        {key:"f",  penalty:""}],
+  [/very\s*slow/i, {key:"vs", penalty:"−5 initiative · no opportunity attacks"}],
+  [/slow/i,        {key:"s",  penalty:"−2 initiative"}],
+  [/normal/i,      {key:"n",  penalty:""}]
 ];
 function weaponSpeed(it){
   const s = egoStats(it), word = s && s.speed;
   if(!word) return null;
   for(const [re, rule] of SPEED_TABLE)
     if(re.test(word)) return Object.assign({label:word}, rule);
-  return {label:word, key:"n", attacks:1, penalty:""};
+  return {label:word, key:"n", penalty:""};
 }
-/* damage dice per attack: the budget decides, off risk class and speed.
+/* damage dice: the budget decides, off risk class and speed.
    A hand-written override still wins, but writing one is a debug-only move. */
 function weaponDice(it){
   if(it.dmg) return it.dmg;
