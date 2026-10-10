@@ -149,13 +149,13 @@ function weaponAtkStat(it){
   const s = egoStats(it);
   return (s && s.dtype && DTYPE2STAT[s.dtype]) || null;
 }
-/* weapon headline: to-hit = stat mod + prof + RC + speed · damage = dice + flat.
+/* weapon headline: to-hit = stat mod + prof + RC · damage = dice + flat.
    Everything is derived: the dice and their flat come off the budget, the rest
    from the stat. One roll, one attack. */
 function weaponStat(it){
-  const st = weaponAtkStat(it), sp = weaponSpeed(it), bits = [];
+  const st = weaponAtkStat(it), bits = [];
   if(st){
-    const hit = statMod(st) + prof() + RCLVL(it.grade) + (sp ? sp.hit | 0 : 0);
+    const hit = statMod(st) + prof() + RCLVL(it.grade);
     bits.push((hit >= 0 ? "+" : "") + hit + " to hit");
   }
   const dice = weaponDice(it);
@@ -197,40 +197,22 @@ function weaponRange(it){
   return /short|medium/i.test(r) ? "melee" : /long/i.test(r) ? "ranged" : null;
 }
 
-/* attack speed picks the column of the dice budget and rides on the attack
-   roll: the light end grazes through a miss, the heavy end takes a to-hit malus
-   and an initiative penalty while the weapon is equipped. Longest word first,
-   so "Very Fast" never matches as "Fast". */
+/* attack speed picks the column of the dice budget — and nothing else. The
+   budget is already averaged across a row, so the speed carries no rider of
+   its own. Longest word first, so "Very Fast" never matches as "Fast". */
 const SPEED_TABLE = [
-  [/very\s*fast/i, {key:"vf", hit: 0, graze:"flat", penalty:""}],
-  [/fast/i,        {key:"f",  hit: 0, graze:"mod",  penalty:""}],
-  [/very\s*slow/i, {key:"vs", hit:-2, graze:"",     penalty:"−5 initiative · no opportunity attacks"}],
-  [/slow/i,        {key:"s",  hit:-1, graze:"",     penalty:"−2 initiative"}],
-  [/normal/i,      {key:"n",  hit: 0, graze:"",     penalty:""}]
+  [/very\s*fast/i, "vf"],
+  [/fast/i,        "f"],
+  [/very\s*slow/i, "vs"],
+  [/slow/i,        "s"],
+  [/normal/i,      "n"]
 ];
 function weaponSpeed(it){
   const s = egoStats(it), word = s && s.speed;
   if(!word) return null;
-  for(const [re, rule] of SPEED_TABLE)
-    if(re.test(word)) return Object.assign({label:word}, rule);
-  return {label:word, key:"n", hit:0, graze:"", penalty:""};
-}
-/* graze: a fast weapon's miss still lands for the flat part of its damage —
-   the whole flat on Very Fast, the stat mod alone on Fast. No dice either way. */
-function weaponGraze(it){
-  const sp = weaponSpeed(it), st = weaponAtkStat(it);
-  if(!sp || !sp.graze || !st) return null;
-  return sp.graze === "flat" ? statMod(st) + RCLVL(it.grade) : statMod(st);
-}
-/* what the speed costs or buys, as one line under the numbers: the graze it
-   lands on a miss first, then anything it carries while equipped */
-function speedNote(it){
-  const sp = it && weaponSpeed(it);
-  if(!sp) return "";
-  const bits = [], gz = weaponGraze(it);
-  if(gz !== null) bits.push("graze " + gz + " on a miss");
-  if(sp.penalty) bits.push(sp.penalty);
-  return bits.join(" · ");
+  for(const [re, key] of SPEED_TABLE)
+    if(re.test(word)) return {label:word, key};
+  return {label:word, key:"n"};
 }
 /* the budget cell for a record, split into the dice and the flat it carries —
    a cell ends in a bare number only when that number is the flat */
