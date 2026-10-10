@@ -187,6 +187,24 @@ function weaponRange(it){
   return /short|medium/i.test(r) ? "melee" : /long/i.test(r) ? "ranged" : null;
 }
 
+/* attack speed converts to attacks per Attack action. The slow end buys no extras
+   and carries a penalty while the weapon is equipped instead. Longest word first,
+   so "Very Fast" never matches as "Fast". */
+const SPEED_TABLE = [
+  [/very\s*fast/i, {attacks:3, penalty:""}],
+  [/fast/i,        {attacks:2, penalty:""}],
+  [/very\s*slow/i, {attacks:1, penalty:"−5 initiative · no opportunity attacks"}],
+  [/slow/i,        {attacks:1, penalty:"−2 initiative"}],
+  [/normal/i,      {attacks:1, penalty:""}]
+];
+function weaponSpeed(it){
+  const s = egoStats(it), word = s && s.speed;
+  if(!word) return null;
+  for(const [re, rule] of SPEED_TABLE)
+    if(re.test(word)) return {label:word, attacks:rule.attacks, penalty:rule.penalty};
+  return {label:word, attacks:1, penalty:""};
+}
+
 /* the damage type an item fights with (weapons) or guards against (suits) —
    follows a manual stat override, since the stat IS the type */
 function itemDType(it){

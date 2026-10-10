@@ -9,6 +9,7 @@ function renderPE(){
   renderLoadout();
 }
 
+let printOpen = null;   // which active print has its spec unfolded
 function renderLoadout(){
   const l = loadoutS(), box = el("loadoutPanel"), body = el("loadoutBody");
   if(!l.length){ box.style.display = "none"; return; }
@@ -22,14 +23,15 @@ function renderLoadout(){
     const acN = it.type === "suit" ? suitAC(it) : null;
     const stat = it.type === "weapon" ? weaponStat(it) : acN !== null ? "AC "+acN : "";
     const dc = DTYPE_COLOR[itemDType(it)];
-    return '<div class="printrow">'+
+    return '<div class="printrow'+(printOpen === i ? ' open' : '')+'" data-open="'+i+'">'+
       riskBadge(it.grade)+
       '<div class="cimg">'+(it.img?'<img loading="lazy" src="'+esc(it.img)+'" alt="">':'<span class="noimg">—</span>')+'</div>'+
       '<span class="pn">'+esc(it.name)+
         '<span class="pclass" style="display:block;font-weight:400;color:var(--dim)">'+it.type.toUpperCase()+' · '+e.cost+' PE</span></span>'+
       (stat ? '<span class="pcost"'+(dc?' style="color:'+dc+'"':'')+'>'+esc(stat)+'</span>' : '')+
       '<button class="prx" data-rm="'+i+'">×</button>'+
-    '</div>';
+    '</div>'+
+    (printOpen === i ? '<div class="printspec">'+printSpecHTML(it)+'</div>' : '');
   }).join("");
 }
 
@@ -49,10 +51,18 @@ function initPE(){
   el("printOpenBtn").onclick = openPrintModal;
   el("loadoutBody").addEventListener("click", e=>{
     const b = e.target.closest("[data-rm]");
-    if(!b) return;
-    const l = loadoutS();
-    l.splice(+b.dataset.rm, 1);
-    saveLoadout(l);
-    refreshAll();          // a removed suit takes its AC bonus with it
+    if(b){
+      const l = loadoutS();
+      l.splice(+b.dataset.rm, 1);
+      if(printOpen !== null) printOpen = null;
+      saveLoadout(l);
+      refreshAll();        // a removed suit takes its AC bonus with it
+      return;
+    }
+    // tapping the row itself unfolds the full spec, tapping again folds it away
+    const row = e.target.closest("[data-open]");
+    if(!row) return;
+    printOpen = printOpen === +row.dataset.open ? null : +row.dataset.open;
+    renderLoadout();
   });
 }

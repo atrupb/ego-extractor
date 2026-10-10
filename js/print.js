@@ -45,19 +45,21 @@ function renderPrintModal(){
    record's written mechanics note */
 function printSpecHTML(it){
   const dt = itemDType(it), dc = dt && DTYPE_COLOR[dt];
-  const s = egoStats(it);
+  const sp = it.type === "weapon" ? weaponSpeed(it) : null;
   let h = '<div class="pshead">';
   h += dt
     ? '<img src="'+DTYPE_ICON(dt)+'" alt=""><span style="color:'+dc+'">'+dt.toUpperCase()+'</span>'
     : '<span class="psdim">type unknown</span>';
   if(it.type === "weapon"){
-    if(s && s.speed) h += '<span class="psdim">'+esc(s.speed)+'</span>';
+    if(sp) h += '<span class="psdim">'+esc(sp.label)+'</span>'+
+      '<span class="psatk">'+sp.attacks+(sp.attacks === 1 ? " attack" : " attacks")+'</span>';
     const rg = weaponRange(it);
     if(rg) h += '<span class="psdim">'+RANGE_LABEL[rg]+'</span>';
   }
   h += '</div>';
   const num = it.type === "weapon" ? weaponStat(it) : (suitAC(it) !== null ? "AC "+suitAC(it) : "");
   if(num) h += '<div class="psnum"'+(dc ? ' style="color:'+dc+'"' : '')+'>'+esc(num)+'</div>';
+  if(sp && sp.penalty) h += '<div class="pspen">'+esc(sp.penalty)+'</div>';
   if(it.note) h += '<div class="psnote">'+esc(it.note)+'</div>';
   return h;
 }
