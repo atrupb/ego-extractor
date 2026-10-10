@@ -200,29 +200,37 @@ function weaponRange(it){
 }
 
 /* attack speed picks the column of the dice budget and rides on the attack
-   roll: the light end crits on a wider range, the heavy end takes a to-hit
-   malus and an initiative penalty while the weapon is equipped. Longest word
-   first, so "Very Fast" never matches as "Fast". */
+   roll: the light end grazes through a miss, the heavy end takes a to-hit malus
+   and an initiative penalty while the weapon is equipped. Longest word first,
+   so "Very Fast" never matches as "Fast". */
 const SPEED_TABLE = [
-  [/very\s*fast/i, {key:"vf", hit: 0, crit:18, penalty:""}],
-  [/fast/i,        {key:"f",  hit: 0, crit:19, penalty:""}],
-  [/very\s*slow/i, {key:"vs", hit:-2, crit:20, penalty:"−5 initiative · no opportunity attacks"}],
-  [/slow/i,        {key:"s",  hit:-1, crit:20, penalty:"−2 initiative"}],
-  [/normal/i,      {key:"n",  hit: 0, crit:20, penalty:""}]
+  [/very\s*fast/i, {key:"vf", hit: 0, graze:"flat", penalty:""}],
+  [/fast/i,        {key:"f",  hit: 0, graze:"mod",  penalty:""}],
+  [/very\s*slow/i, {key:"vs", hit:-2, graze:"",     penalty:"−5 initiative · no opportunity attacks"}],
+  [/slow/i,        {key:"s",  hit:-1, graze:"",     penalty:"−2 initiative"}],
+  [/normal/i,      {key:"n",  hit: 0, graze:"",     penalty:""}]
 ];
 function weaponSpeed(it){
   const s = egoStats(it), word = s && s.speed;
   if(!word) return null;
   for(const [re, rule] of SPEED_TABLE)
     if(re.test(word)) return Object.assign({label:word}, rule);
-  return {label:word, key:"n", hit:0, crit:20, penalty:""};
+  return {label:word, key:"n", hit:0, graze:"", penalty:""};
 }
-/* what the speed costs or buys, as one line under the numbers: the widened
-   crit range first, then anything it carries while equipped */
-function speedNote(sp){
+/* graze: a fast weapon's miss still lands for the flat part of its damage —
+   the whole flat on Very Fast, the stat mod alone on Fast. No dice either way. */
+function weaponGraze(it){
+  const sp = weaponSpeed(it), st = weaponAtkStat(it);
+  if(!sp || !sp.graze || !st) return null;
+  return sp.graze === "flat" ? statMod(st) + RCLVL(it.grade) : statMod(st);
+}
+/* what the speed costs or buys, as one line under the numbers: the graze it
+   lands on a miss first, then anything it carries while equipped */
+function speedNote(it){
+  const sp = it && weaponSpeed(it);
   if(!sp) return "";
-  const bits = [];
-  if((sp.crit | 0) && sp.crit < 20) bits.push("crit on " + sp.crit + "–20");
+  const bits = [], gz = weaponGraze(it);
+  if(gz !== null) bits.push("graze " + gz + " on a miss");
   if(sp.penalty) bits.push(sp.penalty);
   return bits.join(" · ");
 }

@@ -141,7 +141,7 @@ function renderTypeRow(it){
     const sp = weaponSpeed(it);
     h += '<span class="tclabel tcgap">SPEED</span><div class="tcval">'+
       (sp ? esc(sp.label) : '<span class="tcsub">—</span>')+'</div>'+
-      (speedNote(sp) ? '<div class="tcpen">'+esc(speedNote(sp))+'</div>' : '');
+      (speedNote(it) ? '<div class="tcpen">'+esc(speedNote(it))+'</div>' : '');
     const rg = weaponRange(it);
     h += '<span class="tclabel tcgap">RANGE</span><div class="tcval">'+
       (rg ? RANGE_LABEL[rg] : '<span class="tcsub">—</span>')+'</div>';
